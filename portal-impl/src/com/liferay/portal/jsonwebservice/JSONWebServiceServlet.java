@@ -46,6 +46,13 @@ import javax.servlet.http.HttpSession;
 public class JSONWebServiceServlet extends JSONServlet {
 
 	@Override
+	public void destroy() {
+		_jsonWebServiceServiceAction.destroy();
+
+		super.destroy();
+	}
+
+	@Override
 	public void service(
 			HttpServletRequest request, HttpServletResponse response)
 		throws IOException, ServletException {
@@ -124,15 +131,17 @@ public class JSONWebServiceServlet extends JSONServlet {
 
 	@Override
 	protected JSONAction getJSONAction(ServletContext servletContext) {
-		JSONWebServiceServiceAction jsonWebServiceServiceAction =
-			new JSONWebServiceServiceAction();
+		_jsonWebServiceServiceAction = new JSONWebServiceServiceAction(
+			servletContext);
 
-		jsonWebServiceServiceAction.setServletContext(servletContext);
+		_jsonWebServiceServiceAction.setServletContext(servletContext);
 
-		return jsonWebServiceServiceAction;
+		return _jsonWebServiceServiceAction;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(
 		JSONWebServiceServlet.class);
+
+	private JSONWebServiceServiceAction _jsonWebServiceServiceAction;
 
 }
