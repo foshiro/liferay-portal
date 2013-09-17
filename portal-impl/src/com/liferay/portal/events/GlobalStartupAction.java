@@ -269,6 +269,11 @@ public class GlobalStartupAction extends SimpleAction {
 			_log.error(t);
 		}
 
+		// JSONWS
+
+		JSONWebServiceActionsManagerUtil.registerServletContext(
+			StringPool.BLANK);
+
 		// Javadoc
 
 		ClassLoader contextClassLoader =
@@ -310,11 +315,6 @@ public class GlobalStartupAction extends SimpleAction {
 				_log.warn(e.getMessage());
 			}
 		}
-
-		// JSON web service
-
-		JSONWebServiceActionsManagerUtil.registerServletContext(
-			StringPool.BLANK);
 
 		// Plugins
 
