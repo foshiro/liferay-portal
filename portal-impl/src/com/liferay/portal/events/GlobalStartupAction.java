@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.deploy.sandbox.SandboxDeployListener;
 import com.liferay.portal.kernel.deploy.sandbox.SandboxDeployUtil;
 import com.liferay.portal.kernel.events.SimpleAction;
 import com.liferay.portal.kernel.javadoc.JavadocManagerUtil;
-import com.liferay.portal.kernel.jsonwebservice.JSONWebServiceActionsManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
@@ -268,11 +267,6 @@ public class GlobalStartupAction extends SimpleAction {
 		catch (Throwable t) {
 			_log.error(t);
 		}
-
-		// JSONWS
-
-		JSONWebServiceActionsManagerUtil.registerServletContext(
-			StringPool.BLANK);
 
 		// Javadoc
 
