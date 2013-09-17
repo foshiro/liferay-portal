@@ -290,7 +290,6 @@ public class JSONWebServiceActionsManagerImpl
 		return registerServletContext(contextPath);
 	}
 
-	@Override
 	public int registerServletContext(String contextPath) {
 		BeanLocator beanLocator = null;
 
