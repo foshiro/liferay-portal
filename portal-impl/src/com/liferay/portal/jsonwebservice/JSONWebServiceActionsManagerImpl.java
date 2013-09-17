@@ -377,13 +377,6 @@ public class JSONWebServiceActionsManagerImpl
 		return count;
 	}
 
-	@Override
-	public int unregisterServletContext(ServletContext servletContext) {
-		String contextPath = ContextPathUtil.getContextPath(servletContext);
-
-		return unregisterJSONWebServiceActions(contextPath);
-	}
-
 	private int _countMatchedElements(
 		String[] parameterNames, MethodParameter[] methodParameters) {
 
