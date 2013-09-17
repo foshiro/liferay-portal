@@ -24,6 +24,8 @@ import com.liferay.portal.util.PropsImpl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
@@ -40,6 +42,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 
 /**
  * @author Igor Spasic
@@ -65,7 +68,10 @@ public class JSONWebServiceServiceActionTest
 
 		PropsUtil.setProps(new PropsImpl());
 
-		_jsonWebServiceServiceAction = new JSONWebServiceServiceAction();
+		ServletContext servletContext = new MockServletContext();
+
+		_jsonWebServiceServiceAction = new JSONWebServiceServiceAction(
+			servletContext);
 	}
 
 	@AfterClass
