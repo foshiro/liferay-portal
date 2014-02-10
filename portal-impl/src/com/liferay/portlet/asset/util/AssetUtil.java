@@ -256,8 +256,8 @@ public class AssetUtil {
 
 	public static PortletURL getAddPortletURL(
 			LiferayPortletRequest liferayPortletRequest,
-			LiferayPortletResponse liferayPortletResponse, String className,
-			long classTypeId, long[] allAssetCategoryIds,
+			LiferayPortletResponse liferayPortletResponse, long groupId,
+			String className, long classTypeId, long[] allAssetCategoryIds,
 			String[] allAssetTagNames, String redirect)
 		throws Exception {
 
@@ -269,12 +269,12 @@ public class AssetUtil {
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 
-		if (assetRendererFactory == null) {
+		if ((assetRendererFactory == null) ||
+			!assetRendererFactory.hasAddPermission(
+				themeDisplay.getPermissionChecker(), groupId, classTypeId)) {
+
 			return null;
 		}
-
-		liferayPortletRequest.setAttribute(
-			WebKeys.ASSET_RENDERER_FACTORY_CLASS_TYPE_ID, classTypeId);
 
 		PortletURL addPortletURL = assetRendererFactory.getURLAdd(
 			liferayPortletRequest, liferayPortletResponse);
@@ -379,11 +379,29 @@ public class AssetUtil {
 		return addPortletURL;
 	}
 
+	public static PortletURL getAddPortletURL(
+			LiferayPortletRequest liferayPortletRequest,
+			LiferayPortletResponse liferayPortletResponse, String className,
+			long classTypeId, long[] allAssetCategoryIds,
+			String[] allAssetTagNames, String redirect)
+		throws Exception {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)liferayPortletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		return getAddPortletURL(
+			liferayPortletRequest, liferayPortletResponse,
+			themeDisplay.getScopeGroupId(), className, classTypeId,
+			allAssetCategoryIds, allAssetTagNames, redirect);
+	}
+
 	public static Map<String, PortletURL> getAddPortletURLs(
 			LiferayPortletRequest liferayPortletRequest,
-			LiferayPortletResponse liferayPortletResponse, long[] classNameIds,
-			long[] classTypeIds, long[] allAssetCategoryIds,
-			String[] allAssetTagNames, String redirect)
+			LiferayPortletResponse liferayPortletResponse, long groupId,
+			long[] classNameIds, long[] classTypeIds,
+			long[] allAssetCategoryIds, String[] allAssetTagNames,
+			String redirect)
 		throws Exception {
 
 		ThemeDisplay themeDisplay =
@@ -434,8 +452,9 @@ public class AssetUtil {
 
 			if ((classTypeIds.length == 0) || classTypes.isEmpty()) {
 				PortletURL addPortletURL = getAddPortletURL(
-					liferayPortletRequest, liferayPortletResponse, className, 0,
-					allAssetCategoryIds, allAssetTagNames, redirect);
+					liferayPortletRequest, liferayPortletResponse, groupId,
+					className, 0, allAssetCategoryIds, allAssetTagNames,
+					redirect);
 
 				if (addPortletURL != null) {
 					addPortletURLs.put(className, addPortletURL);
@@ -447,7 +466,7 @@ public class AssetUtil {
 					(classTypeIds.length == 0)) {
 
 					PortletURL addPortletURL = getAddPortletURL(
-						liferayPortletRequest, liferayPortletResponse,
+						liferayPortletRequest, liferayPortletResponse, groupId,
 						className, classTypeId, allAssetCategoryIds,
 						allAssetTagNames, redirect);
 
@@ -463,6 +482,23 @@ public class AssetUtil {
 		}
 
 		return addPortletURLs;
+	}
+
+	public static Map<String, PortletURL> getAddPortletURLs(
+			LiferayPortletRequest liferayPortletRequest,
+			LiferayPortletResponse liferayPortletResponse, long[] classNameIds,
+			long[] classTypeIds, long[] allAssetCategoryIds,
+			String[] allAssetTagNames, String redirect)
+		throws Exception {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)liferayPortletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		return getAddPortletURLs(
+			liferayPortletRequest, liferayPortletResponse,
+			themeDisplay.getScopeGroupId(), classNameIds, classTypeIds,
+			allAssetCategoryIds, allAssetTagNames, redirect);
 	}
 
 	public static List<AssetEntry> getAssetEntries(Hits hits) {

@@ -79,14 +79,19 @@ if (enableTagBasedNavigation && selectionStyle.equals("manual") && ((assetEntryQ
 }
 
 Group scopeGroup = themeDisplay.getScopeGroup();
+
+boolean hasAddPortletURLs = false;
 %>
 
 <c:if test="<%= showAddContentButton && (scopeGroup != null) && (!scopeGroup.hasStagingGroup() || scopeGroup.isStagingGroup()) && !portletName.equals(PortletKeys.HIGHEST_RATED_ASSETS) && !portletName.equals(PortletKeys.MOST_VIEWED_ASSETS) && !portletName.equals(PortletKeys.RELATED_ASSETS) %>">
 
 	<%
-	addPortletURLs = AssetUtil.getAddPortletURLs(liferayPortletRequest, liferayPortletResponse, classNameIds, classTypeIds, allAssetCategoryIds, allAssetTagNames, null);
-
 	for (long groupId : groupIds) {
+		Map<String, PortletURL> addPortletURLs = AssetUtil.getAddPortletURLs(liferayPortletRequest, liferayPortletResponse, groupId, assetPublisherDisplayContext.getClassNameIds(), assetPublisherDisplayContext.getClassTypeIds(), assetPublisherDisplayContext.getAllAssetCategoryIds(), assetPublisherDisplayContext.getAllAssetTagNames(), null);
+
+		if (!addPortletURLs.isEmpty()) {
+			hasAddPortletURLs = true;
+		}
 	%>
 
 		<div class="lfr-meta-actions add-asset-selector">
