@@ -25,6 +25,7 @@ if (GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-date:di
 
 String cssClass = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-date:cssClass"));
 boolean disabled = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-date:disabled"));
+String datePicker = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-date:datePicker"));
 String dayParam = namespace + request.getAttribute("liferay-ui:input-date:dayParam");
 int dayValue = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:input-date:dayValue"));
 String monthParam = namespace + request.getAttribute("liferay-ui:input-date:monthParam");

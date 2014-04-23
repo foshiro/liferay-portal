@@ -31,6 +31,7 @@ String minuteParam = namespace + request.getAttribute("liferay-ui:input-time:min
 int minuteValue = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:input-time:minuteValue"));
 int minuteInterval = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:input-time:minuteInterval"));
 String name = namespace + GetterUtil.getString((String)request.getAttribute("liferay-ui:input-time:name"));
+String timePicker = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-time:timePicker"));
 
 if (minuteInterval < 1) {
 	minuteInterval = 30;

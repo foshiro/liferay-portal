@@ -34,6 +34,10 @@ public class InputDateTag extends IncludeTag {
 		_cssClass = cssClass;
 	}
 
+	public void setDatePicker(String datePicker) {
+		_datePicker = datePicker;
+	}
+
 	public void setDayParam(String dayParam) {
 		_dayParam = dayParam;
 	}
@@ -86,6 +90,7 @@ public class InputDateTag extends IncludeTag {
 	protected void cleanUp() {
 		_autoFocus = false;
 		_cssClass = null;
+		_datePicker = null;
 		_dayParam = null;
 		_dayValue = 0;
 		_disabled = false;
@@ -110,6 +115,7 @@ public class InputDateTag extends IncludeTag {
 			"liferay-ui:input-date:autoFocus", String.valueOf(_autoFocus));
 		request.setAttribute("liferay-ui:input-date:cssClass",_cssClass);
 		request.setAttribute("liferay-ui:input-date:dayParam", _dayParam);
+		request.setAttribute("liferay-ui:input-date:datePicker", _datePicker);
 		request.setAttribute(
 			"liferay-ui:input-date:dayValue", String.valueOf(_dayValue));
 		request.setAttribute(
@@ -137,6 +143,7 @@ public class InputDateTag extends IncludeTag {
 	private boolean _autoFocus;
 	private String _cssClass;
 	private String _dayParam;
+	private String _datePicker;
 	private int _dayValue;
 	private boolean _disabled;
 	private boolean _disableNamespace;

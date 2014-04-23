@@ -1696,6 +1696,11 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>datePicker</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
 			<name>dayParam</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
@@ -2323,6 +2328,11 @@
 		</attribute>
 		<attribute>
 			<name>name</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>timePicker</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
