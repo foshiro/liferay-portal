@@ -204,35 +204,151 @@ if (hints != null) {
 			if (hints != null) {
 				showTime = GetterUtil.getBoolean(hints.get("show-time"), showTime);
 			}
+
+			String amPmParam = fieldParam + "AmPm";
+			String dateParam = fieldParam + "Date";
+			String dayParam = fieldParam + "Day";
+			String hourParam = fieldParam + "Hour";
+			String minuteParam = fieldParam + "Minute";
+			String monthParam = fieldParam + "Month";
+			String yearParam = fieldParam + "Year";
+
+			String fieldParamId = HtmlUtil.getAUICompatibleId(namespace + fieldParam);
+
+			String amPmParamId = HtmlUtil.getAUICompatibleId(namespace + amPmParam);
+			String dateParamId = HtmlUtil.getAUICompatibleId(namespace + dateParam);
+			String dayParamId = HtmlUtil.getAUICompatibleId(namespace + dayParam);
+			String hourParamId = HtmlUtil.getAUICompatibleId(namespace + hourParam);
+			String minuteParamId = HtmlUtil.getAUICompatibleId(namespace + minuteParam);
+			String monthParamId = HtmlUtil.getAUICompatibleId(namespace + monthParam);
+			String yearParamId = HtmlUtil.getAUICompatibleId(namespace + yearParam);
+
+			String datePicker = fieldParamId + "DatePicker";
 			%>
 
-			<div class="clearfix">
+			<aui:script use='<%= "aui-datepicker" + (BrowserSnifferUtil.isMobile(request) ? "-native" : StringPool.BLANK) %>'>
+				Liferay.component(
+					'<%= datePicker %>',
+					function() {
+						var datePicker = new A.DatePicker<%= BrowserSnifferUtil.isMobile(request) ? "Native" : StringPool.BLANK %>(
+							{
+								container: '#<%= namespace + fieldParam %>DisplayDate',
+								on: {
+									disabledChange: function(event) {
+										var instance = this;
+
+										var container = instance.get('container');
+
+										var newVal = event.newVal;
+
+										container.one('#<%= dayParamId %>').attr('disabled', newVal);
+										container.one('#<%= monthParamId %>').attr('disabled', newVal);
+										container.one('#<%= fieldParamId %>').attr('disabled', newVal);
+										container.one('#<%= yearParamId %>').attr('disabled', newVal);
+
+										<c:if test="<%= showTime %>">
+											container.one('#<%= dateParamId %>').attr('disabled', newVal);
+											container.one('#<%= hourParamId %>').attr('disabled', newVal);
+											container.one('#<%= minuteParam %>').attr('disabled', newVal);
+										</c:if>
+									},
+									selectionChange: function(event) {
+										var instance = this;
+
+										var container = instance.get('container');
+
+										var date = event.newSelection[0];
+
+										if (date) {
+											container.one('#<%= dayParamId %>').val(date.getDate());
+											container.one('#<%= monthParamId %>').val(date.getMonth());
+											container.one('#<%= yearParamId %>').val(date.getFullYear());
+
+											<c:if test="<%= showTime %>">
+												var hours = date.getHours();
+
+												var amPm = 0;
+
+												<c:if test="<%= DateUtil.isFormatAmPm(locale) %>">
+													if (hours > 11) {
+														amPm = 1;
+														hours -= 12;
+													}
+												</c:if>
+
+												container.one('#<%= hourParamId %>').val(hours);
+												container.one('#<%= minuteParamId %>').val(date.getMinutes());
+												container.one('#<%= amPmParamId %>').val(amPm);
+												container.one('#<%= dateParamId %>').val(date);
+											</c:if>
+										}
+									}
+								},
+								popover: {
+									zIndex: Liferay.zIndex.TOOLTIP
+								},
+								trigger: '.input-trigger'
+							}
+						);
+
+						datePicker.getDate = function() {
+							var instance = this;
+
+							var container = instance.get('container');
+
+							var day = container.one('#<%= dayParamId %>').val();
+							var month = container.one('#<%= monthParamId %>').val();
+							var year = container.one('#<%= yearParamId %>').val();
+
+							var hour;
+							var minute;
+
+							<c:if test="<%= showTime %>">
+								hour = container.one('#<%= hourParamId %>').val();
+								minute = container.one('#<%= minuteParamId %>').val();
+							</c:if>
+
+							return new Date(year, month, day, hour, minute);
+						};
+
+						return datePicker;
+					}
+				);
+
+				Liferay.component('<%= datePicker %>');
+			</aui:script>
+
+
+			<div class="clearfix" id="<%= namespace + fieldParam %>DisplayDate">
 				<liferay-ui:input-date
 					autoFocus="<%= autoFocus %>"
 					cssClass="<%= cssClass %>"
-					dayParam='<%= fieldParam + "Day" %>'
+					datePicker="<%= datePicker %>"
+					dayParam="<%= dayParam %>"
 					dayValue="<%= day %>"
 					disabled="<%= disabled %>"
 					firstDayOfWeek="<%= firstDayOfWeek %>"
 					formName="<%= formName %>"
-					monthParam='<%= fieldParam + "Month" %>'
+					monthParam="<%= monthParam %>"
 					monthValue="<%= month %>"
 					name="<%= fieldParam %>"
-					yearParam='<%= fieldParam + "Year" %>'
+					yearParam="<%= yearParam %>"
 					yearValue="<%= year %>"
 				/>
 
 				<c:if test="<%= showTime %>">
 					<liferay-ui:input-time
-						amPmParam='<%= fieldParam + "AmPm" %>'
+						amPmParam="<%= amPmParam %>"
 						amPmValue="<%= amPm %>"
 						cssClass="<%= cssClass %>"
+						dateParam="<%= dateParam %>"
 						disabled="<%= disabled %>"
-						hourParam='<%= fieldParam + "Hour" %>'
+						hourParam="<%= hourParam %>"
 						hourValue="<%= hour %>"
-						minuteParam='<%= fieldParam + "Minute" %>'
+						minuteParam="<%= minuteParam %>"
 						minuteValue="<%= minute %>"
 						name='<%= fieldParam + "Time" %>'
+						timePicker="<%= datePicker %>"
 					/>
 				</c:if>
 			</div>
@@ -253,7 +369,7 @@ if (hints != null) {
 					checkbox.once(
 						['click', 'mouseover'],
 						function() {
-							Liferay.component('<portlet:namespace /><%= fieldParam %>DatePicker');
+							Liferay.component('<%= datePicker %>');
 						}
 					);
 

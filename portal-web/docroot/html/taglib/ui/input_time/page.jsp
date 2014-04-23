@@ -72,10 +72,10 @@ Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(simpleDateFormatPa
 <span class="lfr-input-time <%= cssClass %>" id="<%= randomNamespace %>displayTime">
 	<c:choose>
 		<c:when test="<%= BrowserSnifferUtil.isMobile(request) %>">
-			<input class="input-small" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" type="time" value="<%= format.format(calendar.getTime()) %>" />
+			<input class="input-small input-trigger" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" type="time" value="<%= format.format(calendar.getTime()) %>" />
 		</c:when>
 		<c:otherwise>
-			<input class="input-small" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" placeholder="<%= placeholder %>" type="text" value="<%= format.format(calendar.getTime()) %>" />
+			<input class="input-small input-trigger" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" placeholder="<%= placeholder %>" type="text" value="<%= format.format(calendar.getTime()) %>" />
 		</c:otherwise>
 	</c:choose>
 
@@ -86,72 +86,85 @@ Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(simpleDateFormatPa
 </span>
 
 <aui:script use='<%= "aui-timepicker" + (BrowserSnifferUtil.isMobile(request) ? "-native" : StringPool.BLANK) %>'>
-	Liferay.component(
-		'<%= nameId %>TimePicker',
-		function() {
-			var timePicker = new A.TimePicker<%= BrowserSnifferUtil.isMobile(request) ? "Native" : StringPool.BLANK %>(
-				{
-					container: '#<%= randomNamespace %>displayTime',
-					mask: '<%= DateUtil.isFormatAmPm(locale) ? "%I:%M %p" : "%H:%M" %>',
-					on: {
-						selectionChange: function(event) {
-							var instance = this;
+	<c:choose>
+		<c:when test="<%= Validator.isNull(timePicker) %>">
+			Liferay.component(
+				'<%= nameId %>TimePicker',
+				function() {
+					var timePicker = new A.TimePicker<%= BrowserSnifferUtil.isMobile(request) ? "Native" : StringPool.BLANK %>(
+						{
+							container: '#<%= randomNamespace %>displayTime',
+							mask: '<%= DateUtil.isFormatAmPm(locale) ? "%I:%M %p" : "%H:%M" %>',
+							on: {
+								selectionChange: function(event) {
+									var instance = this;
 
-							var container = instance.get('container');
+									var container = instance.get('container');
 
-							var date = event.newSelection[0];
+									var date = event.newSelection[0];
 
-							var hours = date.getHours();
+									var hours = date.getHours();
 
-							var amPm = 0;
+									var amPm = 0;
 
-							<c:if test="<%= DateUtil.isFormatAmPm(locale) %>">
-								if (hours > 11) {
-									amPm = 1;
-									hours -= 12;
+									<c:if test="<%= DateUtil.isFormatAmPm(locale) %>">
+										if (hours > 11) {
+											amPm = 1;
+											hours -= 12;
+										}
+									</c:if>
+
+									if (date) {
+										container.one('#<%= hourParamId %>').val(hours);
+										container.one('#<%= minuteParamId %>').val(date.getMinutes());
+										container.one('#<%= amPmParamId %>').val(amPm);
+										container.one('#<%= dateParamId %>').val(date);
+									}
 								}
-							</c:if>
-
-							if (date) {
-								container.one('#<%= hourParamId %>').val(hours);
-								container.one('#<%= minuteParamId %>').val(date.getMinutes());
-								container.one('#<%= amPmParamId %>').val(amPm);
-								container.one('#<%= dateParamId %>').val(date);
-							}
+							},
+							popover: {
+								zIndex: Liferay.zIndex.TOOLTIP
+							},
+							trigger: '#<%= nameId %>',
+							values: <%= _getHoursJSONArray(minuteInterval, locale) %>
 						}
-					},
-					popover: {
-						zIndex: Liferay.zIndex.TOOLTIP
-					},
-					trigger: '#<%= nameId %>',
-					values: <%= _getHoursJSONArray(minuteInterval, locale) %>
+					);
+
+					timePicker.getTime = function() {
+						var instance = this;
+
+						var container = instance.get('container');
+
+						var dateVal = container.one('#<%= dateParamId %>').val();
+
+						var time = A.Date.parse(dateVal);
+
+						if (!time) {
+							var hours = container.one('#<%= hourParamId %>').val();
+							var minutes = container.one('#<%= minuteParamId %>').val();
+
+							time = A.Date.parse(A.Date.aggregates.T, hours + ':' + minutes + ':0');
+						}
+
+						return time;
+					};
+
+					return timePicker;
 				}
 			);
 
-			timePicker.getTime = function() {
-				var instance = this;
+			Liferay.component('<%= nameId %>TimePicker');
+		</c:when>
+		<c:otherwise>
+			var timePicker = Liferay.component('<%= timePicker %>');
 
-				var container = instance.get('container');
-
-				var dateVal = container.one('#<%= dateParamId %>').val();
-
-				var time = A.Date.parse(dateVal);
-
-				if (!time) {
-					var hours = container.one('#<%= hourParamId %>').val();
-					var minutes = container.one('#<%= minuteParamId %>').val();
-
-					time = A.Date.parse(A.Date.aggregates.T, hours + ':' + minutes + ':0');
+			timePicker.setAttrs(
+				{
+					mask: '<%= DateUtil.isFormatAmPm(locale) ? "%I:%M %p" : "%H:%M" %>'
 				}
-
-				return time;
-			};
-
-			return timePicker;
-		}
-	);
-
-	Liferay.component('<%= nameId %>TimePicker');
+			);
+		</c:otherwise>
+	</c:choose>
 </aui:script>
 
 <%!

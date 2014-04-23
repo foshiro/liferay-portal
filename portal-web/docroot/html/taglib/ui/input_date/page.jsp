@@ -70,10 +70,10 @@ Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(simpleDateFormatPa
 <span class="lfr-input-date <%= cssClass %>" id="<%= randomNamespace %>displayDate">
 	<c:choose>
 		<c:when test="<%= BrowserSnifferUtil.isMobile(request) %>">
-			<input class="input-medium" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" type="date" value="<%= format.format(calendar.getTime()) %>" />
+			<input class="input-medium input-trigger" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" type="date" value="<%= format.format(calendar.getTime()) %>" />
 		</c:when>
 		<c:otherwise>
-			<input class="input-medium" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" placeholder="<%= StringUtil.toLowerCase(simpleDateFormatPattern) %>" type="text" value="<%= format.format(calendar.getTime()) %>" />
+			<input class="input-medium input-trigger" <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= nameId %>" name="<%= HtmlUtil.escapeAttribute(name) %>" placeholder="<%= StringUtil.toLowerCase(simpleDateFormatPattern) %>" type="text" value="<%= format.format(calendar.getTime()) %>" />
 		</c:otherwise>
 	</c:choose>
 
@@ -83,60 +83,73 @@ Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(simpleDateFormatPa
 </span>
 
 <aui:script use='<%= "aui-datepicker" + (BrowserSnifferUtil.isMobile(request) ? "-native" : StringPool.BLANK) %>'>
-	Liferay.component(
-		'<%= nameId %>DatePicker',
-		function() {
-			var datePicker = new A.DatePicker<%= BrowserSnifferUtil.isMobile(request) ? "Native" : StringPool.BLANK %>(
-				{
-					container: '#<%= randomNamespace %>displayDate',
-					mask: '<%= mask %>',
-					on: {
-						disabledChange: function(event) {
-							var instance = this;
+	<c:choose>
+		<c:when test="<%= Validator.isNull(datePicker) %>">
+			Liferay.component(
+				'<%= nameId %>DatePicker',
+				function() {
+					var datePicker = new A.DatePicker<%= BrowserSnifferUtil.isMobile(request) ? "Native" : StringPool.BLANK %>(
+						{
+							container: '#<%= randomNamespace %>displayDate',
+							mask: '<%= mask %>',
+							on: {
+								disabledChange: function(event) {
+									var instance = this;
 
-							var container = instance.get('container');
+									var container = instance.get('container');
 
-							var newVal = event.newVal;
+									var newVal = event.newVal;
 
-							container.one('#<%= dayParamId %>').attr('disabled', newVal);
-							container.one('#<%= monthParamId %>').attr('disabled', newVal);
-							container.one('#<%= nameId %>').attr('disabled', newVal);
-							container.one('#<%= yearParamId %>').attr('disabled', newVal);
-						},
-						selectionChange: function(event) {
-							var instance = this;
+									container.one('#<%= dayParamId %>').attr('disabled', newVal);
+									container.one('#<%= monthParamId %>').attr('disabled', newVal);
+									container.one('#<%= nameId %>').attr('disabled', newVal);
+									container.one('#<%= yearParamId %>').attr('disabled', newVal);
+								},
+								selectionChange: function(event) {
+									var instance = this;
 
-							var container = instance.get('container');
+									var container = instance.get('container');
 
-							var date = event.newSelection[0];
+									var date = event.newSelection[0];
 
-							if (date) {
-								container.one('#<%= dayParamId %>').val(date.getDate());
-								container.one('#<%= monthParamId %>').val(date.getMonth());
-								container.one('#<%= yearParamId %>').val(date.getFullYear());
-							}
+									if (date) {
+										container.one('#<%= dayParamId %>').val(date.getDate());
+										container.one('#<%= monthParamId %>').val(date.getMonth());
+										container.one('#<%= yearParamId %>').val(date.getFullYear());
+									}
+								}
+							},
+							popover: {
+								zIndex: Liferay.zIndex.TOOLTIP
+							},
+							trigger: '#<%= nameId %>'
 						}
-					},
-					popover: {
-						zIndex: Liferay.zIndex.TOOLTIP
-					},
-					trigger: '#<%= nameId %>'
+					);
+
+					datePicker.getDate = function() {
+						var instance = this;
+
+						var container = instance.get('container');
+
+						return new Date(container.one('#<%= yearParamId %>').val(), container.one('#<%= monthParamId %>').val(), container.one('#<%= dayParamId %>').val());
+					};
+
+					return datePicker;
 				}
 			);
 
-			datePicker.getDate = function() {
-				var instance = this;
+			Liferay.component('<%= nameId %>DatePicker');
+		</c:when>
+		<c:otherwise>
+			var datePicker = Liferay.component('<%= datePicker %>');
 
-				var container = instance.get('container');
-
-				return new Date(container.one('#<%= yearParamId %>').val(), container.one('#<%= monthParamId %>').val(), container.one('#<%= dayParamId %>').val());
-			};
-
-			return datePicker;
-		}
-	);
-
-	Liferay.component('<%= nameId %>DatePicker');
+			datePicker.setAttrs(
+				{
+					mask: '<%= mask %>'
+				}
+			);
+		</c:otherwise>
+	</c:choose>
 </aui:script>
 
 <%!
