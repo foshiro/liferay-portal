@@ -36,7 +36,6 @@ public class SchedulerLifecycle extends BasePortalLifecycle {
 
 	@Override
 	protected void doPortalInit() throws Exception {
-
 		String[] requiredDeploymentContexts = PropsUtil.getArray(
 			PropsKeys.SCHEDULER_INITIALIZATION_REQUIRED_DEPLOYMENT_CONTEXTS);
 
@@ -44,26 +43,30 @@ public class SchedulerLifecycle extends BasePortalLifecycle {
 			SchedulerEngineHelperUtil.start();
 		}
 		else {
-			TimerTask timerTask = new TimerTask() {
-
-				@Override
-				public void run() {
-					try {
-						SchedulerEngineHelperUtil.start();
-					}
-					catch (SchedulerException e) {
-						_log.error(e.getMessage(), e);
-					}
-				}
-			};
-
-			Timer timer = new Timer();
-
-			timer.schedule(
-				timerTask,
-				GetterUtil.getInteger(
-					PropsUtil.get(PropsKeys.SCHEDULER_INITIALIZATION_DELAY)));
+			_delaySchedulerEngineInitialization();
 		}
+	}
+
+	private void _delaySchedulerEngineInitialization() {
+		TimerTask timerTask = new TimerTask() {
+
+			@Override
+			public void run() {
+				try {
+					SchedulerEngineHelperUtil.start();
+				}
+				catch (SchedulerException e) {
+					_log.error(e.getMessage(), e);
+				}
+			}
+		};
+
+		Timer timer = new Timer();
+
+		timer.schedule(
+			timerTask,
+			GetterUtil.getInteger(
+				PropsUtil.get(PropsKeys.SCHEDULER_INITIALIZATION_DELAY)));
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SchedulerLifecycle.class);
