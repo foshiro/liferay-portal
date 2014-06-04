@@ -229,13 +229,7 @@ public class ComboServlet extends HttpServlet {
 		ModulePathContainer modulePathContainer = new ModulePathContainer(
 			resourcePath);
 
-		int colonIndex = resourcePath.indexOf(CharPool.COLON);
-
-		if (colonIndex > 0) {
-			resourcePath =
-				resourcePath.substring(0, colonIndex) +
-					resourcePath.substring(colonIndex + 1);
-		}
+		resourcePath = modulePathContainer.getAbsoluteResourcePath();
 
 		String fileContentKey = resourcePath.concat(StringPool.QUESTION).concat(
 			minifierType);
@@ -341,6 +335,7 @@ public class ComboServlet extends HttpServlet {
 	}
 
 	protected URL getResourceURL(String modulePath) throws Exception {
+
 		ModulePathContainer modulePathContainer = new ModulePathContainer(
 			modulePath);
 
@@ -433,6 +428,10 @@ public class ComboServlet extends HttpServlet {
 	}
 
 	protected static class ModulePathContainer {
+
+		public String getAbsoluteResourcePath() {
+			return _moduleContextPath + _resourcePath;
+		}
 
 		public String getModuleContextPath() {
 			return _moduleContextPath;
