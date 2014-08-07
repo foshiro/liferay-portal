@@ -20,8 +20,6 @@ import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Element;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.messageboards.model.MBDiscussion;
@@ -109,16 +107,12 @@ public class MBDiscussionStagedModelDataHandler
 			MBDiscussionLocalServiceUtil.fetchDiscussion(
 				discussion.getClassName(), newClassPK);
 
-		if ((existingDiscussion == null) &&
-			className.equals(Layout.class.getName()) &&
-			PropsValues.LAYOUT_COMMENTS_ENABLED) {
-
+		if ((existingDiscussion == null)) {
 			MBMessage rootMessage =
 				MBMessageLocalServiceUtil.addDiscussionMessage(
 					userId, discussion.getUserName(),
 					portletDataContext.getScopeGroupId(),
-					Layout.class.getName(), newClassPK,
-					WorkflowConstants.ACTION_PUBLISH);
+					className, newClassPK, WorkflowConstants.ACTION_PUBLISH);
 
 			existingDiscussion =
 				MBDiscussionLocalServiceUtil.getThreadDiscussion(
