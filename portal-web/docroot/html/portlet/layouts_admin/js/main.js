@@ -1137,6 +1137,7 @@ AUI.add(
 							startDate.setMinutes(startTime.getMinutes());
 							startDate.setSeconds(0);
 							startDate.setMilliseconds(0);
+
 							startDate = new Date(startDate.getTime() + startTimeTimeZoneOffset);
 
 							var endDate = endDatePicker.getDate();
@@ -1147,6 +1148,7 @@ AUI.add(
 							endDate.setMinutes(endTime.getMinutes());
 							endDate.setSeconds(0);
 							endDate.setMilliseconds(0);
+
 							endDate = new Date(endDate.getTime() + endTimeTimeZoneOffset);
 
 							endsLater = ADate.isGreater(endDate, startDate);
