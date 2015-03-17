@@ -1105,7 +1105,30 @@
 					</unzip>
 
 					<delete file="tomcat.zip" />
+				</then>
+			</if>
 
+			<if>
+				<not>
+					<and>
+						<resourcecontains
+							resource="${app.server.tomcat.dir}/conf/tomcat-users.xml"
+							substring="rolename=&quot;tomcat&quot;" />
+						<resourcecontains
+							resource="${app.server.tomcat.dir}/conf/tomcat-users.xml"
+							substring="rolename=&quot;manager-gui&quot;" />
+						<resourcecontains
+							resource="${app.server.tomcat.dir}/conf/tomcat-users.xml"
+							substring="rolename=&quot;manager-script&quot;" />
+						<resourcecontains
+							resource="${app.server.tomcat.dir}/conf/tomcat-users.xml"
+							substring="rolename=&quot;manager-jmx&quot;" />
+						<resourcecontains
+							resource="${app.server.tomcat.dir}/conf/tomcat-users.xml"
+							substring="rolename=&quot;manager-status&quot;" />
+					</and>
+				</not>
+				<then>
 					<copy
 						file="${app.server.tomcat.dir}/conf/tomcat-users.xml"
 						overwrite="true"
