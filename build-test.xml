@@ -1105,7 +1105,22 @@
 					</unzip>
 
 					<delete file="tomcat.zip" />
+				</then>
+			</if>
 
+			<xmlproperty file="${app.server.tomcat.dir}/conf/tomcat-users.xml" />
+
+			<if>
+				<not>
+					<and>
+						<contains string="${tomcat-users.role(rolename)}" substring="tomcat" />
+						<contains string="${tomcat-users.role(rolename)}" substring="manager-gui" />
+						<contains string="${tomcat-users.role(rolename)}" substring="manager-script" />
+						<contains string="${tomcat-users.role(rolename)}" substring="manager-jmx" />
+						<contains string="${tomcat-users.role(rolename)}" substring="manager-status" />
+					</and>
+				</not>
+				<then>
 					<copy
 						file="${app.server.tomcat.dir}/conf/tomcat-users.xml"
 						overwrite="true"
