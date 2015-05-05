@@ -91,7 +91,7 @@
 														minuteParam='<%= "startDateMinute" %>'
 														minuteValue="<%= startCalendar.get(Calendar.MINUTE) %>"
 														name="startTime"
-														timeZoneOffset="<%= timeZone.getOffset(startCalendar.getTimeInMillis()) %>"
+														timeZoneId="<%= timeZone.getID() %>"
 													/>
 												</aui:fieldset>
 											</li>
@@ -124,7 +124,7 @@
 														minuteParam='<%= "endDateMinute" %>'
 														minuteValue="<%= endCalendar.get(Calendar.MINUTE) %>"
 														name="endTime"
-														timeZoneOffset="<%= timeZone.getOffset(endCalendar.getTimeInMillis()) %>"
+														timeZoneId="<%= timeZone.getID() %>"
 													/>
 												</aui:fieldset>
 											</li>
