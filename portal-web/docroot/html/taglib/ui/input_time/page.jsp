@@ -31,7 +31,9 @@ String minuteParam = GetterUtil.getString((String)request.getAttribute("liferay-
 int minuteValue = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:input-time:minuteValue"));
 int minuteInterval = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:input-time:minuteInterval"));
 String name = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-time:name"));
-int timeZoneOffset = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:input-time:timeZoneOffset"));
+String timeZoneId = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-time:timeZoneId"), timeZone.getID());
+
+TimeZone inputTimeZone = TimeZoneUtil.getTimeZone(timeZoneId);
 
 if (minuteInterval < 1) {
 	minuteInterval = 30;
@@ -48,7 +50,7 @@ String dateParamId = namespace + HtmlUtil.getAUICompatibleId(dateParam);
 String hourParamId = namespace + HtmlUtil.getAUICompatibleId(hourParam);
 String minuteParamId = namespace + HtmlUtil.getAUICompatibleId(minuteParam);
 String nameId = namespace + HtmlUtil.getAUICompatibleId(name);
-String timeZoneOffsetId = nameId + "_timeZoneOffset";
+String timeZoneIdParamId = nameId + "_timeZoneId";
 
 Calendar calendar = CalendarFactoryUtil.getCalendar(1970, 0, 1, hourOfDayValue, minuteValue);
 
@@ -84,7 +86,7 @@ Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(simpleDateFormatPa
 	<input <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= minuteParamId %>" name="<%= namespace + HtmlUtil.escapeAttribute(minuteParam) %>" type="hidden" value="<%= minuteValue %>" />
 	<input <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= amPmParamId %>" name="<%= namespace + HtmlUtil.escapeAttribute(amPmParam) %>" type="hidden" value="<%= amPmValue %>" />
 	<input <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= dateParamId %>" name="<%= namespace + HtmlUtil.escapeAttribute(dateParam) %>" type="hidden" value="<%= dateValue %>" />
-	<input <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= timeZoneOffsetId %>" name="<%= timeZoneOffsetId %>" type="hidden" value="<%= timeZoneOffset %>" />
+	<input <%= disabled ? "disabled=\"disabled\"" : "" %> id="<%= timeZoneIdParamId %>" name="<%= timeZoneIdParamId %>" type="hidden" value="<%= timeZoneId %>" />
 </span>
 
 <aui:script use='<%= "aui-timepicker" + (BrowserSnifferUtil.isMobile(request) ? "-native" : StringPool.BLANK) %>'>
