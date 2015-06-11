@@ -14,6 +14,7 @@
 
 package com.liferay.calendar.service.impl;
 
+import com.liferay.calendar.configuration.CalendarConfigurationHolder;
 import com.liferay.calendar.exception.CalendarNameException;
 import com.liferay.calendar.exception.RequiredCalendarException;
 import com.liferay.calendar.exporter.CalendarDataFormat;
@@ -21,7 +22,7 @@ import com.liferay.calendar.exporter.CalendarDataHandler;
 import com.liferay.calendar.exporter.CalendarDataHandlerFactory;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.service.base.CalendarLocalServiceBaseImpl;
-import com.liferay.calendar.util.PortletPropsValues;
+import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
@@ -61,7 +62,8 @@ public class CalendarLocalServiceImpl extends CalendarLocalServiceBaseImpl {
 		User user = userPersistence.findByPrimaryKey(userId);
 
 		if (color <= 0) {
-			color = PortletPropsValues.CALENDAR_COLOR_DEFAULT;
+			color = _calendarConfigurationHolder.getCalendarConfiguration()
+				.defaultCalendarColor();
 		}
 
 		Date now = new Date();
@@ -272,7 +274,8 @@ public class CalendarLocalServiceImpl extends CalendarLocalServiceBaseImpl {
 		// Calendar
 
 		if (color <= 0) {
-			color = PortletPropsValues.CALENDAR_COLOR_DEFAULT;
+			color = _calendarConfigurationHolder.getCalendarConfiguration()
+				.defaultCalendarColor();
 		}
 
 		Calendar calendar = calendarPersistence.findByPrimaryKey(calendarId);
@@ -303,7 +306,8 @@ public class CalendarLocalServiceImpl extends CalendarLocalServiceBaseImpl {
 		throws PortalException {
 
 		if (color <= 0) {
-			color = PortletPropsValues.CALENDAR_COLOR_DEFAULT;
+			color = _calendarConfigurationHolder.getCalendarConfiguration()
+				.defaultCalendarColor();
 		}
 
 		Calendar calendar = calendarPersistence.findByPrimaryKey(calendarId);
@@ -346,5 +350,8 @@ public class CalendarLocalServiceImpl extends CalendarLocalServiceBaseImpl {
 			throw new CalendarNameException();
 		}
 	}
+
+	@BeanReference(type = CalendarConfigurationHolder.class)
+	private CalendarConfigurationHolder _calendarConfigurationHolder;
 
 }

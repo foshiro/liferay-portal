@@ -14,6 +14,7 @@
 
 package com.liferay.calendar.service.impl;
 
+import com.liferay.calendar.configuration.CalendarConfigurationHolder;
 import com.liferay.calendar.exception.CalendarBookingDurationException;
 import com.liferay.calendar.exception.CalendarBookingTitleException;
 import com.liferay.calendar.exporter.CalendarDataFormat;
@@ -30,7 +31,6 @@ import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.service.base.CalendarBookingLocalServiceBaseImpl;
 import com.liferay.calendar.social.CalendarActivityKeys;
 import com.liferay.calendar.util.JCalendarUtil;
-import com.liferay.calendar.util.PortletPropsValues;
 import com.liferay.calendar.util.RecurrenceUtil;
 import com.liferay.calendar.workflow.CalendarBookingApprovalWorkflow;
 import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
@@ -1149,7 +1149,8 @@ public class CalendarBookingLocalServiceImpl
 				serviceContext.getUserId());
 
 			NotificationType notificationType = NotificationType.parse(
-				PortletPropsValues.CALENDAR_NOTIFICATION_DEFAULT_TYPE);
+				_calendarConfigurationHolder.getCalendarConfiguration()
+					.notificationDefaultType());
 
 			NotificationUtil.notifyCalendarBookingRecipients(
 				calendarBooking, notificationType, notificationTemplateType,
@@ -1202,5 +1203,8 @@ public class CalendarBookingLocalServiceImpl
 
 	private static Log _log = LogFactoryUtil.getLog(
 		CalendarBookingLocalServiceImpl.class);
+
+	@BeanReference(type = CalendarConfigurationHolder.class)
+	private CalendarConfigurationHolder _calendarConfigurationHolder;
 
 }
