@@ -3,6 +3,7 @@ package ${packagePath}.service.persistence;
 import ${packagePath}.model.${entity.name};
 import ${packagePath}.service.${entity.name}LocalServiceUtil;
 
+import com.liferay.portal.kernel.dao.orm.Conjunction;
 import com.liferay.portal.kernel.dao.orm.Criterion;
 import com.liferay.portal.kernel.dao.orm.Disjunction;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
@@ -58,8 +59,8 @@ public class ${entity.name}ExportActionableDynamicQuery extends ${entity.name}Ac
 	@Override
 	protected void addCriteria(DynamicQuery dynamicQuery) {
 		<#if entity.isWorkflowEnabled()>
-			Criterion modifiedDateCriterion = _portletDataContext.getDateRangeCriteria("modifiedDate");
-			Criterion statusDateCriterion = _portletDataContext.getDateRangeCriteria("statusDate");
+			Criterion modifiedDateCriterion = getDateRangeCriteria("modifiedDate");
+			Criterion statusDateCriterion = getDateRangeCriteria("statusDate");
 
 			if ((modifiedDateCriterion != null) && (statusDateCriterion != null)) {
 				Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
@@ -94,6 +95,23 @@ public class ${entity.name}ExportActionableDynamicQuery extends ${entity.name}Ac
 		@Override
 		protected Projection getCountProjection() {
 			return ProjectionFactoryUtil.countDistinct("resourcePrimKey");
+		}
+	</#if>
+
+	<#if entity.isWorkflowEnabled()>
+		protected Criterion getDateRangeCriteria(String propertyName) {
+			if (!_portletDataContext.hasDateRange()) {
+				return null;
+			}
+
+			Conjunction conjunction = RestrictionsFactoryUtil.conjunction();
+
+			Property property = PropertyFactoryUtil.forName(propertyName);
+
+			conjunction.add(property.le(_portletDataContext.getEndDate()));
+			conjunction.add(property.ge(_portletDataContext.getStartDate()));
+
+			return conjunction;
 		}
 	</#if>
 
