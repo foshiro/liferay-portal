@@ -48,12 +48,9 @@ int startTimeHour = ParamUtil.getInteger(request, "startTimeHour", startTimeJCal
 int startTimeMinute = ParamUtil.getInteger(request, "startTimeMinute", startTimeJCalendar.get(java.util.Calendar.MINUTE));
 int startTimeAmPm = ParamUtil.getInteger(request, "startTimeAmPm");
 
-if (startTimeAmPm == java.util.Calendar.PM) {
-	startTimeHour += 12;
-}
-
 startTimeJCalendar = CalendarFactoryUtil.getCalendar(startTimeYear, startTimeMonth, startTimeDay, startTimeHour, startTimeMinute, 0, 0, calendarBookingTimeZone);
 
+startTimeJCalendar.set(java.util.Calendar.AM_PM, startTimeAmPm);
 startTimeJCalendar.setFirstDayOfWeek(weekStartsOn + 1);
 
 startTime = startTimeJCalendar.getTimeInMillis();
@@ -73,12 +70,9 @@ int endTimeHour = ParamUtil.getInteger(request, "endTimeHour", endTimeJCalendar.
 int endTimeMinute = ParamUtil.getInteger(request, "endTimeMinute", endTimeJCalendar.get(java.util.Calendar.MINUTE));
 int endTimeAmPm = ParamUtil.getInteger(request, "endTimeAmPm");
 
-if (endTimeAmPm == java.util.Calendar.PM) {
-	endTimeHour += 12;
-}
-
 endTimeJCalendar = CalendarFactoryUtil.getCalendar(endTimeYear, endTimeMonth, endTimeDay, endTimeHour, endTimeMinute, 0, 0, calendarBookingTimeZone);
 
+endTimeJCalendar.set(java.util.Calendar.AM_PM, endTimeAmPm);
 endTimeJCalendar.setFirstDayOfWeek(weekStartsOn + 1);
 
 endTime = endTimeJCalendar.getTimeInMillis();
