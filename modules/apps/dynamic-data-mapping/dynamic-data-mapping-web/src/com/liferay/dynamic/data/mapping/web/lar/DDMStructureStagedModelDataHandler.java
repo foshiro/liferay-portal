@@ -17,6 +17,11 @@ package com.liferay.dynamic.data.mapping.web.lar;
 import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
+import com.liferay.dynamic.data.mapping.model.adapter.StagedDDMStructureLayout;
+import com.liferay.dynamic.data.mapping.model.adapter.impl.StagedDDMStructureLayoutImpl;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.exportimport.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -241,6 +246,19 @@ public class DDMStructureStagedModelDataHandler
 		if (defaultUserId == structure.getUserId()) {
 			structureElement.addAttribute("preloaded", "true");
 		}
+
+		DDMStructureVersion structureVersion = structure.getStructureVersion();
+		DDMStructureLayout structureLayout =
+			DDMStructureLayoutLocalServiceUtil
+				.getStructureLayoutByStructureVersionId(
+					structureVersion.getStructureVersionId());
+
+		StagedDDMStructureLayout stagedStructureLayout =
+			new StagedDDMStructureLayoutImpl(structureLayout);
+
+		portletDataContext.addReferenceElement(
+			structure, structureElement, stagedStructureLayout,
+			PortletDataContext.REFERENCE_TYPE_DEPENDENCY, true);
 
 		portletDataContext.addClassedModel(
 			structureElement, ExportImportPathUtil.getModelPath(structure),

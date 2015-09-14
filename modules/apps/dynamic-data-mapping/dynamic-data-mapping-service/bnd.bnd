@@ -6,6 +6,7 @@ Import-Package:\
 	*
 Export-Package:\
     com.liferay.dynamic.data.mapping.configuration,\
+    com.liferay.dynamic.data.mapping.model.adapter.impl,\
 	com.liferay.dynamic.data.mapping.model.impl,\
 	com.liferay.dynamic.data.mapping.search,\
 	com.liferay.dynamic.data.mapping.service.permission,\
