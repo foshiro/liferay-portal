@@ -21,8 +21,10 @@ import java.util.Calendar;
  */
 public enum Weekday {
 
-	SUNDAY("SU"), MONDAY("MO"), TUESDAY("TU"), WEDNESDAY("WE"), THURSDAY("TH"),
-	FRIDAY("FR"), SATURDAY("SA");
+	SUNDAY(Calendar.SUNDAY, "SU"), MONDAY(Calendar.MONDAY, "MO"),
+	TUESDAY(Calendar.TUESDAY, "TU"), WEDNESDAY(Calendar.WEDNESDAY, "WE"),
+	THURSDAY(Calendar.THURSDAY, "TH"), FRIDAY(Calendar.FRIDAY, "FR"),
+	SATURDAY(Calendar.SATURDAY, "SA");
 
 	public static Weekday getWeekday(Calendar jCalendar) {
 		return getWeekday(jCalendar.get(Calendar.DAY_OF_WEEK));
@@ -80,6 +82,10 @@ public enum Weekday {
 		throw new IllegalArgumentException("Invalid value " + value);
 	}
 
+	public int getCalendarWeekday() {
+		return _calendarWeekday;
+	}
+
 	public String getValue() {
 		return _value;
 	}
@@ -89,10 +95,12 @@ public enum Weekday {
 		return _value;
 	}
 
-	private Weekday(String value) {
+	private Weekday(int calendarWeekday, String value) {
+		_calendarWeekday = calendarWeekday;
 		_value = value;
 	}
 
+	private final int _calendarWeekday;
 	private final String _value;
 
 }
