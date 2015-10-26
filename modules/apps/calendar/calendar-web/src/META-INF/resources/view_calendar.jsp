@@ -56,7 +56,7 @@ for (Calendar groupCalendar : groupCalendars) {
 	}
 }
 
-if (defaultCalendar == null) {
+if ((defaultCalendar == null) || !CalendarPermission.contains(permissionChecker, defaultCalendar, CalendarActionKeys.MANAGE_BOOKINGS)) {
 	for (Calendar userCalendar : userCalendars) {
 		if (userCalendar.isDefaultCalendar()) {
 			defaultCalendar = userCalendar;
