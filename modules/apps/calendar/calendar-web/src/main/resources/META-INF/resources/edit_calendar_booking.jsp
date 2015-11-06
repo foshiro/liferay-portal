@@ -726,21 +726,21 @@ for (long otherCalendarId : otherCalendarIds) {
 				calendar.disabled = true;
 
 				var containsCalendar = function(calendarId, calendarJSONArray) {
-					for(var i = 0; i < calendarJSONArray.length; i++) {
-						if (calendarJSONArray[i].calendarId == calendarId) {
-							return true;
+					return !!A.Array.find(
+						calendarJSONArray,
+						function (item) {
+							return item.calendarId === calendarId;
 						}
-					}
-					return false;
+					);
 				};
 
-				if (containsCalendar(calendar.calendarId, <%= acceptedCalendarsJSONArray %>) {
+				if (containsCalendar(calendar.calendarId, <%= acceptedCalendarsJSONArray %>)) {
 					<portlet:namespace />calendarListAccepted.add(calendar);
 				}
-				else if (containsCalendar(calendar.calendarId, <%= maybeCalendarsJSONArray %>) {
+				else if (containsCalendar(calendar.calendarId, <%= maybeCalendarsJSONArray %>)) {
 					<portlet:namespace />calendarListMaybe.add(calendar);
 				}
-				else if (containsCalendar(calendar.calendarId, <%= declinedCalendarsJSONArray %>) {
+				else if (containsCalendar(calendar.calendarId, <%= declinedCalendarsJSONArray %>)) {
 					<portlet:namespace />calendarListDeclined.add(calendar);
 				}
 				else {
