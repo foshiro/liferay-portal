@@ -109,16 +109,16 @@ AUI.add(
 						getter: '_getPosition'
 					},
 
+					positionInput: {
+						setter: A.one,
+						value: null
+					},
+
 					positionalDayOfWeek: {
 						getter: '_getPositionalDayOfWeek'
 					},
 
 					positionalDayOfWeekOptions: {
-						setter: A.one,
-						value: null
-					},
-
-					positionInput: {
 						setter: A.one,
 						value: null
 					},
@@ -354,7 +354,9 @@ AUI.add(
 						var currentTarget = event.currentTarget;
 
 						var limitCountInput = instance.get('limitCountInput');
+
 						var limitDateDatePicker = instance.get('limitDateDatePicker');
+
 						var limitType = instance.get('limitType');
 
 						var startDate = instance.get('startDate');
@@ -370,9 +372,9 @@ AUI.add(
 							instance._toggleView('positionalDayOfWeekOptions', showPositionalDayOfWeekOptions);
 						}
 
-						var disableLimitcountInput = (limitType === LIMIT_UNLIMITED) || (limitType === LIMIT_DATE);
+						var disableLimitCountInput = (limitType === LIMIT_UNLIMITED) || (limitType === LIMIT_DATE);
 
-						Liferay.Util.toggleDisabled(limitCountInput, disableLimitcountInput);
+						Liferay.Util.toggleDisabled(limitCountInput, disableLimitCountInput);
 
 						limitCountInput.selectText();
 
