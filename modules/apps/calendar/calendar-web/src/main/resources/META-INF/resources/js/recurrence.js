@@ -105,6 +105,10 @@ AUI.add(
 						value: null
 					},
 
+					position: {
+						getter: '_getPosition'
+					},
+
 					positionalDayOfWeek: {
 						getter: '_getPositionalDayOfWeek'
 					},
@@ -249,12 +253,29 @@ AUI.add(
 						return checkedLimitRadioButton && checkedLimitRadioButton.val();
 					},
 
+					_getPosition: function() {
+						var instance = this;
+
+						var lastPositionCheckbox = instance.get('lastPositionCheckbox');
+
+						var startDateDatePicker = instance.get('startDateDatePicker');
+
+						var startDate = startDateDatePicker.getDate();
+
+						var position = Math.ceil(startDate.getDate() / 7);
+
+						if (lastPositionCheckbox.get('checked')) {
+							position = -1;
+						}
+
+						return position;
+					},
+
 					_getPositionalDayOfWeek: function() {
 						var instance = this;
 
 						var dayOfWeekInput = instance.get('dayOfWeekInput');
 						var frequency = instance.get('frequency');
-						var positionSelect = instance.get('positionSelect');
 
 						var positionalDayOfWeek = null;
 
@@ -266,8 +287,8 @@ AUI.add(
 							if (repeatOnDayOfWeek) {
 								positionalDayOfWeek = {
 									month: startDateDatePicker.getDate().getMonth(),
-									position: positionSelect.val(),
-									weekday: dayOfWeekSelect.val()
+									position: instance.get('position'),
+									weekday: dayOfWeekInput.val()
 								};
 							}
 						}
@@ -343,6 +364,8 @@ AUI.add(
 
 						var dayOfWeek = DAYS_OF_WEEK[date.getDay()];
 
+						var dayOfWeekInput = instance.get('dayOfWeekInput');
+
 						var daysOfWeekCheckboxes = instance.get('daysOfWeekCheckboxes');
 
 						var repeatCheckbox = instance.get('repeatCheckbox');
@@ -367,6 +390,8 @@ AUI.add(
 							}
 						);
 
+						dayOfWeekInput.set('value', dayOfWeek);
+
 						if (repeatCheckbox.get('checked')) {
 							instance.fire('recurrenceChange');
 						}
@@ -389,6 +414,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-base', 'liferay-calendar-recurrence-util']
+		requires: ['aui-base', 'aui-datatype', 'liferay-calendar-recurrence-util']
 	}
 );
