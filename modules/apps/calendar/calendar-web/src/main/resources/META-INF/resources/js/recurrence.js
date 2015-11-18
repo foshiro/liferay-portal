@@ -285,14 +285,12 @@ AUI.add(
 
 						var startDate = instance.get('startDate');
 
-						if ((frequency === FREQUENCY_MONTHLY) || (frequency === FREQUENCY_YEARLY)) {
-							if (repeatOnDayOfWeek) {
-								positionalDayOfWeek = {
-									month: startDate.getMonth(),
-									position: instance.get('position'),
-									weekday: dayOfWeekInput.val()
-								};
-							}
+						if (instance._isPositionalFrequency() && repeatOnDayOfWeek) {
+							positionalDayOfWeek = {
+								month: startDate.getMonth(),
+								position: instance.get('position'),
+								weekday: dayOfWeekInput.val()
+							};
 						}
 
 						return positionalDayOfWeek;
@@ -342,6 +340,14 @@ AUI.add(
 						return lastDate.getDate() - date.getDate() < 7;
 					},
 
+					_isPositionalFrequency: function() {
+						var instance = this;
+
+						var frequency = instance.get('frequency');
+
+						return (frequency === FREQUENCY_MONTHLY) || (frequency === FREQUENCY_YEARLY);
+					},
+
 					_onInputChange: function(event) {
 						var instance = this;
 
@@ -354,12 +360,14 @@ AUI.add(
 						var startDate = instance.get('startDate');
 
 						if (currentTarget === instance.get('frequencySelect')) {
-							instance._toggleView('weeklyRecurrenceOptions', currentTarget.val() === FREQUENCY_WEEKLY);
-							instance._toggleView('monthlyRecurrenceOptions', (currentTarget.val() === FREQUENCY_MONTHLY) || (currentTarget.val() === FREQUENCY_YEARLY));
+							instance._toggleView('weeklyRecurrenceOptions', instance.get('frequency') === FREQUENCY_WEEKLY);
+							instance._toggleView('monthlyRecurrenceOptions', instance._isPositionalFrequency());
 						}
 
 						if (currentTarget === instance.get('repeatOnDayOfWeekRadioButton')) {
-							instance._toggleView('positionalDayOfWeekOptions', (currentTarget.val() === 'true') && instance._isLastDayOfWeekInMonth(startDate));
+							var showPositionalDayOfWeekOptions = currentTarget.get('checked') && instance._isLastDayOfWeekInMonth(startDate);
+
+							instance._toggleView('positionalDayOfWeekOptions', showPositionalDayOfWeekOptions);
 						}
 
 						var disableLimitcountInput = (limitType === LIMIT_UNLIMITED) || (limitType === LIMIT_DATE);
