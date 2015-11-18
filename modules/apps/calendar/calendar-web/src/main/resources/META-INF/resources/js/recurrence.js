@@ -142,6 +142,10 @@ AUI.add(
 						value: null
 					},
 
+					startDate: {
+						getter: '_getStartDate'
+					},
+
 					startDateDatePicker: {
 						value: null
 					},
@@ -258,9 +262,7 @@ AUI.add(
 
 						var lastPositionCheckbox = instance.get('lastPositionCheckbox');
 
-						var startDateDatePicker = instance.get('startDateDatePicker');
-
-						var startDate = startDateDatePicker.getDate();
+						var startDate = instance.get('startDate');
 
 						var position = Math.ceil(startDate.getDate() / 7);
 
@@ -281,12 +283,12 @@ AUI.add(
 
 						var repeatOnDayOfWeek = instance.get('repeatOnDayOfWeekRadioButton').get('checked');
 
-						var startDateDatePicker = instance.get('startDateDatePicker');
+						var startDate = instance.get('startDate');
 
 						if ((frequency === FREQUENCY_MONTHLY) || (frequency === FREQUENCY_YEARLY)) {
 							if (repeatOnDayOfWeek) {
 								positionalDayOfWeek = {
-									month: startDateDatePicker.getDate().getMonth(),
+									month: startDate.getMonth(),
 									position: instance.get('position'),
 									weekday: dayOfWeekInput.val()
 								};
@@ -308,6 +310,14 @@ AUI.add(
 							untilDate: instance.get('limitDate'),
 							weekdays: instance.get('daysOfWeek')
 						};
+					},
+
+					_getStartDate: function() {
+						var instance = this;
+
+						var startDateDatePicker = instance.get('startDateDatePicker');
+
+						return startDateDatePicker.getDate();
 					},
 
 					_getStartTimeDayOfWeekInput: function() {
@@ -341,8 +351,7 @@ AUI.add(
 						var limitDateDatePicker = instance.get('limitDateDatePicker');
 						var limitType = instance.get('limitType');
 
-						var startDateDatePicker = instance.get('startDateDatePicker');
-						var startDate = startDateDatePicker.getDate();
+						var startDate = instance.get('startDate');
 
 						if (currentTarget === instance.get('frequencySelect')) {
 							instance._toggleView('weeklyRecurrenceOptions', currentTarget.val() === FREQUENCY_WEEKLY);
