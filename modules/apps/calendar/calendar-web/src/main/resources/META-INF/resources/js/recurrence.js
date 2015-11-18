@@ -326,6 +326,12 @@ AUI.add(
 						return Liferay.RecurrenceUtil.getSummary(recurrence);
 					},
 
+					_isLastDayOfWeekInMonth: function(date) {
+						var lastDate = A.DataType.DateMath.findMonthEnd(date);
+
+						return lastDate.getDate() - date.getDate() < 7;
+					},
+
 					_onInputChange: function(event) {
 						var instance = this;
 
@@ -335,13 +341,16 @@ AUI.add(
 						var limitDateDatePicker = instance.get('limitDateDatePicker');
 						var limitType = instance.get('limitType');
 
+						var startDateDatePicker = instance.get('startDateDatePicker');
+						var startDate = startDateDatePicker.getDate();
+
 						if (currentTarget === instance.get('frequencySelect')) {
 							instance._toggleView('weeklyRecurrenceOptions', currentTarget.val() === FREQUENCY_WEEKLY);
 							instance._toggleView('monthlyRecurrenceOptions', (currentTarget.val() === FREQUENCY_MONTHLY) || (currentTarget.val() === FREQUENCY_YEARLY));
 						}
 
 						if (currentTarget === instance.get('repeatOnDayOfWeekRadioButton')) {
-							instance._toggleView('positionalDayOfWeekOptions', currentTarget.val() === 'true');
+							instance._toggleView('positionalDayOfWeekOptions', (currentTarget.val() === 'true') && instance._isLastDayOfWeekInMonth(startDate));
 						}
 
 						var disableLimitcountInput = (limitType === LIMIT_UNLIMITED) || (limitType === LIMIT_DATE);
@@ -370,6 +379,8 @@ AUI.add(
 
 						var repeatCheckbox = instance.get('repeatCheckbox');
 
+						var repeatOnWeekdayRadioButton = instance.get('repeatOnDayOfWeekRadioButton');
+
 						var startTimeDayOfWeekInput = instance.get('startTimeDayOfWeekInput');
 
 						startTimeDayOfWeekInput.set('value', dayOfWeek);
@@ -391,6 +402,10 @@ AUI.add(
 						);
 
 						dayOfWeekInput.set('value', dayOfWeek);
+
+						if (repeatOnWeekdayRadioButton.get('checked')) {
+							instance._toggleView('positionalDayOfWeekOptions', instance._isLastDayOfWeekInMonth(date));
+						}
 
 						if (repeatCheckbox.get('checked')) {
 							instance.fire('recurrenceChange');
