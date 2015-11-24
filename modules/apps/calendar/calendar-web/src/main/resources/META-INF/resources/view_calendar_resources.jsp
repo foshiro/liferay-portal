@@ -20,17 +20,6 @@
 CalendarResourceDisplayTerms displayTerms = new CalendarResourceDisplayTerms(renderRequest);
 %>
 
-<c:if test="<%= CalendarPortletPermission.contains(permissionChecker, scopeGroupId, CalendarActionKeys.ADD_RESOURCE) %>">
-	<aui:button-row>
-		<liferay-portlet:renderURL var="editCalendarResourceURL">
-			<liferay-portlet:param name="mvcPath" value="/edit_calendar_resource.jsp" />
-			<liferay-portlet:param name="redirect" value="<%= currentURL %>" />
-		</liferay-portlet:renderURL>
-
-		<aui:button onClick="<%= editCalendarResourceURL %>" primary="<%=true %>" value="add-calendar-resource" />
-	</aui:button-row>
-</c:if>
-
 <liferay-portlet:renderURL varImpl="iteratorURL">
 	<portlet:param name="mvcPath" value="/view.jsp" />
 	<portlet:param name="tabs1" value="resources" />
@@ -52,3 +41,14 @@ CalendarResourceDisplayTerms displayTerms = new CalendarResourceDisplayTerms(ren
 		</c:otherwise>
 	</c:choose>
 </div>
+
+<c:if test="<%= CalendarPortletPermission.contains(permissionChecker, scopeGroupId, CalendarActionKeys.ADD_RESOURCE) %>">
+	<liferay-frontend:add-menu>
+		<liferay-portlet:renderURL var="editCalendarResourceURL">
+			<liferay-portlet:param name="mvcPath" value="/edit_calendar_resource.jsp" />
+			<liferay-portlet:param name="redirect" value="<%= currentURL %>" />
+		</liferay-portlet:renderURL>
+
+		<liferay-frontend:add-menu-item title="add-calendar-resource" url="<%= editCalendarResourceURL %>"  />
+	</liferay-frontend:add-menu>
+</c:if>
