@@ -31,7 +31,6 @@ import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
-import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
@@ -42,7 +41,6 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinitionManagerUtil;
 import com.liferay.portal.kernel.workflow.comparator.WorkflowComparatorFactoryUtil;
-import com.liferay.portal.model.Group;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.WorkflowDefinitionLinkLocalServiceUtil;
@@ -80,8 +78,6 @@ public class CalendarBookingLocalServiceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		_group = GroupTestUtil.addGroup();
-
 		_user = UserTestUtil.addUser();
 	}
 
@@ -253,7 +249,7 @@ public class CalendarBookingLocalServiceTest {
 
 		List<WorkflowDefinition> workflowDefinitions =
 			WorkflowDefinitionManagerUtil.getActiveWorkflowDefinitions(
-				_group.getCompanyId(), 0, 1,
+				_user.getCompanyId(), 0, 1,
 				WorkflowComparatorFactoryUtil.getDefinitionNameComparator());
 
 		Assume.assumeFalse(workflowDefinitions.isEmpty());
@@ -261,13 +257,13 @@ public class CalendarBookingLocalServiceTest {
 		WorkflowDefinition workflowDefinition = workflowDefinitions.get(0);
 
 		WorkflowDefinitionLinkLocalServiceUtil.updateWorkflowDefinitionLink(
-			_user.getUserId(), _group.getCompanyId(), _group.getGroupId(),
+			_user.getUserId(), _user.getCompanyId(), _user.getGroupId(),
 			CalendarBooking.class.getName(), 0, 0, workflowDefinition.getName(),
 			workflowDefinition.getVersion());
 
 		CalendarResource calendarResource =
-			CalendarResourceUtil.getGroupCalendarResource(
-				_group.getGroupId(), createServiceContext());
+			CalendarResourceUtil.getUserCalendarResource(
+				_user.getUserId(), createServiceContext());
 
 		Calendar calendar = calendarResource.getDefaultCalendar();
 
@@ -922,9 +918,6 @@ public class CalendarBookingLocalServiceTest {
 
 		return childCalendarBooking;
 	}
-
-	@DeleteAfterTestRun
-	private Group _group;
 
 	@DeleteAfterTestRun
 	private User _user;
