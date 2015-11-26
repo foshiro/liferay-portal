@@ -67,7 +67,7 @@ import org.junit.runner.RunWith;
  * @author Adam Brandizzi
  */
 @RunWith(Arquillian.class)
-@Sync
+@Sync(destinationNames="liferay/kaleo_graph_walker")
 public class CalendarBookingLocalServiceTest {
 
 	@ClassRule
