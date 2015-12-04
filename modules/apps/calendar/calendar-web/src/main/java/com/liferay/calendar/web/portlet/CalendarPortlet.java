@@ -1290,6 +1290,31 @@ public class CalendarPortlet extends MVCPortlet {
 
 		titleMap.put(themeDisplay.getLocale(), title);
 
+		if (Validator.isNotNull(recurrence)) {
+			Recurrence recurrenceObj = RecurrenceSerializer.deserialize(
+				recurrence);
+
+			if (recurrenceObj.getFrequency() == Frequency.WEEKLY) {
+				List<Weekday> weekdays = new ArrayList<>();
+				List<PositionalWeekday> positionalWeekdays =
+					recurrenceObj.getPositionalWeekdays();
+
+				for (PositionalWeekday positionalWeekday : positionalWeekdays) {
+					weekdays.add(positionalWeekday.getWeekday());
+				}
+
+				positionalWeekdays =
+					CalendarUtil.getPositionalWeekdaysOnTimeZone(
+						weekdays,
+						startTimeJCalendar.get(java.util.Calendar.HOUR),
+						startTimeJCalendar.get(java.util.Calendar.HOUR),
+						getTimeZone(resourceRequest), calendar.getTimeZone());
+
+				recurrenceObj.setPositionalWeekdays(positionalWeekdays);
+				recurrence = RecurrenceSerializer.serialize(recurrenceObj);
+			}
+		}
+
 		ServiceContext serviceContext = ServiceContextFactory.getInstance(
 			CalendarBooking.class.getName(), resourceRequest);
 

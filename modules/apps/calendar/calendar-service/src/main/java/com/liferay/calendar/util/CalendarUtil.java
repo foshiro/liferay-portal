@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.service.WorkflowDefinitionLinkLocalServiceUtil;
@@ -303,7 +304,7 @@ public class CalendarUtil {
 		jsonObject.put(
 			"parentCalendarBookingId",
 			calendarBooking.getParentCalendarBookingId());
-		jsonObject.put("recurrence", calendarBooking.getRecurrence());
+
 		jsonObject.put("secondReminder", calendarBooking.getSecondReminder());
 		jsonObject.put(
 			"secondReminderType", calendarBooking.getSecondReminder());
@@ -312,6 +313,32 @@ public class CalendarUtil {
 			calendarBooking.getStartTime(), timeZone);
 
 		_addTimeProperties(jsonObject, "startTime", startTimeJCalendar);
+
+		String recurrence = calendarBooking.getRecurrence();
+
+		if (Validator.isNotNull(recurrence)) {
+			Recurrence recurrenceObj = RecurrenceSerializer.deserialize(
+				recurrence);
+
+			List<Weekday> weekdays = new ArrayList<>();
+			List<PositionalWeekday> positionalWeekdays =
+				recurrenceObj.getPositionalWeekdays();
+
+			for (PositionalWeekday positionalWeekday : positionalWeekdays) {
+				weekdays.add(positionalWeekday.getWeekday());
+			}
+
+			positionalWeekdays = getPositionalWeekdaysOnTimeZone(
+				weekdays, startTimeJCalendar.get(java.util.Calendar.HOUR),
+				startTimeJCalendar.get(java.util.Calendar.MINUTE),
+				calendarBooking.getTimeZone(), timeZone);
+
+			recurrenceObj.setPositionalWeekdays(positionalWeekdays);
+
+			recurrence = RecurrenceSerializer.serialize(recurrenceObj);
+		}
+
+		jsonObject.put("recurrence", recurrence);
 
 		jsonObject.put("status", calendarBooking.getStatus());
 		jsonObject.put(
