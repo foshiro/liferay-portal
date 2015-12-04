@@ -18,6 +18,10 @@ import com.liferay.calendar.constants.CalendarActionKeys;
 import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarResource;
+import com.liferay.calendar.recurrence.PositionalWeekday;
+import com.liferay.calendar.recurrence.Recurrence;
+import com.liferay.calendar.recurrence.RecurrenceSerializer;
+import com.liferay.calendar.recurrence.Weekday;
 import com.liferay.calendar.service.CalendarBookingServiceUtil;
 import com.liferay.calendar.service.CalendarResourceLocalServiceUtil;
 import com.liferay.calendar.service.permission.CalendarPermission;
@@ -27,6 +31,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
@@ -199,6 +204,33 @@ public class CalendarUtil {
 		return orderByComparator;
 	}
 
+	public static List<PositionalWeekday> getPositionalWeekdaysOnTimeZone(
+		List<Weekday> weekdays, int hour, int minute, TimeZone originTimeZone,
+		TimeZone destinationTimeZone) {
+
+		List<PositionalWeekday> positionalWeekdays = new ArrayList<>();
+
+		for (Weekday weekday : weekdays) {
+			java.util.Calendar jCalendar = CalendarFactoryUtil.getCalendar(
+				originTimeZone);
+
+			jCalendar = JCalendarUtil.toMidnightJCalendar(jCalendar);
+			jCalendar.set(java.util.Calendar.HOUR, hour);
+			jCalendar.set(java.util.Calendar.MINUTE, minute);
+			jCalendar.set(
+				java.util.Calendar.DAY_OF_WEEK, weekday.getCalendarWeekday());
+
+			jCalendar = JCalendarUtil.getJCalendar(
+				jCalendar, destinationTimeZone);
+
+			weekday = Weekday.getWeekday(jCalendar);
+
+			positionalWeekdays.add(new PositionalWeekday(weekday, 0));
+		}
+
+		return positionalWeekdays;
+	}
+
 	public static String[] splitKeywords(String keywords) {
 		Set<String> keywordsSet = new LinkedHashSet<>();
 
@@ -228,8 +260,9 @@ public class CalendarUtil {
 	}
 
 	public static JSONObject toCalendarBookingJSONObject(
-		ThemeDisplay themeDisplay, CalendarBooking calendarBooking,
-		TimeZone timeZone) {
+			ThemeDisplay themeDisplay, CalendarBooking calendarBooking,
+			TimeZone timeZone)
+		throws PortalException {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -308,8 +341,9 @@ public class CalendarUtil {
 	}
 
 	public static JSONArray toCalendarBookingsJSONArray(
-		ThemeDisplay themeDisplay, List<CalendarBooking> calendarBookings,
-		TimeZone timeZone) {
+			ThemeDisplay themeDisplay, List<CalendarBooking> calendarBookings,
+			TimeZone timeZone)
+		throws PortalException {
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 

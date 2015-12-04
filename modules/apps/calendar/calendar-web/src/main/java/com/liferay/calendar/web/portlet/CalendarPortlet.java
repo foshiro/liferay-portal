@@ -784,29 +784,19 @@ public class CalendarPortlet extends MVCPortlet {
 		if (frequency == Frequency.WEEKLY) {
 			String[] weekdayValues = ParamUtil.getParameterValues(
 				actionRequest, "weekdays");
+			List<Weekday> weekdays = new ArrayList<>();
 
 			for (String weekdayValue : weekdayValues) {
-				Weekday weekday = Weekday.parse(weekdayValue);
-
-				java.util.Calendar startTimeJCalendar = getJCalendar(
-					actionRequest, "startTime");
-
-				java.util.Calendar weekdayJCalendar =
-					JCalendarUtil.getJCalendar(
-						startTimeJCalendar.getTimeInMillis(),
-						getTimeZone(actionRequest));
-
-				weekdayJCalendar.set(
-					java.util.Calendar.DAY_OF_WEEK,
-					weekday.getCalendarWeekday());
-
-				weekdayJCalendar = JCalendarUtil.getJCalendar(
-					weekdayJCalendar, calendarTimeZone);
-
-				weekday = Weekday.getWeekday(weekdayJCalendar);
-
-				positionalWeekdays.add(new PositionalWeekday(weekday, 0));
+				weekdays.add(Weekday.parse(weekdayValue));
 			}
+
+			java.util.Calendar startTimeJCalendar = getJCalendar(
+				actionRequest, "startTime");
+
+			positionalWeekdays = CalendarUtil.getPositionalWeekdaysOnTimeZone(
+				weekdays, startTimeJCalendar.get(java.util.Calendar.HOUR),
+				startTimeJCalendar.get(java.util.Calendar.MINUTE),
+				getTimeZone(actionRequest), calendarTimeZone);
 		}
 		else if ((frequency == Frequency.MONTHLY) ||
 				 (frequency == Frequency.YEARLY)) {
