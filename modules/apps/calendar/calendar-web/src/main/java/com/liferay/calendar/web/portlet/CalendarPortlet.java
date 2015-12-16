@@ -782,19 +782,6 @@ public class CalendarPortlet extends MVCPortlet {
 			for (String weekdayValue : weekdayValues) {
 				Weekday weekday = Weekday.parse(weekdayValue);
 
-				java.util.Calendar startTimeJCalendar = getJCalendar(
-					actionRequest, "startTime");
-
-				java.util.Calendar weekdayJCalendar =
-					JCalendarUtil.getJCalendar(
-						startTimeJCalendar.getTimeInMillis(), timeZone);
-
-				weekdayJCalendar.set(
-					java.util.Calendar.DAY_OF_WEEK,
-					weekday.getCalendarWeekday());
-
-				weekday = Weekday.getWeekday(weekdayJCalendar);
-
 				positionalWeekdays.add(new PositionalWeekday(weekday, 0));
 			}
 		}
@@ -829,7 +816,8 @@ public class CalendarPortlet extends MVCPortlet {
 
 		for (String exceptionDate : exceptionDates) {
 			recurrence.addExceptionDate(
-				JCalendarUtil.getJCalendar(Long.valueOf(exceptionDate)));
+				JCalendarUtil.getJCalendar(
+					Long.valueOf(exceptionDate), timeZone));
 		}
 
 		return recurrence;
