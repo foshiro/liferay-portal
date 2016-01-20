@@ -468,15 +468,21 @@ while (manageableCalendarsIterator.hasNext()) {
 </aui:script>
 
 <aui:script use="liferay-calendar-interval-selector">
+
+	var endTimeDatePicker = Liferay.component('<portlet:namespace />endTimeDatePicker');
+
+	var endTimeTimePicker = Liferay.component('<portlet:namespace />endTimeTimeTimePicker');
+
+	var startTimeDatePicker = Liferay.component('<portlet:namespace />startTimeDatePicker');
+
+	var startTimeTimePicker = Liferay.component('<portlet:namespace />startTimeTimeTimePicker');
+
 	new Liferay.IntervalSelector(
 		{
-			containerId: 'meetingEventDate',
-			endDatePickerName: 'endTime',
-			endTimePickerName: 'endTimeTime',
-			namespace: '<portlet:namespace/>',
-			startDatePickerName: 'startTime',
-			startTimePickerName: 'startTimeTime',
-			submitButtonId: 'submit'
+			endDatePicker: endTimeDatePicker,
+			endTimePicker: endTimeTimePicker,
+			startDatePicker: startTimeDatePicker,
+			startTimePicker: startTimeTimePicker,
 		}
 	);
 </aui:script>
