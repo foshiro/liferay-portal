@@ -938,37 +938,37 @@
 
 				},
 
-				linkToSchedulerEvent: function(datePickerContainer, schedulerEvent, dateAttr) {
+				linkToSchedulerEvent: function(schedulerEvent, intervalSelector) {
 					var instance = this;
 
-					var selects = A.one(datePickerContainer).all('select');
+					var startDatePicker = intervalSelector.get('startDatePicker');
 
-					selects.on(
-						'change',
-						function(event) {
-							var currentTarget = event.currentTarget;
+					var startTimePicker = intervalSelector.get('startTimePicker');
 
-							var date = schedulerEvent.get(dateAttr);
+					startDatePicker.on('selectionChange', instance._onSelectionChange, instance, startDatePicker, startTimePicker, schedulerEvent, 'startDate');
 
-							var selectedSetter = selects.indexOf(currentTarget);
+					startTimePicker.on('selectionChange', instance._onSelectionChange, instance, startDatePicker, startTimePicker, schedulerEvent, 'startDate');
 
-							var setters = [date.setMonth, date.setDate, date.setFullYear, date.setHours, date.setMinutes, date.setHours];
+					var endDatePicker = intervalSelector.get('endDatePicker');
 
-							var value = toInt(currentTarget.val());
+					var endTimePicker = intervalSelector.get('endTimePicker');
 
-							if (selectedSetter === 3 && date.getHours() > 12) {
-								value += 12;
-							}
+					endDatePicker.on('selectionChange', instance._onSelectionChange, instance, endDatePicker, endTimePicker, schedulerEvent, 'endDate');
 
-							if (selectedSetter === 5) {
-								value = date.getHours() + (value === 1 ? 12 : -12);
-							}
+					endTimePicker.on('selectionChange', instance._onSelectionChange, instance, endDatePicker, endTimePicker, schedulerEvent, 'endDate');
+				},
 
-							setters[selectedSetter].call(date, value);
+				_onSelectionChange: function(event, datePicker, timePicker, schedulerEvent, attribute) {
+					var instance = this;
 
-							schedulerEvent.get('scheduler').syncEventsUI();
-						}
-					);
+					var date = datePicker.getDate();
+
+					var time = timePicker.getTime();
+
+					date.setHours(time.getHours());
+					date.setMinutes(time.getMinutes());
+
+					schedulerEvent.set(attribute, date, {preventIntervalSelectorUpdate: false});
 				}
 			};
 		},
