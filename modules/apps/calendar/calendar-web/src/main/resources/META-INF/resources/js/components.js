@@ -908,68 +908,120 @@
 
 			var toInt = Lang.toInt;
 
-			Liferay.DatePickerUtil = {
-				syncUI: function(schedulerEvent, intervalSelector) {
-					var instance = this;
+			var DatePickerUtil = A.Component.create(
+				{
 
-					intervalSelector.stopDurationPreservation();
+					ATTRS: {
+						intervalSelector: {
+							value: null
+						},
 
-					var startDate = schedulerEvent.get('startDate');
-
-					var startDatePicker = intervalSelector.get('startDatePicker');
-
-					var startTimePicker = intervalSelector.get('startTimePicker');
-
-					startDatePicker.deselectDates();
-					startDatePicker.selectDates([startDate]);
-					startTimePicker.selectDates([startDate]);
-
-					var endDate = schedulerEvent.get('endDate');
-
-					var endDatePicker = intervalSelector.get('endDatePicker');
-
-					var endTimePicker = intervalSelector.get('endTimePicker');
-
-					endDatePicker.deselectDates();
-					endDatePicker.selectDates([endDate]);
-					endTimePicker.selectDates([endDate]);
-
-					intervalSelector.startDurationPreservation();
-				},
-
-				linkToSchedulerEvent: function(datePickerContainer, schedulerEvent, dateAttr) {
-					var instance = this;
-
-					var selects = A.one(datePickerContainer).all('select');
-
-					selects.on(
-						'change',
-						function(event) {
-							var currentTarget = event.currentTarget;
-
-							var date = schedulerEvent.get(dateAttr);
-
-							var selectedSetter = selects.indexOf(currentTarget);
-
-							var setters = [date.setMonth, date.setDate, date.setFullYear, date.setHours, date.setMinutes, date.setHours];
-
-							var value = toInt(currentTarget.val());
-
-							if (selectedSetter === 3 && date.getHours() > 12) {
-								value += 12;
-							}
-
-							if (selectedSetter === 5) {
-								value = date.getHours() + (value === 1 ? 12 : -12);
-							}
-
-							setters[selectedSetter].call(date, value);
-
-							schedulerEvent.get('scheduler').syncEventsUI();
+						schedulerEvent: {
+							value: null
 						}
-					);
+					},
+
+					NAME: 'date-picker-util',
+
+					prototype: {
+						initializer: function(config) {
+							var instance = this;
+
+							instance.eventHandlers = [];
+
+							instance.bindUI()
+						},
+
+						bindUI: function() {
+							var instance = this;
+
+							var schedulerEvent = instance.get('schedulerEvent');
+
+							instance.eventHandlers.push(
+								schedulerEvent.after('startDateChange', A.bind('syncUI', instance)),
+								schedulerEvent.after('endDateChange', A.bind('syncUI', instance))
+							);
+						},
+
+						destructor: function() {
+							var instance = this;
+
+							AArray.invoke(instance.eventHandlers, 'detach');
+
+							instance.eventHandlers = [];
+						},
+
+						syncUI: function() {
+							var instance = this;
+
+							var intervalSelector = instance.get('intervalSelector');
+
+							var schedulerEvent = instance.get('schedulerEvent');
+
+							var startDate = schedulerEvent.get('startDate');
+
+							var startDatePicker = intervalSelector.get('startDatePicker');
+
+							var startTimePicker = intervalSelector.get('startTimePicker');
+
+							intervalSelector.stopDurationPreservation();
+
+							startDatePicker.deselectDates();
+							startDatePicker.selectDates([startDate]);
+							startTimePicker.selectDates([startDate]);
+
+							var endDate = schedulerEvent.get('endDate');
+
+							var endDatePicker = intervalSelector.get('endDatePicker');
+
+							var endTimePicker = intervalSelector.get('endTimePicker');
+
+							endDatePicker.deselectDates();
+							endDatePicker.selectDates([endDate]);
+							endTimePicker.selectDates([endDate]);
+
+							intervalSelector.startDurationPreservation()
+
+						},
+
+						linkToSchedulerEvent: function(datePickerContainer, schedulerEvent, dateAttr) {
+							var instance = this;
+
+							var selects = A.one(datePickerContainer).all('select');
+
+							selects.on(
+								'change',
+								function(event) {
+									var currentTarget = event.currentTarget;
+
+									var date = schedulerEvent.get(dateAttr);
+
+									var selectedSetter = selects.indexOf(currentTarget);
+
+									var setters = [date.setMonth, date.setDate, date.setFullYear, date.setHours, date.setMinutes, date.setHours];
+
+									var value = toInt(currentTarget.val());
+
+									if (selectedSetter === 3 && date.getHours() > 12) {
+										value += 12;
+									}
+
+									if (selectedSetter === 5) {
+										value = date.getHours() + (value === 1 ? 12 : -12);
+									}
+
+									setters[selectedSetter].call(date, value);
+
+									schedulerEvent.get('scheduler').syncEventsUI();
+								}
+							);
+						}
+					}
 				}
-			};
+
+			);
+
+			Liferay.DatePickerUtil = DatePickerUtil;
 		},
 		'',
 		{
