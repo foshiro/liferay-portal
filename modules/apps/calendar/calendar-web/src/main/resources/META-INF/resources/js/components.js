@@ -904,9 +904,7 @@
 	AUI.add(
 		'liferay-calendar-date-picker-util',
 		function(A) {
-			var Lang = A.Lang;
-
-			var toInt = Lang.toInt;
+			var AArray = A.Array;
 
 			var DatePickerUtil = A.Component.create(
 				{
@@ -935,20 +933,13 @@
 						bindUI: function() {
 							var instance = this;
 
-							var schedulerEvent = instance.get('schedulerEvent');
-
-							instance.eventHandlers.push(
-								schedulerEvent.after('startDateChange', A.bind('syncUI', instance)),
-								schedulerEvent.after('endDateChange', A.bind('syncUI', instance))
-							);
+							instance._activateLink();
 						},
 
 						destructor: function() {
 							var instance = this;
 
-							AArray.invoke(instance.eventHandlers, 'detach');
-
-							instance.eventHandlers = [];
+							instance._deactivateLink();
 						},
 
 						syncUI: function() {
@@ -1015,6 +1006,42 @@
 									schedulerEvent.get('scheduler').syncEventsUI();
 								}
 							);
+						},
+
+						_activateLink: function() {
+							var instance = this;
+
+							var intervalSelector = instance.get('intervalSelector');
+
+							var schedulerEvent = instance.get('schedulerEvent');
+
+							instance.eventHandlers.push(
+								schedulerEvent.after('startDateChange', A.bind('syncUI', instance)),
+								schedulerEvent.after('endDateChange', A.bind('syncUI', instance))
+							);
+
+							var startDatePicker = intervalSelector.get('startDatePicker');
+
+							var startTimePicker = intervalSelector.get('startTimePicker');
+
+							var endDatePicker = intervalSelector.get('endDatePicker');
+
+							var endTimePicker = intervalSelector.get('endTimePicker');
+
+							instance.eventHandlers.push(
+								startDatePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance)),
+								startTimePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance)),
+								endDatePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance)),
+								endTimePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance))
+							);
+						},
+
+						_deactivateLink: function() {
+							var instance = this;
+
+							AArray.invoke(instance.eventHandlers, 'detach');
+
+							instance.eventHandlers = [];
 						}
 					}
 				}
