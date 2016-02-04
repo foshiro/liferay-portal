@@ -227,23 +227,18 @@ String backURL = PortalUtil.getCurrentURL(request);
 											function(calendars) {
 												var availableCalendars = calendarList.get('calendars');
 
-												if (availableCalendars) {
-													var calendar = A.Array.find(
-														availableCalendars,
-														function(item) {
-															return item.get('calendarId') === activeCalendar.get('calendarId');
-														}
-													);
-
-													if (!calendar) {
-														availableCalendars.push(activeCalendar);
+												var calendar = A.Array.find(
+													availableCalendars,
+													function(item) {
+														return item.get('calendarId') === activeCalendar.get('calendarId');
 													}
+												);
 
-													calendarList.set('calendars', availableCalendars);
+												if (!calendar) {
+													availableCalendars.push(activeCalendar);
 												}
-												else {
-													calendarList.set('calendars', calendars);
-												}
+
+												calendarList.set('calendars', availableCalendars);
 
 												<portlet:namespace />syncCalendarsMap();
 
