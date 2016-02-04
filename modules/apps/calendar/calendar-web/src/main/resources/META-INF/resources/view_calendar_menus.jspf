@@ -225,12 +225,26 @@ String backURL = PortalUtil.getCurrentURL(request);
 										Liferay.CalendarUtil.getResourceCalendars(
 											activeCalendar.get('calendarResourceId'),
 											function(calendars) {
+												var activeCalendarId = activeCalendar.get('calendarId');
+
 												var availableCalendars = calendarList.get('calendars');
 
-												var calendar = A.Array.find(
+												var updatedCalendar = A.Array.find(
+													calendars,
+													function(item) {
+														return activeCalendarId === A.Lang.toInt(item.calendarId);
+													}
+												);
+
+												availableCalendars = A.Array.map(
 													availableCalendars,
 													function(item) {
-														return item.get('calendarId') === activeCalendar.get('calendarId');
+														if (activeCalendarId === item.get('calendarId')) {
+															return updatedCalendar;
+														}
+														else {
+															return item;
+														}
 													}
 												);
 
