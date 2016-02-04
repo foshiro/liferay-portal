@@ -231,12 +231,12 @@ String backURL = PortalUtil.getCurrentURL(request);
 													var calendar = A.Array.find(
 														availableCalendars,
 														function(item) {
-															return item.get('calendarId') === A.Lang.toInt(calendars[0].calendarId);
+															return item.get('calendarId') === activeCalendar.get('calendarId');
 														}
 													);
 
 													if (!calendar) {
-														availableCalendars.push(calendars[0]);
+														availableCalendars.push(activeCalendar);
 													}
 
 													calendarList.set('calendars', availableCalendars);
