@@ -234,10 +234,6 @@ String backURL = PortalUtil.getCurrentURL(request);
 													}
 												);
 
-												if (!calendar) {
-													availableCalendars.push(activeCalendar);
-												}
-
 												calendarList.set('calendars', availableCalendars);
 
 												<portlet:namespace />syncCalendarsMap();
