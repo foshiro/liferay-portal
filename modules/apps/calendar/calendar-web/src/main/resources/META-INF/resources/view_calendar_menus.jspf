@@ -228,15 +228,17 @@ String backURL = PortalUtil.getCurrentURL(request);
 												var availableCalendars = calendarList.get('calendars');
 
 												if (availableCalendars) {
-													var found = false;
-													for (var i = 0; i < availableCalendars.length && !found; i++) {
-														if (availableCalendars[i].get('calendarId') == calendars[0].calendarId) {
-															found = true;
+													var calendar = A.Array.find(
+														availableCalendars,
+														function(item) {
+															return item.get('calendarId') === A.Lang.toInt(calendars[0].calendarId);
 														}
-													}
-													if (!found) {
+													);
+
+													if (!calendar) {
 														availableCalendars.push(calendars[0]);
 													}
+
 													calendarList.set('calendars', availableCalendars);
 												}
 												else {
