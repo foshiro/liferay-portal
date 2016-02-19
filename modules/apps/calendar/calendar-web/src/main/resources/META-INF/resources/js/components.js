@@ -1521,6 +1521,40 @@
 								AArray.invoke(instance.eventHandlers, 'detach');
 							},
 
+							_fireIntervalChange: function() {
+								var instance = this;
+
+								var endDatePicker = instance.get('endDatePicker');
+
+								var endDate = endDatePicker.getDate();
+
+								var endTimePicker = instance.get('endTimePicker');
+
+								var endTime = endTimePicker.getTime();
+
+								var startDatePicker = instance.get('startDatePicker');
+
+								var startDate = startDatePicker.getDate();
+
+								var startTimePicker = instance.get('startTimePicker');
+
+								var startTime = startTimePicker.getTime();
+
+								endDate.setHours(endTime.getHours());
+								endDate.setMinutes(endTime.getMinutes());
+
+								startDate.setHours(startTime.getHours());
+								startDate.setMinutes(startTime.getMinutes());
+
+								instance.fire(
+									'intervalChange',
+									{
+										endDate: endDate,
+										startDate: startDate,
+									}
+								);
+							},
+
 							_initPicker: function(picker) {
 								var instance = this;
 
@@ -1546,6 +1580,8 @@
 
 								instance._setDuration();
 								instance._validate();
+
+								instance._fireIntervalChange();
 							},
 
 							_onEndTimePickerSelectionChange: function() {
@@ -1564,6 +1600,8 @@
 
 								instance._setDuration();
 								instance._validate();
+
+								instance._fireIntervalChange();
 							},
 
 							_onStartDatePickerSelectionChange: function() {
@@ -1579,6 +1617,8 @@
 
 								instance._setDuration();
 								instance._validate();
+
+								instance._fireIntervalChange();
 							},
 
 							_onStartTimePickerSelectionChange: function() {
@@ -1595,6 +1635,8 @@
 
 								instance._setDuration();
 								instance._validate();
+
+								instance._fireIntervalChange();
 							},
 
 							_setDuration: function() {
