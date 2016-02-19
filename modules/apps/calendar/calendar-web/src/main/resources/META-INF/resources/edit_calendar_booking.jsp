@@ -627,14 +627,6 @@ while (manageableCalendarsIterator.hasNext()) {
 
 	window.<portlet:namespace />placeholderSchedulerEvent = new Liferay.SchedulerEvent(
 		{
-			after: {
-				endDateChange: function(event) {
-					Liferay.DatePickerUtil.syncUI(event.currentTarget, intervalSelector);
-				},
-				startDateChange: function(event) {
-					Liferay.DatePickerUtil.syncUI(event.currentTarget, intervalSelector);
-				}
-			},
 			borderColor: '#000',
 			borderStyle: 'dashed',
 			borderWidth: '2px',
@@ -656,8 +648,12 @@ while (manageableCalendarsIterator.hasNext()) {
 		}
 	);
 
-	Liferay.DatePickerUtil.linkToSchedulerEvent('#<portlet:namespace />endDateContainer', window.<portlet:namespace />placeholderSchedulerEvent, 'endTime');
-	Liferay.DatePickerUtil.linkToSchedulerEvent('#<portlet:namespace />startDateContainer', window.<portlet:namespace />placeholderSchedulerEvent, 'startTime');
+	var intervalEventLink = new Liferay.DatePickerUtil(
+		{
+			intervalSelector: intervalSelector,
+			schedulerEvent: <portlet:namespace />placeholderSchedulerEvent
+		}
+	);
 
 	scheduler.after(
 		'*:load',
