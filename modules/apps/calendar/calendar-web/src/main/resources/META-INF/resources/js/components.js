@@ -972,27 +972,18 @@
 
 								var schedulerEvent = instance.get('schedulerEvent');
 
-								var startDate = schedulerEvent.get('startDate');
-
-								var startDatePicker = intervalSelector.get('startDatePicker');
-
-								var startTimePicker = intervalSelector.get('startTimePicker');
-
 								intervalSelector.stopDurationPreservation();
 
-								startDatePicker.deselectDates();
-								startDatePicker.selectDates([startDate]);
-								startTimePicker.selectDates([startDate]);
-
-								var endDate = schedulerEvent.get('endDate');
-
-								var endDatePicker = intervalSelector.get('endDatePicker');
-
-								var endTimePicker = intervalSelector.get('endTimePicker');
-
-								endDatePicker.deselectDates();
-								endDatePicker.selectDates([endDate]);
-								endTimePicker.selectDates([endDate]);
+								intervalSelector.set(
+									'interval',
+									{
+										endDate: schedulerEvent.get('endDate'),
+										startDate: schedulerEvent.get('startDate')
+									},
+									{
+										preventSchedulerEventUpdate: true
+									}
+								);
 
 								intervalSelector.startDurationPreservation()
 							}
@@ -1001,25 +992,27 @@
 						_updateSchedulerEvent: function(event) {
 							var instance = this;
 
-							var schedulerEvent = instance.get('schedulerEvent');
+							if (!event.preventSchedulerEventUpdate) {
+								var schedulerEvent = instance.get('schedulerEvent');
 
-							var scheduler = schedulerEvent.get('scheduler');
+								var scheduler = schedulerEvent.get('scheduler');
 
-							instance._deactivateLink();
+								instance._deactivateLink();
 
-							schedulerEvent.setAttrs(
-								{
-									endDate: event.endDate,
-									startDate: event.startDate
-								},
-								{
-									preventIntervalSelectorUpdate: true
-								}
-							);
+								schedulerEvent.setAttrs(
+										{
+											endDate: event.newVal.endDate,
+											startDate: event.newVal.startDate
+										},
+										{
+											preventIntervalSelectorUpdate: true
+										}
+								);
 
-							scheduler.syncEventsUI();
+								scheduler.syncEventsUI();
 
-							instance._activateLink();
+								instance._activateLink();
+							}
 						}
 					}
 				}
@@ -1412,6 +1405,8 @@
 			function(A) {
 				var AArray = A.Array;
 
+				var isDate = A.Lang.isDate;
+
 				var EVENT_SELECTION_CHANGE = 'selectionChange';
 
 				var IntervalSelector = A.Component.create(
@@ -1423,6 +1418,12 @@
 
 							endTimePicker: {
 								value: null
+							},
+
+							interval: {
+								getter: '_getInterval',
+								setter: '_setInterval',
+								validator: '_isInterval'
 							},
 
 							startDatePicker: {
@@ -1482,6 +1483,15 @@
 								instance.eventHandlers = null;
 							},
 
+							_getInterval: function() {
+								var instance = this;
+
+								return {
+									endDate: instance._endDate,
+									startDate: instance._startDate
+								}
+							},
+
 							startDurationPreservation: function() {
 								var instance = this;
 
@@ -1499,7 +1509,7 @@
 								AArray.invoke(instance.eventHandlers, 'detach');
 							},
 
-							_fireIntervalChange: function() {
+							_fireIntervalChange: function(payload) {
 								var instance = this;
 
 								var endDatePicker = instance.get('endDatePicker');
@@ -1524,13 +1534,14 @@
 								startDate.setHours(startTime.getHours());
 								startDate.setMinutes(startTime.getMinutes());
 
-								instance.fire(
-									'intervalChange',
+								var payload = A.mix(
 									{
-										endDate: endDate,
-										startDate: startDate,
-									}
+										preventPickersUpdate: true
+									},
+									payload
 								);
+
+								instance.set('interval', instance.get('interval'), payload);
 							},
 
 							_initPicker: function(picker) {
@@ -1541,6 +1552,14 @@
 								var inputNode = A.one(attrs.container._node.children[0]);
 
 								picker.useInputNodeOnce(inputNode);
+							},
+
+							_isInterval: function(interval) {
+								var endDate = interval.endDate;
+
+								var startDate = interval.startDate;
+
+								return isDate(startDate) && isDate(endDate) && (startDate.getTime() < endDate.getTime());
 							},
 
 							_onEndDatePickerSelectionChange: function() {
@@ -1664,6 +1683,28 @@
 								var endTimePicker = instance.get('endTimePicker');
 
 								endTimePicker.selectDates([instance._endDate]);
+							},
+
+							_setInterval: function(interval, payload) {
+								var instance = this;
+
+								if (!payload.preventPickersUpdate) {
+									var startDatePicker = instance.get('startDatePicker');
+
+									var startTimePicker = instance.get('startTimePicker');
+
+									startDatePicker.deselectDates();
+									startDatePicker.selectDates([interval.startDate]);
+									startTimePicker.selectDates([interval.startDate]);
+
+									var endDatePicker = instance.get('endDatePicker');
+
+									var endTimePicker = instance.get('endTimePicker');
+
+									endDatePicker.deselectDates();
+									endDatePicker.selectDates([interval.endDate]);
+									endTimePicker.selectDates([interval.endDate]);
+								}
 							},
 
 							_setStartDate: function() {
