@@ -1017,22 +1017,8 @@
 
 							instance.eventHandlers.push(
 								schedulerEvent.after('startDateChange', A.bind('syncUI', instance)),
-								schedulerEvent.after('endDateChange', A.bind('syncUI', instance))
-							);
-
-							var startDatePicker = intervalSelector.get('startDatePicker');
-
-							var startTimePicker = intervalSelector.get('startTimePicker');
-
-							var endDatePicker = intervalSelector.get('endDatePicker');
-
-							var endTimePicker = intervalSelector.get('endTimePicker');
-
-							instance.eventHandlers.push(
-								startDatePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance)),
-								startTimePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance)),
-								endDatePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance)),
-								endTimePicker.on('selectionChange', A.bind('linkToSchedulerEvent', instance))
+								schedulerEvent.after('endDateChange', A.bind('syncUI', instance)),
+								intervalSelector.after('intervalChange', A.bind('linkToSchedulerEvent', instance))
 							);
 						},
 
