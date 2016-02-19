@@ -945,6 +945,8 @@
 						syncUI: function() {
 							var instance = this;
 
+							instance._deactivateLink();
+
 							var intervalSelector = instance.get('intervalSelector');
 
 							var schedulerEvent = instance.get('schedulerEvent');
@@ -973,39 +975,28 @@
 
 							intervalSelector.startDurationPreservation()
 
+							instance._activateLink();
 						},
 
-						linkToSchedulerEvent: function(datePickerContainer, schedulerEvent, dateAttr) {
+						linkToSchedulerEvent: function(event) {
 							var instance = this;
 
-							var selects = A.one(datePickerContainer).all('select');
+							var schedulerEvent = instance.get('schedulerEvent');
 
-							selects.on(
-								'change',
-								function(event) {
-									var currentTarget = event.currentTarget;
+							var scheduler = schedulerEvent.get('scheduler');
 
-									var date = schedulerEvent.get(dateAttr);
+							instance._deactivateLink();
 
-									var selectedSetter = selects.indexOf(currentTarget);
-
-									var setters = [date.setMonth, date.setDate, date.setFullYear, date.setHours, date.setMinutes, date.setHours];
-
-									var value = toInt(currentTarget.val());
-
-									if (selectedSetter === 3 && date.getHours() > 12) {
-										value += 12;
-									}
-
-									if (selectedSetter === 5) {
-										value = date.getHours() + (value === 1 ? 12 : -12);
-									}
-
-									setters[selectedSetter].call(date, value);
-
-									schedulerEvent.get('scheduler').syncEventsUI();
+							schedulerEvent.setAttrs(
+								{
+									endDate: event.endDate,
+									startDate: event.startDate
 								}
 							);
+
+							scheduler.syncEventsUI();
+
+							instance._activateLink();
 						},
 
 						_activateLink: function() {
