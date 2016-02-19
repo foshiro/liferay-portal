@@ -8,6 +8,14 @@
 					base: PATH_CALENDAR_WEB + '/',
 					combine: Liferay.AUI.getCombine(),
 					modules: {
+						'liferay-calendar-interval-selector-scheduler-event-link': {
+							path: 'js/interval_selector_scheduler_event_link.js',
+							requires: ['aui-base']
+						},
+						'liferay-calendar-interval-selector': {
+							path: 'js/interval_selector.js',
+							requires: ['aui-base', 'liferay-portlet-base']
+						},
 						'liferay-calendar-recurrence-converter': {
 							path: 'js/recurrence_converter.js',
 							requires: []
