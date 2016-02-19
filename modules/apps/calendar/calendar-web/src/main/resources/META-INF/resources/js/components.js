@@ -964,40 +964,38 @@
 							instance.eventHandlers = [];
 						},
 
-						_updateIntervalSelector: function() {
+						_updateIntervalSelector: function(event) {
 							var instance = this;
 
-							instance._deactivateLink();
+							if (!event.preventIntervalSelectorUpdade) {
+								var intervalSelector = instance.get('intervalSelector');
 
-							var intervalSelector = instance.get('intervalSelector');
+								var schedulerEvent = instance.get('schedulerEvent');
 
-							var schedulerEvent = instance.get('schedulerEvent');
+								var startDate = schedulerEvent.get('startDate');
 
-							var startDate = schedulerEvent.get('startDate');
+								var startDatePicker = intervalSelector.get('startDatePicker');
 
-							var startDatePicker = intervalSelector.get('startDatePicker');
+								var startTimePicker = intervalSelector.get('startTimePicker');
 
-							var startTimePicker = intervalSelector.get('startTimePicker');
+								intervalSelector.stopDurationPreservation();
 
-							intervalSelector.stopDurationPreservation();
+								startDatePicker.deselectDates();
+								startDatePicker.selectDates([startDate]);
+								startTimePicker.selectDates([startDate]);
 
-							startDatePicker.deselectDates();
-							startDatePicker.selectDates([startDate]);
-							startTimePicker.selectDates([startDate]);
+								var endDate = schedulerEvent.get('endDate');
 
-							var endDate = schedulerEvent.get('endDate');
+								var endDatePicker = intervalSelector.get('endDatePicker');
 
-							var endDatePicker = intervalSelector.get('endDatePicker');
+								var endTimePicker = intervalSelector.get('endTimePicker');
 
-							var endTimePicker = intervalSelector.get('endTimePicker');
+								endDatePicker.deselectDates();
+								endDatePicker.selectDates([endDate]);
+								endTimePicker.selectDates([endDate]);
 
-							endDatePicker.deselectDates();
-							endDatePicker.selectDates([endDate]);
-							endTimePicker.selectDates([endDate]);
-
-							intervalSelector.startDurationPreservation()
-
-							instance._activateLink();
+								intervalSelector.startDurationPreservation()
+							}
 						},
 
 						_updateSchedulerEvent: function(event) {
@@ -1013,6 +1011,9 @@
 								{
 									endDate: event.endDate,
 									startDate: event.startDate
+								},
+								{
+									preventIntervalSelectorUpdate: true
 								}
 							);
 
