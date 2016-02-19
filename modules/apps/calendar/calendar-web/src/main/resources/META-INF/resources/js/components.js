@@ -902,11 +902,11 @@
 	);
 
 	AUI.add(
-		'liferay-calendar-date-picker-util',
+		'liferay-calendar-interval-selector-scheduler-event-link',
 		function(A) {
 			var AArray = A.Array;
 
-			var DatePickerUtil = A.Component.create(
+			var IntervalSelectorSchedulerEventLink = A.Component.create(
 				{
 
 					ATTRS: {
@@ -919,7 +919,7 @@
 						}
 					},
 
-					NAME: 'date-picker-util',
+					NAME: 'interval-selector-scheduler-event-link',
 
 					prototype: {
 						initializer: function(config) {
@@ -942,7 +942,7 @@
 							instance._detachEventHandlers();
 						},
 
-						syncUI: function() {
+						_updateIntervalSelector: function() {
 							var instance = this;
 
 							if (!event.preventIntervalSelectorUpdade) {
@@ -976,7 +976,7 @@
 							}
 						},
 
-						linkToSchedulerEvent: function(event) {
+						_updateSchedulerEvent: function(event) {
 							var instance = this;
 
 							var schedulerEvent = instance.get('schedulerEvent');
@@ -1008,9 +1008,9 @@
 							var schedulerEvent = instance.get('schedulerEvent');
 
 							instance.eventHandlers.push(
-								schedulerEvent.after('startDateChange', A.bind('syncUI', instance)),
-								schedulerEvent.after('endDateChange', A.bind('syncUI', instance)),
-								intervalSelector.after('intervalChange', A.bind('linkToSchedulerEvent', instance))
+								schedulerEvent.after('startDateChange', A.bind('_updateIntervalSelector', instance)),
+								schedulerEvent.after('endDateChange', A.bind('_updateIntervalSelector', instance)),
+								intervalSelector.after('intervalChange', A.bind('_updateSchedulerEvent', instance))
 							);
 						},
 
@@ -1026,7 +1026,7 @@
 
 			);
 
-			Liferay.DatePickerUtil = DatePickerUtil;
+			Liferay.IntervalSelectorSchedulerEventLink = IntervalSelectorSchedulerEventLink;
 		},
 		'',
 		{

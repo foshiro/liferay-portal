@@ -465,7 +465,7 @@ while (manageableCalendarsIterator.hasNext()) {
 	</c:if>
 </aui:script>
 
-<aui:script use="json,liferay-calendar-date-picker-util,liferay-calendar-interval-selector,liferay-calendar-list,liferay-calendar-recurrence-util,liferay-calendar-reminders,liferay-calendar-simple-menu">
+<aui:script use="json,liferay-calendar-interval-selector,liferay-calendar-interval-selector-scheduler-event-link,liferay-calendar-list,liferay-calendar-recurrence-util,liferay-calendar-reminders,liferay-calendar-simple-menu">
 	var defaultCalendarId = <%= calendarId %>;
 
 	var scheduler = window.<portlet:namespace />scheduler;
@@ -648,7 +648,7 @@ while (manageableCalendarsIterator.hasNext()) {
 		}
 	);
 
-	var intervalEventLink = new Liferay.DatePickerUtil(
+	var intervalEventLink = new Liferay.IntervalSelectorSchedulerEventLink(
 		{
 			intervalSelector: intervalSelector,
 			schedulerEvent: <portlet:namespace />placeholderSchedulerEvent
