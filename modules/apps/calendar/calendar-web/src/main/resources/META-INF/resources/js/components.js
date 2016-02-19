@@ -942,6 +942,28 @@
 							instance._deactivateLink();
 						},
 
+						_activateLink: function() {
+							var instance = this;
+
+							var intervalSelector = instance.get('intervalSelector');
+
+							var schedulerEvent = instance.get('schedulerEvent');
+
+							instance.eventHandlers.push(
+								schedulerEvent.after('startDateChange', A.bind('_updateIntervalSelector', instance)),
+								schedulerEvent.after('endDateChange', A.bind('_updateIntervalSelector', instance)),
+								intervalSelector.after('intervalChange', A.bind('_updateSchedulerEvent', instance))
+							);
+						},
+
+						_deactivateLink: function() {
+							var instance = this;
+
+							AArray.invoke(instance.eventHandlers, 'detach');
+
+							instance.eventHandlers = [];
+						},
+
 						_updateIntervalSelector: function() {
 							var instance = this;
 
@@ -997,28 +1019,6 @@
 							scheduler.syncEventsUI();
 
 							instance._activateLink();
-						},
-
-						_activateLink: function() {
-							var instance = this;
-
-							var intervalSelector = instance.get('intervalSelector');
-
-							var schedulerEvent = instance.get('schedulerEvent');
-
-							instance.eventHandlers.push(
-								schedulerEvent.after('startDateChange', A.bind('_updateIntervalSelector', instance)),
-								schedulerEvent.after('endDateChange', A.bind('_updateIntervalSelector', instance)),
-								intervalSelector.after('intervalChange', A.bind('_updateSchedulerEvent', instance))
-							);
-						},
-
-						_deactivateLink: function() {
-							var instance = this;
-
-							AArray.invoke(instance.eventHandlers, 'detach');
-
-							instance.eventHandlers = [];
 						}
 					}
 				}
