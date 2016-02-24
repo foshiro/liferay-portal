@@ -512,6 +512,7 @@
 								simpleMenu.setAttrs(
 									{
 										alignNode: target,
+										toggler: event.target,
 										visible: simpleMenu.get('align.node') !== target || !simpleMenu.get('visible')
 									}
 								);

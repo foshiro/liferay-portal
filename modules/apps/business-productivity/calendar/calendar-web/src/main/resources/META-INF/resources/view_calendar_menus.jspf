@@ -482,7 +482,8 @@ String backURL = PortalUtil.getCurrentURL(request);
 			window.<portlet:namespace />calendarListsMenu.setAttrs(
 				{
 					alignNode: currentTarget,
-					visible: !window.<portlet:namespace />calendarListsMenu.get('visible')
+					visible: !window.<portlet:namespace />calendarListsMenu.get('visible'),
+					toggler: event.target
 				}
 			);
 
