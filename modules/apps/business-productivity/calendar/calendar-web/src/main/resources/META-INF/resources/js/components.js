@@ -109,10 +109,12 @@
 							instance.after('visibleChange', instance._positionMenu, instance);
 						},
 
-						_closeMenu: function() {
+						_closeMenu: function(event) {
 							var instance = this;
 
-							instance.hide();
+							if (event.target != instance.get('host')) {
+								instance.hide();
+							}
 						},
 
 						_onClickItems: function(event) {

@@ -482,11 +482,10 @@ String backURL = PortalUtil.getCurrentURL(request);
 			window.<portlet:namespace />calendarListsMenu.setAttrs(
 				{
 					alignNode: currentTarget,
+					host: event.target,
 					visible: !window.<portlet:namespace />calendarListsMenu.get('visible')
 				}
 			);
-
-			event.stopImmediatePropagation();
 		},
 		'.calendar-list-item-arrow'
 	);
