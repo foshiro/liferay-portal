@@ -487,6 +487,6 @@ String backURL = PortalUtil.getCurrentURL(request);
 				}
 			);
 		},
-		'.calendar-list-item-arrow'
+		'.calendar-resource-list-item-arrow'
 	);
 </aui:script>
