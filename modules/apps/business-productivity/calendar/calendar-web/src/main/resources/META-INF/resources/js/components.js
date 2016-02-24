@@ -101,9 +101,8 @@
 
 							contentBox.delegate('click', instance._onClickItems, STR_DOT + CSS_SIMPLE_MENU_ITEM, instance);
 
+							contentBox.on('mouseupoutside', instance._closeMenu, instance);
 							contentBox.on('touchendoutside', instance._closeMenu, instance);
-
-							A.getDoc().on('click', instance._closeMenu, instance);
 
 							A.getWin().on(
 								'resize',
