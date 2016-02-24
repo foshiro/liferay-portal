@@ -486,8 +486,6 @@ String backURL = PortalUtil.getCurrentURL(request);
 					toggler: event.target
 				}
 			);
-
-			event.stopImmediatePropagation();
 		},
 		'.calendar-list-item-arrow'
 	);
