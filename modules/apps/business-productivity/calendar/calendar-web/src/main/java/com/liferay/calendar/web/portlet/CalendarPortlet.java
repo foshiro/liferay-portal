@@ -61,6 +61,8 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
@@ -273,9 +275,6 @@ public class CalendarPortlet extends MVCPortlet {
 			else if (resourceID.equals("exportCalendar")) {
 				serveExportCalendar(resourceRequest, resourceResponse);
 			}
-			else if (resourceID.equals("importCalendar")) {
-				serveImportCalendar(resourceRequest, resourceResponse);
-			}
 			else if (resourceID.equals("resourceCalendars")) {
 				serveResourceCalendars(resourceRequest, resourceResponse);
 			}
@@ -283,7 +282,7 @@ public class CalendarPortlet extends MVCPortlet {
 				serveUpdateCalendarBooking(resourceRequest, resourceResponse);
 			}
 			else {
-				super.serveResource(resourceRequest, resourceResponse);
+				serveUnknownResource(resourceRequest, resourceResponse);
 			}
 		}
 		catch (Exception e) {
@@ -1194,14 +1193,14 @@ public class CalendarPortlet extends MVCPortlet {
 			contentType);
 	}
 
-	protected void serveImportCalendar(
-			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+	public void importCalendar(
+			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
 		UploadPortletRequest uploadPortletRequest =
-			PortalUtil.getUploadPortletRequest(resourceRequest);
+			PortalUtil.getUploadPortletRequest(actionRequest);
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
 		long calendarId = ParamUtil.getLong(uploadPortletRequest, "calendarId");
@@ -1227,6 +1226,7 @@ public class CalendarPortlet extends MVCPortlet {
 					"an-unexpected-error-occurred-while-importing-your-" +
 						"file");
 
+				jsonObject.put("success", false);
 				jsonObject.put("error", message);
 			}
 		}
@@ -1237,10 +1237,11 @@ public class CalendarPortlet extends MVCPortlet {
 			String message = ResourceBundleUtil.getString(
 				resourceBundle, "failed-to-import-empty-file");
 
+			jsonObject.put("success", false);
 			jsonObject.put("error", message);
 		}
 
-		writeJSON(resourceRequest, resourceResponse, jsonObject);
+		writeJSON(actionRequest, actionResponse, jsonObject);
 	}
 
 	protected void serveResourceCalendars(
@@ -1259,6 +1260,29 @@ public class CalendarPortlet extends MVCPortlet {
 
 		JSONArray jsonObject = CalendarUtil.toCalendarsJSONArray(
 			themeDisplay, calendars);
+
+		writeJSON(resourceRequest, resourceResponse, jsonObject);
+	}
+
+	protected void serveUnknownResource(
+			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
+		throws IOException {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)resourceRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		String message = themeDisplay.translate(
+			"calendar-does-not-serve-resource-x",
+			resourceRequest.getResourceID());
+
+		if (_log.isWarnEnabled()) {
+			_log.warn(message);
+		}
+
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		jsonObject.put("success", false);
+		jsonObject.put("error", message);
 
 		writeJSON(resourceRequest, resourceResponse, jsonObject);
 	}
@@ -1471,6 +1495,9 @@ public class CalendarPortlet extends MVCPortlet {
 
 		return calendarBooking;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		CalendarPortlet.class);
 
 	private CalendarBookingLocalService _calendarBookingLocalService;
 	private CalendarBookingService _calendarBookingService;
