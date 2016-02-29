@@ -97,6 +97,10 @@ AUI.add(
 						getter: '_getLimitType'
 					},
 
+					masterRecurrence: {
+						getter: '_getRecurrence'
+					},
+
 					monthlyRecurrenceOptions: {
 						setter: A.one,
 						value: null
@@ -365,9 +369,9 @@ AUI.add(
 					_getSummary: function() {
 						var instance = this;
 
-						var recurrence = instance.get('recurrence');
+						var masterRecurrence = instance.get('masterRecurrence');
 
-						return Liferay.RecurrenceUtil.getSummary(recurrence);
+						return Liferay.RecurrenceUtil.getSummary(masterRecurrence);
 					},
 
 					_isLastDayOfWeekInMonth: function() {
