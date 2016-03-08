@@ -524,6 +524,7 @@ AUI.add(
 
 				if (params.payload) {
 					payload = Liferay.Util.ns(instance.PORTLET_NAMESPACE, params.payload);
+					url.setParameter('p_auth', Liferay.authToken);
 				}
 
 				A.io.request(
@@ -773,6 +774,9 @@ AUI.add(
 							startTimeYear: startDate.getFullYear(),
 							title: LString.unescapeHTML(schedulerEvent.get('content')),
 							updateInstance: updateInstance
+						},
+						queryParameters: {
+							p_auth: Liferay.authToken
 						},
 						resourceId: 'updateCalendarBooking'
 					}
