@@ -26,6 +26,7 @@ import com.liferay.calendar.service.CalendarResourceLocalServiceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
+import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -61,6 +62,16 @@ public class CalendarBookingImpl extends CalendarBookingBaseImpl {
 	}
 
 	@Override
+	public java.util.Calendar getEndTimeJCalendar() {
+		return getEndTimeJCalendar(getTimeZone());
+	}
+
+	@Override
+	public java.util.Calendar getEndTimeJCalendar(TimeZone timeZone) {
+		return CalendarFactoryUtil.getCalendar(getEndTime(), timeZone);
+	}
+
+	@Override
 	public NotificationType getFirstReminderNotificationType() {
 		return NotificationType.parse(getFirstReminderType());
 	}
@@ -90,6 +101,16 @@ public class CalendarBookingImpl extends CalendarBookingBaseImpl {
 	@Override
 	public NotificationType getSecondReminderNotificationType() {
 		return NotificationType.parse(getSecondReminderType());
+	}
+
+	@Override
+	public java.util.Calendar getStartTimeJCalendar() {
+		return getStartTimeJCalendar(getTimeZone());
+	}
+
+	@Override
+	public java.util.Calendar getStartTimeJCalendar(TimeZone timeZone) {
+		return CalendarFactoryUtil.getCalendar(getStartTime(), timeZone);
 	}
 
 	@Override

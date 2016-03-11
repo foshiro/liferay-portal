@@ -65,6 +65,10 @@ public interface CalendarBooking extends CalendarBookingModel, PermissionedModel
 
 	public long getDuration();
 
+	public java.util.Calendar getEndTimeJCalendar();
+
+	public java.util.Calendar getEndTimeJCalendar(java.util.TimeZone timeZone);
+
 	public com.liferay.calendar.notification.NotificationType getFirstReminderNotificationType();
 
 	@com.liferay.portal.kernel.json.JSON()
@@ -76,6 +80,10 @@ public interface CalendarBooking extends CalendarBookingModel, PermissionedModel
 	public com.liferay.calendar.recurrence.Recurrence getRecurrenceObj();
 
 	public com.liferay.calendar.notification.NotificationType getSecondReminderNotificationType();
+
+	public java.util.Calendar getStartTimeJCalendar();
+
+	public java.util.Calendar getStartTimeJCalendar(java.util.TimeZone timeZone);
 
 	public java.util.TimeZone getTimeZone();
 

@@ -27,13 +27,9 @@ calendarBooking = RecurrenceUtil.getCalendarBookingInstance(calendarBooking, ins
 
 Calendar calendar = calendarBooking.getCalendar();
 
-long startTime = calendarBooking.getStartTime();
+java.util.Calendar startTimeJCalendar = calendarBooking.getStartTime(userTimeZone);
 
-java.util.Calendar startTimeJCalendar = JCalendarUtil.getJCalendar(startTime, userTimeZone);
-
-long endTime = calendarBooking.getEndTime();
-
-java.util.Calendar endTimeJCalendar = JCalendarUtil.getJCalendar(endTime, userTimeZone);
+java.util.Calendar endTimeJCalendar = calendarBooking.getEndTime(userTimeZone);
 
 AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBooking.class.getName(), calendarBooking.getCalendarBookingId());
 %>

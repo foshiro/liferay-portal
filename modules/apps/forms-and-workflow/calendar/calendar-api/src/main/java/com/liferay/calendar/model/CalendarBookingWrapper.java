@@ -463,6 +463,16 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	}
 
 	@Override
+	public java.util.Calendar getEndTimeJCalendar() {
+		return _calendarBooking.getEndTimeJCalendar();
+	}
+
+	@Override
+	public java.util.Calendar getEndTimeJCalendar(java.util.TimeZone timeZone) {
+		return _calendarBooking.getEndTimeJCalendar(timeZone);
+	}
+
+	@Override
 	public ExpandoBridge getExpandoBridge() {
 		return _calendarBooking.getExpandoBridge();
 	}
@@ -626,6 +636,16 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	@Override
 	public long getStartTime() {
 		return _calendarBooking.getStartTime();
+	}
+
+	@Override
+	public java.util.Calendar getStartTimeJCalendar() {
+		return _calendarBooking.getStartTimeJCalendar();
+	}
+
+	@Override
+	public java.util.Calendar getStartTimeJCalendar(java.util.TimeZone timeZone) {
+		return _calendarBooking.getStartTimeJCalendar(timeZone);
 	}
 
 	/**
