@@ -65,7 +65,6 @@ public class CalendarBookingIndexer extends BaseIndexer<CalendarBooking> {
 			Field.COMPANY_ID, Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK,
 			Field.UID);
 		setDefaultSelectedLocalizedFieldNames(Field.DESCRIPTION, Field.TITLE);
-		setFilterSearch(true);
 		setPermissionAware(true);
 	}
 
@@ -74,6 +73,7 @@ public class CalendarBookingIndexer extends BaseIndexer<CalendarBooking> {
 		return CLASS_NAME;
 	}
 
+	@Deprecated
 	@Override
 	public boolean hasPermission(
 			PermissionChecker permissionChecker, String entryClassName,
