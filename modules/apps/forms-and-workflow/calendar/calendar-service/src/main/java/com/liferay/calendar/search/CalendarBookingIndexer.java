@@ -65,32 +65,12 @@ public class CalendarBookingIndexer extends BaseIndexer<CalendarBooking> {
 			Field.COMPANY_ID, Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK,
 			Field.UID);
 		setDefaultSelectedLocalizedFieldNames(Field.DESCRIPTION, Field.TITLE);
-		setFilterSearch(true);
 		setPermissionAware(true);
 	}
 
 	@Override
 	public String getClassName() {
 		return CLASS_NAME;
-	}
-
-	@Override
-	public boolean hasPermission(
-			PermissionChecker permissionChecker, String entryClassName,
-			long entryClassPK, String actionId)
-		throws Exception {
-
-		if (actionId.equals(ActionKeys.VIEW)) {
-			CalendarBooking calendarBooking =
-				_calendarBookingLocalService.getCalendarBooking(entryClassPK);
-
-			return CalendarPermission.contains(
-				permissionChecker, calendarBooking.getCalendar(),
-				CalendarActionKeys.VIEW_BOOKING_DETAILS);
-		}
-
-		return super.hasPermission(
-			permissionChecker, entryClassName, entryClassPK, actionId);
 	}
 
 	@Override
