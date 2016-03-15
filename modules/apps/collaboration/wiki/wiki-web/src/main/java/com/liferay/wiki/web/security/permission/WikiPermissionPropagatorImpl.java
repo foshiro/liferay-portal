@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.BasePermissionPropagator;
 import com.liferay.portal.kernel.security.permission.PermissionPropagator;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.util.PropsValues;
 import com.liferay.wiki.constants.WikiPortletKeys;
 import com.liferay.wiki.model.WikiNode;
 import com.liferay.wiki.model.WikiPage;
@@ -51,6 +52,10 @@ public class WikiPermissionPropagatorImpl extends BasePermissionPropagator {
 			ActionRequest actionRequest, String className, String primKey,
 			long[] roleIds)
 		throws PortalException {
+
+		if (!PropsValues.PERMISSIONS_PROPAGATION_ENABLED) {
+			return;
+		}
 
 		if (!className.equals(WikiNode.class.getName())) {
 			return;

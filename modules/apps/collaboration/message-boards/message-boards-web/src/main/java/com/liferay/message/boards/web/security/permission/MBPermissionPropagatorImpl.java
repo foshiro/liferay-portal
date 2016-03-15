@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.security.permission.BasePermissionPropagator;
 import com.liferay.portal.kernel.security.permission.PermissionPropagator;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.util.PropsValues;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,10 @@ public class MBPermissionPropagatorImpl extends BasePermissionPropagator {
 			ActionRequest actionRequest, String className, String primKey,
 			long[] roleIds)
 		throws PortalException {
+
+		if (!PropsValues.PERMISSIONS_PROPAGATION_ENABLED) {
+			return;
+		}
 
 		if (className.equals(MBCategory.class.getName())) {
 			propagateCategoryRolePermissions(

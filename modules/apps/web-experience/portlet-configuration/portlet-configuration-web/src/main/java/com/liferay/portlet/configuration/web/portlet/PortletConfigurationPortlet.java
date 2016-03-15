@@ -63,7 +63,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.PortletConfigImpl;
 import com.liferay.portlet.configuration.kernel.util.PortletConfigurationUtil;
 import com.liferay.portlet.portletconfiguration.action.ActionUtil;
@@ -551,24 +550,19 @@ public class PortletConfigurationPortlet extends MVCPortlet {
 				resourcePrimKey, roleIdsToActionIds);
 		}
 
-		if (PropsValues.PERMISSIONS_PROPAGATION_ENABLED) {
-			Portlet portlet = _portletLocalService.getPortletById(
-				themeDisplay.getCompanyId(), portletResource);
+		Portlet portlet = ActionUtil.getPortlet(actionRequest);
 
-			PermissionPropagator permissionPropagator =
-				portlet.getPermissionPropagatorInstance();
+		PermissionPropagator permissionPropagator =
+			portlet.getPermissionPropagatorInstance();
 
-			if (permissionPropagator != null) {
-				permissionPropagator.propagateRolePermissions(
-					actionRequest, modelResource, resourcePrimKey, roleIds);
-			}
+		if (permissionPropagator != null) {
+			permissionPropagator.propagateRolePermissions(
+				actionRequest, modelResource, resourcePrimKey, roleIds);
 		}
 
 		if (Validator.isNotNull(modelResource)) {
 
 			// Force update of layout modified date. See LPS-59246.
-
-			Portlet portlet = ActionUtil.getPortlet(actionRequest);
 
 			PortletPreferences portletPreferences =
 				ActionUtil.getLayoutPortletSetup(actionRequest, portlet);
