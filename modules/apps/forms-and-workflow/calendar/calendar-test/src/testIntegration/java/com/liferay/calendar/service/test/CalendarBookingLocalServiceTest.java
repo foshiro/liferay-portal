@@ -27,6 +27,7 @@ import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.service.CalendarBookingLocalServiceUtil;
 import com.liferay.calendar.service.CalendarLocalServiceUtil;
 import com.liferay.calendar.util.CalendarResourceUtil;
+import com.liferay.calendar.util.JCalendarUtil;
 import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -636,6 +637,106 @@ public class CalendarBookingLocalServiceTest {
 			RecurrenceSerializer.serialize(recurrence),
 			RecurrenceSerializer.serialize(recurrence), 0, null, 0, null,
 			serviceContext);
+	}
+
+	@Test
+	public void testUpdateCalendarBookingInstance() throws Exception {
+		ServiceContext serviceContext = createServiceContext();
+
+		CalendarResource calendarResource =
+			CalendarResourceUtil.getUserCalendarResource(
+				_user.getUserId(), serviceContext);
+
+		Calendar calendar = calendarResource.getDefaultCalendar();
+
+		long startTime = System.currentTimeMillis();
+
+		// The below block of code (ending with the if statement) is necessary
+		// to protect against a known bug where recurring events that end on a
+		// different day than they start are not handled correctly. Once this
+		// bug is fixed, this block of code can be removed.
+
+		java.util.Calendar startJCalendar = JCalendarUtil.getJCalendar(
+			startTime);
+
+		int startDay = startJCalendar.get(java.util.Calendar.DAY_OF_YEAR);
+
+		java.util.Calendar endJCalendar = JCalendarUtil.getJCalendar(
+			startTime + 72000000);
+
+		int endDay = endJCalendar.get(java.util.Calendar.DAY_OF_YEAR);
+
+		if (startDay != endDay) {
+			startTime = startTime - 72000000;
+		}
+
+		String recurrence = "RRULE:FREQ=DAILY;INTERVAL=1";
+
+		Map<Locale, String> titleMap = RandomTestUtil.randomLocaleStringMap();
+		Map<Locale, String> newTitleMap =
+			RandomTestUtil.randomLocaleStringMap();
+		Map<Locale, String> descriptionMap =
+			RandomTestUtil.randomLocaleStringMap();
+
+		String location = RandomTestUtil.randomString();
+		String newLocation = RandomTestUtil.randomString();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingLocalServiceUtil.addCalendarBooking(
+				_user.getUserId(), calendar.getCalendarId(), new long[0],
+				CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT,
+				CalendarBookingConstants.RECURRING_CALENDAR_BOOKING_ID_DEFAULT,
+				titleMap, descriptionMap, location, startTime,
+				startTime + 36000000, false, recurrence, recurrence, 0, null, 0,
+				null, serviceContext);
+
+		CalendarBooking newCalendarBookingInstance =
+			CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
+				_user.getUserId(), calendarBooking.getCalendarBookingId(), 5,
+				calendar.getCalendarId(), titleMap, descriptionMap, location,
+				startTime + JCalendarUtil.DAY * 5,
+				startTime + 72000000 + + JCalendarUtil.DAY * 5, false,
+				recurrence, false, 0, null, 0, null, serviceContext);
+
+		CalendarBooking newFollowingCalendarBookings =
+			CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
+				_user.getUserId(), calendarBooking.getCalendarBookingId(), 3,
+				calendar.getCalendarId(), titleMap, descriptionMap, newLocation,
+				startTime + JCalendarUtil.DAY * 3,
+				startTime + 36000000 + JCalendarUtil.DAY * 3, false, recurrence,
+				true, 0, null, 0, null, serviceContext);
+
+		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+			calendarBooking.getCalendarBookingId());
+		newCalendarBookingInstance =
+			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+				newCalendarBookingInstance.getCalendarBookingId());
+		newFollowingCalendarBookings =
+			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+				newFollowingCalendarBookings.getCalendarBookingId());
+
+		Assert.assertEquals(72000000, newCalendarBookingInstance.getDuration());
+		Assert.assertEquals(
+			36000000, newFollowingCalendarBookings.getDuration());
+
+		Assert.assertEquals(location, calendarBooking.getLocation());
+		Assert.assertEquals(
+			newLocation, newCalendarBookingInstance.getLocation());
+		Assert.assertEquals(
+			newLocation, newFollowingCalendarBookings.getLocation());
+
+		CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
+			_user.getUserId(), calendarBooking.getCalendarBookingId(), 5,
+			calendar.getCalendarId(), newTitleMap, descriptionMap, location,
+			startTime + JCalendarUtil.DAY * 5,
+			startTime + 72000000 + JCalendarUtil.DAY * 5, false, recurrence,
+			true, 0, null, 0, null, serviceContext);
+
+		List<CalendarBooking> calendarBookings =
+			CalendarBookingLocalServiceUtil.getRelatedRecurringCalendarBookings(
+				calendarBooking);
+
+		Assert.assertEquals(4, calendarBookings.size());
 	}
 
 	@Test

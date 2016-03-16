@@ -14,10 +14,14 @@
 
 package com.liferay.calendar.util.test;
 
+import com.google.ical.values.DateValue;
+import com.google.ical.values.DateValueImpl;
+
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.impl.CalendarBookingImpl;
 import com.liferay.calendar.util.CalendarBookingIterator;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -54,6 +58,7 @@ public class CalendarBookingIteratorTest {
 
 		calendarBooking.setStartTime(calendar.getTimeInMillis());
 		calendarBooking.setRecurrence(null);
+		calendarBooking.setMasterRecurrence(null);
 
 		List<CalendarBooking> calendarBookings = new ArrayList<>();
 
@@ -85,6 +90,8 @@ public class CalendarBookingIteratorTest {
 
 		calendarBooking.setStartTime(calendar.getTimeInMillis());
 		calendarBooking.setRecurrence(
+			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=MO");
+		calendarBooking.setMasterRecurrence(
 			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=MO");
 
 		List<CalendarBooking> calendarBookings = new ArrayList<>();
@@ -118,6 +125,8 @@ public class CalendarBookingIteratorTest {
 		calendarBooking.setStartTime(calendar.getTimeInMillis());
 		calendarBooking.setRecurrence(
 			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=WE");
+		calendarBooking.setMasterRecurrence(
+			"RRULE:FREQ=WEEKLY;COUNT=2;INTERVAL=1;BYDAY=WE");
 
 		List<CalendarBooking> calendarBookings = new ArrayList<>();
 
@@ -135,6 +144,79 @@ public class CalendarBookingIteratorTest {
 		}
 
 		Assert.assertEquals(2, count);
+	}
+
+	@Test
+	public void testRecurrenceWithMultipleBookings() throws ParseException {
+		Calendar calendar = Calendar.getInstance();
+
+		calendar.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
+
+		Calendar exceptionCalendar = (Calendar)calendar.clone();
+
+		exceptionCalendar.add(Calendar.WEEK_OF_YEAR, 2);
+
+		CalendarBooking calendarBooking = new MockCalendarBooking();
+
+		CalendarBooking exceptionCalendarBooking = new MockCalendarBooking();
+
+		long calendarBookingId = RandomTestUtil.randomLong();
+
+		long exceptionCalendarBookingId = calendarBookingId + 1;
+
+		calendarBooking.setCalendarBookingId(calendarBookingId);
+		exceptionCalendarBooking.setCalendarBookingId(
+			exceptionCalendarBookingId);
+
+		calendarBooking.setRecurringCalendarBookingId(calendarBookingId);
+		exceptionCalendarBooking.setRecurringCalendarBookingId(
+			calendarBookingId);
+
+		calendarBooking.setStartTime(calendar.getTimeInMillis());
+		exceptionCalendarBooking.setStartTime(
+			exceptionCalendar.getTimeInMillis());
+
+		calendarBooking.setMasterRecurrence(
+			"RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=WE");
+		exceptionCalendarBooking.setMasterRecurrence(
+			"RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=WE");
+
+		calendarBooking.setRecurrence(
+			"RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=WE\n"+
+				"EXDATE;TZID=\"UTC\";VALUE=DATE:" +
+					toDateString(exceptionCalendar));
+		exceptionCalendarBooking.setRecurrence(null);
+
+		List<CalendarBooking> calendarBookings = new ArrayList<>();
+
+		calendarBookings.add(calendarBooking);
+		calendarBookings.add(exceptionCalendarBooking);
+
+		CalendarBookingIterator calendarBookingIterator =
+			new CalendarBookingIterator(calendarBookings);
+
+		CalendarBooking testCalendarBooking = null;
+
+		for (int i = 0; i < 3; i++) {
+			testCalendarBooking = calendarBookingIterator.next();
+		}
+
+		Assert.assertEquals(
+			exceptionCalendarBookingId,
+			testCalendarBooking.getCalendarBookingId());
+
+		testCalendarBooking = calendarBookingIterator.next();
+
+		Assert.assertEquals(
+			calendarBookingId, testCalendarBooking.getCalendarBookingId());
+	}
+
+	protected static String toDateString(Calendar calendar) {
+		DateValue dateValue = new DateValueImpl(
+			calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1,
+			calendar.get(Calendar.DATE));
+
+		return dateValue.toString();
 	}
 
 	protected class MockCalendarBooking extends CalendarBookingImpl {
