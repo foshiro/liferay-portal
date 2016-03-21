@@ -36,25 +36,26 @@ import org.osgi.service.component.annotations.Reference;
 public class CalendarModelListener extends BaseModelListener<Calendar> {
 
 	@Override
-	public void onAfterUpdate(Calendar calendar)
-	throws ModelListenerException {
+	public void onAfterUpdate(Calendar calendar) throws ModelListenerException {
+		Indexer<CalendarBooking> indexer = _indexerRegistry.nullSafeGetIndexer(
+			CalendarBooking.class);
 
 		List<CalendarBooking> calendarBookings =
 			_calendarBookingLocalService.getCalendarBookings(
 				calendar.getCalendarId());
 
-		Indexer<CalendarBooking> indexer = _indexerRegistry.getIndexer(
-			CalendarBooking.class);
-
 		try {
 			indexer.reindex(calendarBookings);
-		} catch (SearchException e) {
-			new ModelListenerException(e);
+		}
+		catch (SearchException se) {
+			new ModelListenerException(se);
 		}
 	}
 
 	@Reference(unbind = "-")
-	private IndexerRegistry _indexerRegistry;
-	@Reference(unbind = "-")
 	private CalendarBookingLocalService _calendarBookingLocalService;
+
+	@Reference(unbind = "-")
+	private IndexerRegistry _indexerRegistry;
+
 }
