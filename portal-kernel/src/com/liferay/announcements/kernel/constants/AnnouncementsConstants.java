@@ -22,4 +22,6 @@ public class AnnouncementsConstants {
 	public static final String CLASS_NAME_ALERTS_ENTRY =
 		"com.liferay.announcements.kernel.model.AlertsEntry";
 
+	public static final String OTHER_CONSTANT = "otherconstant";
+
 }
