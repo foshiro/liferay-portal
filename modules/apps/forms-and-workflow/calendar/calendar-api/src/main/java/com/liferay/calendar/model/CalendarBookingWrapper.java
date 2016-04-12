@@ -981,6 +981,11 @@ public class CalendarBookingWrapper implements CalendarBooking,
 	}
 
 	@Override
+	public boolean isMasterRecurringBooking() {
+		return _calendarBooking.isMasterRecurringBooking();
+	}
+
+	@Override
 	public boolean isNew() {
 		return _calendarBooking.isNew();
 	}
