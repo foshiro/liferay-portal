@@ -1718,7 +1718,8 @@ public class CalendarBookingLocalServiceImpl
 			recurrence, startTimeJCalendar.getTimeZone());
 
 		if ((recurrenceObj.getUntilJCalendar() != null) &&
-			startTimeJCalendar.after(recurrenceObj.getUntilJCalendar())) {
+			JCalendarUtil.isLaterDay(
+				startTimeJCalendar, recurrenceObj.getUntilJCalendar())) {
 
 			throw new CalendarBookingRecurrenceException();
 		}
