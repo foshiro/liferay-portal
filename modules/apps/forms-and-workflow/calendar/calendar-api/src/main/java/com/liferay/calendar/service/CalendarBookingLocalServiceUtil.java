@@ -95,10 +95,19 @@ public class CalendarBookingLocalServiceUtil {
 	* @return the calendar booking that was removed
 	* @throws PortalException
 	*/
+	@Deprecated
 	public static com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
 		com.liferay.calendar.model.CalendarBooking calendarBooking)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().deleteCalendarBooking(calendarBooking);
+	}
+
+	public static com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		boolean allRecurringInstances)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .deleteCalendarBooking(calendarBooking, allRecurringInstances);
 	}
 
 	/**
@@ -108,10 +117,19 @@ public class CalendarBookingLocalServiceUtil {
 	* @return the calendar booking that was removed
 	* @throws PortalException if a calendar booking with the primary key could not be found
 	*/
+	@Deprecated
 	public static com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
 		long calendarBookingId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().deleteCalendarBooking(calendarBookingId);
+	}
+
+	public static com.liferay.calendar.model.CalendarBooking deleteCalendarBooking(
+		long calendarBookingId, boolean allRecurringInstances)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return getService()
+				   .deleteCalendarBooking(calendarBookingId,
+			allRecurringInstances);
 	}
 
 	public static void deleteCalendarBookingInstance(
@@ -125,11 +143,29 @@ public class CalendarBookingLocalServiceUtil {
 
 	public static void deleteCalendarBookingInstance(
 		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		int instanceIndex, boolean allFollowing, boolean relatedBookings)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.deleteCalendarBookingInstance(calendarBooking, instanceIndex,
+			allFollowing, relatedBookings);
+	}
+
+	public static void deleteCalendarBookingInstance(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
 		long startTime, boolean allFollowing)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		getService()
 			.deleteCalendarBookingInstance(calendarBooking, startTime,
 			allFollowing);
+	}
+
+	public static void deleteCalendarBookingInstance(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		long startTime, boolean allFollowing, boolean relatedBookings)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		getService()
+			.deleteCalendarBookingInstance(calendarBooking, startTime,
+			allFollowing, relatedBookings);
 	}
 
 	public static void deleteCalendarBookingInstance(long calendarBookingId,
@@ -415,6 +451,14 @@ public class CalendarBookingLocalServiceUtil {
 		return getService().getExportActionableDynamicQuery(portletDataContext);
 	}
 
+	public static java.util.List<com.liferay.calendar.model.CalendarBooking> getFollowingRelatedCalendarBookings(
+		com.liferay.calendar.model.CalendarBooking calendarBooking,
+		long startTime) {
+		return getService()
+				   .getFollowingRelatedCalendarBookings(calendarBooking,
+			startTime);
+	}
+
 	public static com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery getIndexableActionableDynamicQuery() {
 		return getService().getIndexableActionableDynamicQuery();
 	}
@@ -432,6 +476,11 @@ public class CalendarBookingLocalServiceUtil {
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException {
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	public static java.util.List<com.liferay.calendar.model.CalendarBooking> getRelatedCalendarBookings(
+		com.liferay.calendar.model.CalendarBooking calendarBooking) {
+		return getService().getRelatedCalendarBookings(calendarBooking);
 	}
 
 	public static com.liferay.calendar.model.CalendarBooking moveCalendarBookingToTrash(
