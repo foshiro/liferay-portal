@@ -51,15 +51,19 @@ public class CalendarImporterLocalServiceUtil {
 		return getService().getOSGiServiceIdentifier();
 	}
 
-	public static void importCalEvent(
-		com.liferay.portlet.calendar.model.CalEvent calEvent)
-		throws com.liferay.portal.kernel.exception.PortalException {
-		getService().importCalEvent(calEvent);
-	}
-
-	public static void importCalEvents()
-		throws com.liferay.portal.kernel.exception.PortalException {
-		getService().importCalEvents();
+	public static void importCalEvent(java.lang.String uuid, long eventId,
+		long _groupId, long companyId, long userId, java.lang.String userName,
+		java.sql.Timestamp createDate, java.sql.Timestamp modifiedDate,
+		java.lang.String title, java.lang.String description,
+		java.lang.String location, java.sql.Timestamp startDate,
+		int durationHour, int durationMinute, boolean allDay,
+		java.lang.String type, java.lang.String recurrence, int firstReminder,
+		int secondReminder) {
+		getService()
+			.importCalEvent(uuid, eventId, _groupId, companyId, userId,
+			userName, createDate, modifiedDate, title, description, location,
+			startDate, durationHour, durationMinute, allDay, type, recurrence,
+			firstReminder, secondReminder);
 	}
 
 	public static void importRolePermissions() {

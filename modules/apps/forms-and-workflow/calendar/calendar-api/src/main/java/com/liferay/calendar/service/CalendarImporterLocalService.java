@@ -18,11 +18,11 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Transactional;
-import com.liferay.portal.service.BaseLocalService;
 
-import com.liferay.portlet.calendar.model.CalEvent;
+import java.sql.Timestamp;
 
 /**
  * Provides the local service interface for CalendarImporter. Methods of this
@@ -53,9 +53,13 @@ public interface CalendarImporterLocalService extends BaseLocalService {
 	*/
 	public java.lang.String getOSGiServiceIdentifier();
 
-	public void importCalEvent(CalEvent calEvent) throws PortalException;
-
-	public void importCalEvents() throws PortalException;
+	public void importCalEvent(java.lang.String uuid, long eventId,
+		long _groupId, long companyId, long userId, java.lang.String userName,
+		Timestamp createDate, Timestamp modifiedDate, java.lang.String title,
+		java.lang.String description, java.lang.String location,
+		Timestamp startDate, int durationHour, int durationMinute,
+		boolean allDay, java.lang.String type, java.lang.String recurrence,
+		int firstReminder, int secondReminder);
 
 	public void importRolePermissions();
 }

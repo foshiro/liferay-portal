@@ -210,6 +210,25 @@ public abstract class CalendarServiceBaseImpl extends BaseServiceImpl
 	}
 
 	/**
+	 * Returns the calendar importer local service.
+	 *
+	 * @return the calendar importer local service
+	 */
+	public com.liferay.calendar.service.CalendarImporterLocalService getCalendarImporterLocalService() {
+		return calendarImporterLocalService;
+	}
+
+	/**
+	 * Sets the calendar importer local service.
+	 *
+	 * @param calendarImporterLocalService the calendar importer local service
+	 */
+	public void setCalendarImporterLocalService(
+		com.liferay.calendar.service.CalendarImporterLocalService calendarImporterLocalService) {
+		this.calendarImporterLocalService = calendarImporterLocalService;
+	}
+
+	/**
 	 * Returns the calendar notification template local service.
 	 *
 	 * @return the calendar notification template local service
@@ -599,7 +618,7 @@ public abstract class CalendarServiceBaseImpl extends BaseServiceImpl
 
 	@BeanReference(type = com.liferay.calendar.service.CalendarLocalService.class)
 	protected com.liferay.calendar.service.CalendarLocalService calendarLocalService;
-	@BeanReference(type = CalendarService.class)
+	@BeanReference(type = com.liferay.calendar.service.CalendarService.class)
 	protected CalendarService calendarService;
 	@BeanReference(type = CalendarPersistence.class)
 	protected CalendarPersistence calendarPersistence;
@@ -613,6 +632,8 @@ public abstract class CalendarServiceBaseImpl extends BaseServiceImpl
 	protected CalendarBookingPersistence calendarBookingPersistence;
 	@BeanReference(type = CalendarBookingFinder.class)
 	protected CalendarBookingFinder calendarBookingFinder;
+	@BeanReference(type = com.liferay.calendar.service.CalendarImporterLocalService.class)
+	protected com.liferay.calendar.service.CalendarImporterLocalService calendarImporterLocalService;
 	@BeanReference(type = com.liferay.calendar.service.CalendarNotificationTemplateLocalService.class)
 	protected com.liferay.calendar.service.CalendarNotificationTemplateLocalService calendarNotificationTemplateLocalService;
 	@BeanReference(type = com.liferay.calendar.service.CalendarNotificationTemplateService.class)
