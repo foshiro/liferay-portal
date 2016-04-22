@@ -154,6 +154,29 @@
 		<reference entity="SocialActivityCounter" package-path="com.liferay.portlet.social" />
 		<reference entity="TrashEntry" package-path="com.liferay.portlet.trash" />
 	</entity>
+	<entity name="CalendarImporter" local-service="true" remote-service="false">
+
+		<!-- References -->
+
+		<reference package-path="com.liferay.portal" entity="Group" />
+		<reference package-path="com.liferay.portal" entity="ResourceAction" />
+		<reference package-path="com.liferay.portal" entity="ResourceBlock" />
+		<reference package-path="com.liferay.portal" entity="ResourcePermission" />
+		<reference package-path="com.liferay.portal" entity="Role" />
+		<reference package-path="com.liferay.portal" entity="Subscription" />
+		<reference package-path="com.liferay.portlet.asset" entity="AssetCategory" />
+		<reference package-path="com.liferay.portlet.asset" entity="AssetEntry" />
+		<reference package-path="com.liferay.portlet.asset" entity="AssetLink" />
+		<reference package-path="com.liferay.portlet.asset" entity="AssetVocabulary" />
+		<reference package-path="com.liferay.portlet.calendar" entity="CalEvent" />
+		<reference package-path="com.liferay.portlet.calendar" entity="CalEvent" />
+		<reference package-path="com.liferay.portlet.messageboards" entity="MBDiscussion" />
+		<reference package-path="com.liferay.portlet.messageboards" entity="MBMessage" />
+		<reference package-path="com.liferay.portlet.messageboards" entity="MBThread" />
+		<reference package-path="com.liferay.portlet.ratings" entity="RatingsEntry" />
+		<reference package-path="com.liferay.portlet.ratings" entity="RatingsStats" />
+		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
+	</entity>
 	<entity local-service="true" name="CalendarNotificationTemplate" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
