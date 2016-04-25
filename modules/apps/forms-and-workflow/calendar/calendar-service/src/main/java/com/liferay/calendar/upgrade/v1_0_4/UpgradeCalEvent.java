@@ -14,12 +14,18 @@
 
 package com.liferay.calendar.upgrade.v1_0_4;
 
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetLink;
+import com.liferay.asset.kernel.model.AssetTag;
+import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetLinkLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.kernel.service.persistence.AssetCategoryPersistence;
+import com.liferay.asset.kernel.service.persistence.AssetLinkPersistence;
 import com.liferay.asset.kernel.service.persistence.AssetVocabularyPersistence;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarResource;
@@ -31,6 +37,7 @@ import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.recurrence.Weekday;
 import com.liferay.calendar.service.CalendarResourceLocalService;
 import com.liferay.calendar.service.persistence.CalendarBookingPersistence;
+import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.portal.kernel.cal.DayAndPosition;
 import com.liferay.portal.kernel.cal.TZSRecurrence;
@@ -47,7 +54,9 @@ import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceBlockLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.SubscriptionLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.persistence.ResourceActionPersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
@@ -78,6 +87,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		AssetCategoryPersistence assetCategoryPersistence,
 		AssetEntryLocalService assetEntryLocalService,
 		AssetLinkLocalService assetLinkLocalService,
+		AssetLinkPersistence assetLinkPersistence,
 		AssetVocabularyLocalService assetVocabularyLocalService,
 		AssetVocabularyPersistence assetVocabularyPersistence,
 		CalendarBookingPersistence calendarBookingPersistence,
@@ -89,14 +99,15 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		ResourceBlockLocalService resourceBlockLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
 		SubscriptionLocalService subscriptionLocalService,
-		UserPersistence userPersistence) {
+		UserPersistence userPersistence, UserLocalService userLocalService) {
 
 		_assetCategoryLocalService = assetCategoryLocalService;
 		_assetCategoryPersistence = assetCategoryPersistence;
 		_assetEntryLocalService = assetEntryLocalService;
 		_assetLinkLocalService = assetLinkLocalService;
-		_assetVocabularyPersistence = assetVocabularyPersistence;
+		_assetLinkPersistence = assetLinkPersistence;
 		_assetVocabularyLocalService = assetVocabularyLocalService;
+		_assetVocabularyPersistence = assetVocabularyPersistence;
 		_calendarBookingPersistence = calendarBookingPersistence;
 		_calendarResourceLocalService = calendarResourceLocalService;
 		_classNameLocalService = classNameLocalService;
@@ -107,6 +118,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_resourcePermissionLocalService = resourcePermissionLocalService;
 		_subscriptionLocalService = subscriptionLocalService;
 		_userPersistence = userPersistence;
+		_userLocalService = userLocalService;
 
 		_userClassNameId = _classNameLocalService.getClassNameId(User.class);
 		_groupClassNameId = _classNameLocalService.getClassNameId(Group.class);
@@ -152,7 +164,25 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_assetEntryLocalService.updateAssetEntry(assetEntry);
 	}
 
-	protected void addCalendarBooking(
+	protected void addAssetLink(
+		long linkId, long companyId, long userId, String userName,
+		Date createDate, long entryId1, long entryId2, int type, int weight) {
+
+		AssetLink assetLink = _assetLinkPersistence.create(linkId);
+
+		assetLink.setCompanyId(companyId);
+		assetLink.setUserId(userId);
+		assetLink.setUserName(userName);
+		assetLink.setCreateDate(createDate);
+		assetLink.setEntryId1(entryId1);
+		assetLink.setEntryId2(entryId2);
+		assetLink.setType(type);
+		assetLink.setWeight(weight);
+
+		_assetLinkPersistence.update(assetLink);
+	}
+
+	protected CalendarBooking addCalendarBooking(
 		String uuid, long calendarBookingId, long companyId, long groupId,
 		long userId, String userName, Timestamp createDate,
 		Timestamp modifiedDate, long calendarId, long calendarResourceId,
@@ -191,7 +221,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		calendarBooking.setStatusByUserName(userName);
 		calendarBooking.setStatusDate(createDate);
 
-		_calendarBookingPersistence.update(calendarBooking);
+		return _calendarBookingPersistence.update(calendarBooking);
 	}
 
 	protected void addSubscription(
@@ -342,6 +372,194 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		return actionIds;
 	}
 
+	protected AssetCategory getAssetCategory(
+			long userId, long companyId, long groupId, String name)
+		throws PortalException {
+
+		AssetVocabulary assetVocabulary =
+			_assetVocabularyPersistence.fetchByG_N(
+				groupId, _ASSET_VOCABULARY_NAME);
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setScopeGroupId(groupId);
+
+		User user = _userPersistence.fetchByC_U(companyId, userId);
+
+		if (user == null) {
+			user = _userPersistence.fetchByC_DU(companyId, true);
+
+			userId = user.getUserId();
+		}
+
+		serviceContext.setUserId(userId);
+
+		if (assetVocabulary == null) {
+			assetVocabulary = _assetVocabularyLocalService.addVocabulary(
+				userId, groupId, _ASSET_VOCABULARY_NAME, serviceContext);
+		}
+
+		AssetCategory assetCategory = _assetCategoryPersistence.fetchByP_N_V(
+			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, name,
+			assetVocabulary.getVocabularyId());
+
+		if (assetCategory != null) {
+			return assetCategory;
+		}
+
+		return _assetCategoryLocalService.addCategory(
+			userId, groupId, name, assetVocabulary.getVocabularyId(),
+			serviceContext);
+	}
+
+	protected CalendarResource getCalendarResource(long companyId, long groupId)
+		throws PortalException {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+
+		long userId = _userLocalService.getDefaultUserId(companyId);
+
+		serviceContext.setUserId(userId);
+
+		Group group = _groupLocalService.getGroup(groupId);
+
+		if (group.isUser()) {
+			return CalendarResourceUtil.getUserCalendarResource(
+				group.getCreatorUserId(), serviceContext);
+		}
+
+		return CalendarResourceUtil.getGroupCalendarResource(
+			groupId, serviceContext);
+	}
+
+	protected void importAssetLink(
+			AssetLink assetLink, long oldEntryId, long newEntryId)
+		throws Exception {
+
+		long entryId1 = 0;
+		long entryId2 = 0;
+
+		AssetEntry linkedAssetEntry;
+
+		if (assetLink.getEntryId1() == oldEntryId) {
+			entryId1 = newEntryId;
+			entryId2 = assetLink.getEntryId2();
+
+			linkedAssetEntry = _assetEntryLocalService.fetchAssetEntry(
+				entryId2);
+		}
+		else {
+			entryId1 = assetLink.getEntryId1();
+			entryId2 = newEntryId;
+
+			linkedAssetEntry = _assetEntryLocalService.fetchAssetEntry(
+				entryId2);
+		}
+
+		if (linkedAssetEntry.getClassNameId() ==
+				_classNameLocalService.getClassNameId(_CAL_EVENT_CLASS_NAME)) {
+
+			List<CalendarBooking> calendarBookings = importCalEvent(
+				linkedAssetEntry.getClassPK());
+
+			CalendarBooking calendarBooking = calendarBookings.get(0);
+
+			CalendarResource calendarResource = getCalendarResource(
+				calendarBooking.getCompanyId(), calendarBooking.getGroupId());
+
+			linkedAssetEntry = _assetEntryLocalService.getEntry(
+				calendarResource.getGroupId(), calendarBooking.getUuid());
+
+			if (assetLink.getEntryId1() == oldEntryId) {
+				entryId2 = linkedAssetEntry.getEntryId();
+			}
+			else {
+				entryId1 = linkedAssetEntry.getEntryId();
+			}
+
+			if (_assetLinkPersistence.countByE_E_T(
+					entryId1, entryId2, assetLink.getType()) > 0) {
+
+				return;
+			}
+		}
+
+		long linkId = _counterLocalService.increment();
+
+		addAssetLink(
+			linkId, assetLink.getCompanyId(), assetLink.getUserId(),
+			assetLink.getUserName(), assetLink.getCreateDate(), entryId1,
+			entryId2, assetLink.getType(), assetLink.getWeight());
+	}
+
+	protected void importAssets(
+			String uuid, long companyId, long groupId, long userId, String type,
+			long eventId, long calendarBookingId)
+		throws Exception {
+
+		// Asset entry
+
+		AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
+			_CAL_EVENT_CLASS_NAME, eventId);
+
+		if (assetEntry == null) {
+			return;
+		}
+
+		long entryId = _counterLocalService.increment();
+
+		addAssetEntry(
+			entryId, assetEntry.getGroupId(), assetEntry.getCompanyId(),
+			assetEntry.getUserId(), assetEntry.getUserName(),
+			assetEntry.getCreateDate(), assetEntry.getModifiedDate(),
+			_classNameLocalService.getClassNameId(
+				CalendarBooking.class.getName()),
+			calendarBookingId, uuid, assetEntry.isVisible(),
+			assetEntry.getStartDate(), assetEntry.getEndDate(),
+			assetEntry.getPublishDate(), assetEntry.getExpirationDate(),
+			assetEntry.getMimeType(), assetEntry.getTitle(),
+			assetEntry.getDescription(), assetEntry.getSummary(),
+			assetEntry.getUrl(), assetEntry.getLayoutUuid(),
+			assetEntry.getHeight(), assetEntry.getWidth(),
+			assetEntry.getPriority(), assetEntry.getViewCount());
+
+		// Asset categories
+
+		List<AssetCategory> assetCategories = new ArrayList<>();
+
+		assetCategories.addAll(assetEntry.getCategories());
+
+		if (Validator.isNotNull(type)) {
+			assetCategories.add(
+				getAssetCategory(userId, companyId, groupId, type));
+		}
+
+		for (AssetCategory assetCategory : assetCategories) {
+			_assetEntryLocalService.addAssetCategoryAssetEntry(
+				assetCategory.getCategoryId(), entryId);
+		}
+
+		// Asset links
+
+		List<AssetLink> assetLinks = _assetLinkLocalService.getLinks(
+			assetEntry.getEntryId());
+
+		for (AssetLink assetLink : assetLinks) {
+			importAssetLink(assetLink, assetEntry.getEntryId(), entryId);
+		}
+
+		// Asset tags
+
+		List<AssetTag> assetTags = assetEntry.getTags();
+
+		for (AssetTag assetTag : assetTags) {
+			_assetEntryLocalService.addAssetTagAssetEntry(
+				assetTag.getTagId(), entryId);
+		}
+	}
+
 	protected void importCalendarBookingResourcePermission(
 		ResourcePermission resourcePermission,
 		long calendarBookingId) throws PortalException {
@@ -375,67 +593,11 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		}
 	}
 
-	protected void importCalEvent(
-		String uuid, long eventId, long groupId, long companyId, long userId,
-		String userName, Timestamp createDate, Timestamp modifiedDate,
-		String title, String description, String location, Timestamp startDate,
-		int durationHour, int durationMinute, boolean allDay, String recurrence,
-		String type, int firstReminder,
-		int secondReminder) throws PortalException {
+	protected List<CalendarBooking> importCalEvent(long importingEventId)
+		throws Exception {
 
-		Group group = _groupLocalService.getGroup(groupId);
+		List<CalendarBooking> calendarBookings = new ArrayList<>();
 
-		CalendarResource calendarResource;
-
-		if (group.isUser()) {
-			calendarResource =
-				_calendarResourceLocalService.fetchCalendarResource(
-					_userClassNameId, userId);
-		}
-		else {
-			calendarResource =
-				_calendarResourceLocalService.fetchCalendarResource(
-					_groupClassNameId, userId);
-		}
-
-		CalendarBooking calendarBooking = fetchCalendarBooking(
-			uuid, calendarResource.getGroupId());
-
-		if (calendarBooking != null) {
-			return;
-		}
-
-		long calendarBookingId = _counterLocalService.increment();
-
-		long startTime = startDate.getTime();
-		long endTime =
-			startTime + durationHour * Time.HOUR + durationMinute * Time.MINUTE;
-
-		if (allDay) {
-			endTime = endTime - 1;
-		}
-
-		addCalendarBooking(
-			uuid, calendarBookingId, companyId, groupId, userId, userName,
-			createDate, modifiedDate, calendarResource.getDefaultCalendarId(),
-			calendarResource.getCalendarResourceId(), title, description,
-			location, startTime, endTime, allDay, convertRecurrence(recurrence),
-			firstReminder, NotificationType.EMAIL, secondReminder,
-			NotificationType.EMAIL);
-
-		// Resources
-
-		importCalendarBookingResourcePermissions(
-			companyId, eventId, calendarBookingId);
-
-		// Subscriptions
-
-		importSubscriptions(companyId, eventId, calendarBookingId);
-
-		//
-	}
-
-	protected void importCalEvents() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer()) {
 			StringBundler sb = new StringBundler(5);
 
@@ -444,10 +606,18 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			sb.append("description, location, startDate, endDate, ");
 			sb.append("durationHour, durationMinute, allDay, type_, ");
 			sb.append("repeating, recurrence, firstReminder, secondReminder ");
-			sb.append("from CalEvent");
+			sb.append("from CalEvent ");
+
+			if (importingEventId > 0) {
+				sb.append("where eventId = ?");
+			}
 
 			try (PreparedStatement ps =
 					connection.prepareStatement(sb.toString())) {
+
+				if (importingEventId > 0) {
+					ps.setLong(1, importingEventId);
+				}
 
 				ResultSet rs = ps.executeQuery();
 
@@ -475,14 +645,86 @@ public class UpgradeCalEvent extends UpgradeProcess {
 					int firstReminder = rs.getInt("firstReminder");
 					int secondReminder = rs.getInt("secondReminder");
 
-					importCalEvent(
+					CalendarBooking calendarBooking = importCalEvent(
 						uuid, eventId, groupId, companyId, userId, userName,
 						createDate, modifiedDate, title, description, location,
 						startDate, durationHour, durationMinute, allDay, type,
 						recurrence, firstReminder, secondReminder);
+
+					calendarBookings.add(calendarBooking);
 				}
 			}
 		}
+
+		return calendarBookings;
+	}
+
+	protected CalendarBooking importCalEvent(
+		String uuid, long eventId, long groupId, long companyId, long userId,
+		String userName, Timestamp createDate, Timestamp modifiedDate,
+		String title, String description, String location, Timestamp startDate,
+		int durationHour, int durationMinute, boolean allDay, String recurrence,
+		String type, int firstReminder, int secondReminder) throws Exception {
+
+		Group group = _groupLocalService.getGroup(groupId);
+
+		CalendarResource calendarResource;
+
+		if (group.isUser()) {
+			calendarResource =
+				_calendarResourceLocalService.fetchCalendarResource(
+					_userClassNameId, userId);
+		}
+		else {
+			calendarResource =
+				_calendarResourceLocalService.fetchCalendarResource(
+					_groupClassNameId, userId);
+		}
+
+		CalendarBooking calendarBooking = fetchCalendarBooking(
+			uuid, calendarResource.getGroupId());
+
+		if (calendarBooking != null) {
+			return calendarBooking;
+		}
+
+		long calendarBookingId = _counterLocalService.increment();
+
+		long startTime = startDate.getTime();
+		long endTime =
+			startTime + durationHour * Time.HOUR + durationMinute * Time.MINUTE;
+
+		if (allDay) {
+			endTime = endTime - 1;
+		}
+
+		calendarBooking = addCalendarBooking(
+			uuid, calendarBookingId, companyId, groupId, userId, userName,
+			createDate, modifiedDate, calendarResource.getDefaultCalendarId(),
+			calendarResource.getCalendarResourceId(), title, description,
+			location, startTime, endTime, allDay, convertRecurrence(recurrence),
+			firstReminder, NotificationType.EMAIL, secondReminder,
+			NotificationType.EMAIL);
+
+		// Resources
+
+		importCalendarBookingResourcePermissions(
+			companyId, eventId, calendarBookingId);
+
+		// Subscriptions
+
+		importSubscriptions(companyId, eventId, calendarBookingId);
+
+		// Asset
+
+		importAssets(
+			uuid, companyId, groupId, userId, type, eventId, calendarBookingId);
+
+		return calendarBooking;
+	}
+
+	protected void importCalEvents() throws Exception {
+		importCalEvent(0);
 	}
 
 	protected void importSubscription(
@@ -536,6 +778,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	private final AssetCategoryPersistence _assetCategoryPersistence;
 	private final AssetEntryLocalService _assetEntryLocalService;
 	private final AssetLinkLocalService _assetLinkLocalService;
+	private final AssetLinkPersistence _assetLinkPersistence;
 	private final AssetVocabularyLocalService _assetVocabularyLocalService;
 	private final AssetVocabularyPersistence _assetVocabularyPersistence;
 	private final CalendarBookingPersistence _calendarBookingPersistence;
@@ -550,6 +793,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_resourcePermissionLocalService;
 	private final SubscriptionLocalService _subscriptionLocalService;
 	private final long _userClassNameId;
+	private final UserLocalService _userLocalService;
 	private final UserPersistence _userPersistence;
 
 }
