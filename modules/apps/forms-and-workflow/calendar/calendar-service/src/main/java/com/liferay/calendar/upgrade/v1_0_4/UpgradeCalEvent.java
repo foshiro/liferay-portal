@@ -78,6 +78,8 @@ import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.model.RatingsStats;
 import com.liferay.ratings.kernel.service.persistence.RatingsEntryPersistence;
 import com.liferay.ratings.kernel.service.persistence.RatingsStatsPersistence;
+import com.liferay.social.kernel.model.SocialActivity;
+import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -115,6 +117,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		ResourceActionPersistence resourceActionPersistence,
 		ResourceBlockLocalService resourceBlockLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
+		SocialActivityPersistence socialActivityPersistence,
 		SubscriptionLocalService subscriptionLocalService,
 		UserPersistence userPersistence, UserLocalService userLocalService) {
 
@@ -138,6 +141,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_resourceActionPersistence = resourceActionPersistence;
 		_resourceBlockLocalService = resourceBlockLocalService;
 		_resourcePermissionLocalService = resourcePermissionLocalService;
+		_socialActivityPersistence = socialActivityPersistence;
 		_subscriptionLocalService = subscriptionLocalService;
 		_userPersistence = userPersistence;
 		_userLocalService = userLocalService;
@@ -386,6 +390,28 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		ratingsStats.setAverageScore(averageScore);
 
 		return _ratingsStatsPersistence.update(ratingsStats);
+	}
+
+	protected void addSocialActivity(
+		long activityId, long groupId, long companyId, long userId,
+		long createDate, long mirrorActivityId, long classNameId, long classPK,
+		int type, String extraData, long receiverUserId) {
+
+		SocialActivity socialActivity = _socialActivityPersistence.create(
+			activityId);
+
+		socialActivity.setGroupId(groupId);
+		socialActivity.setCompanyId(companyId);
+		socialActivity.setUserId(userId);
+		socialActivity.setCreateDate(createDate);
+		socialActivity.setMirrorActivityId(mirrorActivityId);
+		socialActivity.setClassNameId(classNameId);
+		socialActivity.setClassPK(classPK);
+		socialActivity.setType(type);
+		socialActivity.setExtraData(extraData);
+		socialActivity.setReceiverUserId(receiverUserId);
+
+		_socialActivityPersistence.update(socialActivity);
 	}
 
 	protected void addSubscription(
@@ -1050,6 +1076,32 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			ratingsStats.getAverageScore());
 	}
 
+	protected void importSocialActivities(
+		long eventId, long calendarBookingId) {
+
+		List<SocialActivity> socialActivities =
+			_socialActivityPersistence.findByC_C(
+				_classNameLocalService.getClassNameId(_CAL_EVENT_CLASS_NAME),
+				eventId);
+
+		for (SocialActivity socialActivity : socialActivities) {
+			importSocialActivity(socialActivity, calendarBookingId);
+		}
+	}
+
+	protected void importSocialActivity(
+		SocialActivity socialActivity, long calendarBookingId) {
+
+		addSocialActivity(
+			_counterLocalService.increment(SocialActivity.class.getName()),
+			socialActivity.getGroupId(), socialActivity.getCompanyId(),
+			socialActivity.getUserId(), socialActivity.getCreateDate(),
+			socialActivity.getMirrorActivityId(),
+			_classNameLocalService.getClassNameId(CalendarBooking.class),
+			calendarBookingId, socialActivity.getType(),
+			socialActivity.getExtraData(), socialActivity.getReceiverUserId());
+	}
+
 	protected void importSubscription(
 		Subscription subscription, long calendarBookingId) {
 
@@ -1130,6 +1182,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	private final ResourceBlockLocalService _resourceBlockLocalService;
 	private final ResourcePermissionLocalService
 		_resourcePermissionLocalService;
+	private final SocialActivityPersistence _socialActivityPersistence;
 	private final SubscriptionLocalService _subscriptionLocalService;
 	private final long _userClassNameId;
 	private final UserLocalService _userLocalService;
