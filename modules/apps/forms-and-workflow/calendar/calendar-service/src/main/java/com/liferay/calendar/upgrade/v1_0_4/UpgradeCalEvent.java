@@ -74,6 +74,10 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.ratings.kernel.model.RatingsEntry;
+import com.liferay.ratings.kernel.model.RatingsStats;
+import com.liferay.ratings.kernel.service.persistence.RatingsEntryPersistence;
+import com.liferay.ratings.kernel.service.persistence.RatingsStatsPersistence;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -106,6 +110,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		MBDiscussionLocalService mbDiscussionLocalService,
 		MBMessagePersistence mbMessagePersistence,
 		MBThreadLocalService mbThreadLocalService,
+		RatingsEntryPersistence ratingsEntryPersistence,
+		RatingsStatsPersistence ratingsStatsPersistence,
 		ResourceActionPersistence resourceActionPersistence,
 		ResourceBlockLocalService resourceBlockLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
@@ -127,6 +133,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_mbDiscussionLocalService = mbDiscussionLocalService;
 		_mbMessagePersistence = mbMessagePersistence;
 		_mbThreadLocalService = mbThreadLocalService;
+		_ratingsEntryPersistence = ratingsEntryPersistence;
+		_ratingsStatsPersistence = ratingsStatsPersistence;
 		_resourceActionPersistence = resourceActionPersistence;
 		_resourceBlockLocalService = resourceBlockLocalService;
 		_resourcePermissionLocalService = resourcePermissionLocalService;
@@ -344,6 +352,40 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		mbThread.setStatusDate(statusDate);
 
 		_mbThreadLocalService.updateMBThread(mbThread);
+	}
+
+	protected RatingsEntry addRatingsEntry(
+		long entryId, long companyId, long userId, String userName,
+		Date createDate, Date modifiedDate, long classNameId, long classPK,
+		double score) {
+
+		RatingsEntry ratingsEntry = _ratingsEntryPersistence.create(entryId);
+
+		ratingsEntry.setCompanyId(companyId);
+		ratingsEntry.setUserId(userId);
+		ratingsEntry.setUserName(userName);
+		ratingsEntry.setCreateDate(createDate);
+		ratingsEntry.setModifiedDate(modifiedDate);
+		ratingsEntry.setClassNameId(classNameId);
+		ratingsEntry.setClassPK(classPK);
+		ratingsEntry.setScore(score);
+
+		return _ratingsEntryPersistence.update(ratingsEntry);
+	}
+
+	protected RatingsStats addRatingsStats(
+		long statsId, long classNameId, long classPK, int totalEntries,
+		double totalScore, double averageScore) {
+
+		RatingsStats ratingsStats = _ratingsStatsPersistence.create(statsId);
+
+		ratingsStats.setClassNameId(classNameId);
+		ratingsStats.setClassPK(classPK);
+		ratingsStats.setTotalEntries(totalEntries);
+		ratingsStats.setTotalScore(totalScore);
+		ratingsStats.setAverageScore(averageScore);
+
+		return _ratingsStatsPersistence.update(ratingsStats);
 	}
 
 	protected void addSubscription(
@@ -844,6 +886,18 @@ public class UpgradeCalEvent extends UpgradeProcess {
 
 		importMBDiscussion(eventId, calendarBookingId);
 
+		// Social
+
+		importSocialActivities(eventId, calendarBookingId);
+
+		// Ratings
+
+		importRatings(
+			_classNameLocalService.getClassNameId(_CAL_EVENT_CLASS_NAME),
+			eventId,
+			_classNameLocalService.getClassNameId(CalendarBooking.class),
+			calendarBookingId);
+
 		return calendarBooking;
 	}
 
@@ -914,6 +968,13 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			mbMessage.getStatusByUserName(), mbMessage.getStatusDate(),
 			mbMessageIds);
 
+		long mbDiscussionClassNameId = _classNameLocalService.getClassNameId(
+			MBDiscussion.class.getName());
+
+		importRatings(
+			mbDiscussionClassNameId, mbMessage.getMessageId(),
+			mbDiscussionClassNameId, messageId);
+
 		mbMessageIds.put(mbMessage.getMessageId(), messageId);
 
 		return messageId;
@@ -958,6 +1019,33 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			threadId, mbMessageIds.get(mbThread.getRootMessageId()));
 
 		return threadId;
+	}
+
+	protected void importRatings(
+		long oldClassNameId, long oldClassPK, long classNameId, long classPK) {
+
+		List<RatingsEntry> ratingsEntries = _ratingsEntryPersistence.findByC_C(
+			oldClassNameId, oldClassPK);
+
+		for (RatingsEntry ratingsEntry : ratingsEntries) {
+			addRatingsEntry(
+				_counterLocalService.increment(), ratingsEntry.getCompanyId(),
+				ratingsEntry.getUserId(), ratingsEntry.getUserName(),
+				ratingsEntry.getCreateDate(), ratingsEntry.getModifiedDate(),
+				classNameId, classPK, ratingsEntry.getScore());
+		}
+
+		RatingsStats ratingsStats = _ratingsStatsPersistence.fetchByC_C(
+			oldClassNameId, oldClassPK);
+
+		if (ratingsStats == null) {
+			return;
+		}
+
+		addRatingsStats(
+			_counterLocalService.increment(), classNameId, classPK,
+			ratingsStats.getTotalEntries(), ratingsStats.getTotalScore(),
+			ratingsStats.getAverageScore());
 	}
 
 	protected void importSubscription(
@@ -1034,6 +1122,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	private final MBDiscussionLocalService _mbDiscussionLocalService;
 	private final MBMessagePersistence _mbMessagePersistence;
 	private final MBThreadLocalService _mbThreadLocalService;
+	private final RatingsEntryPersistence _ratingsEntryPersistence;
+	private final RatingsStatsPersistence _ratingsStatsPersistence;
 	private final ResourceActionPersistence _resourceActionPersistence;
 	private final ResourceBlockLocalService _resourceBlockLocalService;
 	private final ResourcePermissionLocalService
