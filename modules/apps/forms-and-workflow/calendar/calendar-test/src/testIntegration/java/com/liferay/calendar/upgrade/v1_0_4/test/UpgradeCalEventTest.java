@@ -36,14 +36,13 @@ import com.liferay.registry.RegistryUtil;
 import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
 
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,11 +56,11 @@ public class UpgradeCalEventTest {
 	public static final AggregateTestRule aggregateTestRule =
 		new LiferayIntegrationTestRule();
 
-		@BeforeClass
+	@Before
 	public void setUpBeforeClass() throws Exception {
-		setUpCalEventTable();
-
 		setUpServices();
+
+		setUpCalEventTable();
 
 		_upgrade = new UpgradeCalEvent(
 			_assetCategoryLocalService, _assetCategoryPersistence,
@@ -150,7 +149,7 @@ public class UpgradeCalEventTest {
 		}
 	}
 
-	protected void setUpServices() {
+	protected void setUpServices() throws SQLException {
 		Registry registry = RegistryUtil.getRegistry();
 
 		_assetCategoryLocalService = registry.getService(
@@ -195,7 +194,8 @@ public class UpgradeCalEventTest {
 		_userLocalService = registry.getService(UserLocalService.class);
 		_userPersistence = registry.getService(UserPersistence.class);
 
-		_db = registry.getService(DB.class);
+		_connection = DataAccess.getUpgradeOptimizedConnection();
+		_db = DBManagerUtil.getDB();
 	}
 
 	private AssetCategoryLocalService _assetCategoryLocalService;
