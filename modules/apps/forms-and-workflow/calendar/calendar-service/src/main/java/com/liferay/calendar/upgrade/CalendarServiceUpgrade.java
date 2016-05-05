@@ -24,6 +24,7 @@ import com.liferay.asset.kernel.service.persistence.AssetVocabularyPersistence;
 import com.liferay.calendar.service.CalendarResourceLocalService;
 import com.liferay.calendar.service.persistence.CalendarBookingPersistence;
 import com.liferay.calendar.upgrade.v1_0_1.UpgradeCalendar;
+import com.liferay.calendar.upgrade.v1_0_2.DummyUpgrade;
 import com.liferay.calendar.upgrade.v1_0_3.UpgradeCalendarResource;
 import com.liferay.calendar.upgrade.v1_0_3.UpgradeClassNames;
 import com.liferay.calendar.upgrade.v1_0_3.UpgradeCompanyId;
@@ -71,7 +72,7 @@ public class CalendarServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"com.liferay.calendar.service", "1.0.1", "1.0.2",
-			new DummyUpgradeStep());
+			new DummyUpgrade());
 
 		registry.register(
 			"com.liferay.calendar.service", "1.0.2", "1.0.3",
