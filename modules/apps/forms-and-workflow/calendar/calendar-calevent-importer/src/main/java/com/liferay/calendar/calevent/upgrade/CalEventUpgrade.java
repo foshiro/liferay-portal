@@ -18,29 +18,25 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetLinkLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
-import com.liferay.asset.kernel.service.persistence.AssetCategoryPersistence;
-import com.liferay.asset.kernel.service.persistence.AssetLinkPersistence;
-import com.liferay.asset.kernel.service.persistence.AssetVocabularyPersistence;
 import com.liferay.calendar.calevent.upgrade.v1_0_0.UpgradeCalEvent;
 import com.liferay.calendar.service.CalendarBookingLocalService;
 import com.liferay.calendar.service.CalendarResourceLocalService;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.message.boards.kernel.service.MBDiscussionLocalService;
+import com.liferay.message.boards.kernel.service.MBMessageLocalService;
 import com.liferay.message.boards.kernel.service.MBThreadLocalService;
-import com.liferay.message.boards.kernel.service.persistence.MBMessagePersistence;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourceBlockLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.SubscriptionLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.service.persistence.ResourceActionPersistence;
-import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
-import com.liferay.ratings.kernel.service.persistence.RatingsEntryPersistence;
-import com.liferay.ratings.kernel.service.persistence.RatingsStatsPersistence;
-import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
+import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
+import com.liferay.ratings.kernel.service.RatingsStatsLocalService;
+import com.liferay.social.kernel.service.SocialActivityLocalService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -56,18 +52,16 @@ public class CalEventUpgrade implements UpgradeStepRegistrator {
 		registry.register(
 			"com.liferay.calendar.calevent.importer", "0.0.0", "1.0.0",
 			new UpgradeCalEvent(
-				_assetCategoryLocalService, _assetCategoryPersistence,
-				_assetEntryLocalService, _assetLinkLocalService,
-				_assetLinkPersistence, _assetVocabularyLocalService,
-				_assetVocabularyPersistence, _calendarBookingLocalService,
-				_calendarResourceLocalService, _classNameLocalService,
-				_counterLocalService, _groupLocalService,
-				_mbDiscussionLocalService, _mbMessagePersistence,
-				_mbThreadLocalService, _ratingsEntryPersistence,
-				_ratingsStatsPersistence, _resourceActionPersistence,
-				_resourceBlockLocalService, _resourcePermissionLocalService,
-				_roleLocalService, _socialActivityPersistence,
-				_subscriptionLocalService, _userPersistence,
+				_assetCategoryLocalService, _assetEntryLocalService,
+				_assetLinkLocalService, _assetVocabularyLocalService,
+				_calendarBookingLocalService, _calendarResourceLocalService,
+				_classNameLocalService, _counterLocalService,
+				_groupLocalService, _mbDiscussionLocalService,
+				_mbMessageLocalService, _mbThreadLocalService,
+				_ratingsEntryLocalService, _ratingsStatsLocalService,
+				_resourceActionLocalService, _resourceBlockLocalService,
+				_resourcePermissionLocalService, _roleLocalService,
+				_socialActivityLocalService, _subscriptionLocalService,
 				_userLocalService));
 	}
 
@@ -76,13 +70,6 @@ public class CalEventUpgrade implements UpgradeStepRegistrator {
 		AssetCategoryLocalService assetCategoryLocalService) {
 
 		_assetCategoryLocalService = assetCategoryLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setAssetCategoryPersistence(
-		AssetCategoryPersistence assetCategoryPersistence) {
-
-		_assetCategoryPersistence = assetCategoryPersistence;
 	}
 
 	@Reference(unbind = "-")
@@ -100,24 +87,10 @@ public class CalEventUpgrade implements UpgradeStepRegistrator {
 	}
 
 	@Reference(unbind = "-")
-	protected void setAssetLinkPersistence(
-		AssetLinkPersistence assetLinkPersistence) {
-
-		_assetLinkPersistence = assetLinkPersistence;
-	}
-
-	@Reference(unbind = "-")
 	protected void setAssetVocabularyLocalService(
 		AssetVocabularyLocalService assetVocabularyLocalService) {
 
 		_assetVocabularyLocalService = assetVocabularyLocalService;
-	}
-
-	@Reference(unbind = "-")
-	protected void setAssetVocabularyPersistence(
-		AssetVocabularyPersistence assetVocabularyPersistence) {
-
-		_assetVocabularyPersistence = assetVocabularyPersistence;
 	}
 
 	@Reference(unbind = "-")
@@ -161,10 +134,10 @@ public class CalEventUpgrade implements UpgradeStepRegistrator {
 	}
 
 	@Reference(unbind = "-")
-	protected void setMBMessagePersistence(
-		MBMessagePersistence mbMessagePersistence) {
+	protected void setMBMessageLocalService(
+		MBMessageLocalService mbMessageLocalService) {
 
-		_mbMessagePersistence = mbMessagePersistence;
+		_mbMessageLocalService = mbMessageLocalService;
 	}
 
 	@Reference(unbind = "-")
@@ -175,24 +148,24 @@ public class CalEventUpgrade implements UpgradeStepRegistrator {
 	}
 
 	@Reference(unbind = "-")
-	protected void setRatingsEntryPersistence(
-		RatingsEntryPersistence ratingsEntryPersistence) {
+	protected void setRatingsEntryLocalService(
+		RatingsEntryLocalService ratingsEntryLocalService) {
 
-		_ratingsEntryPersistence = ratingsEntryPersistence;
+		_ratingsEntryLocalService = ratingsEntryLocalService;
 	}
 
 	@Reference(unbind = "-")
-	protected void setRatingsStatsPersistence(
-		RatingsStatsPersistence ratingsStatsPersistence) {
+	protected void setRatingsStatsLocalService(
+		RatingsStatsLocalService ratingsStatsLocalService) {
 
-		_ratingsStatsPersistence = ratingsStatsPersistence;
+		_ratingsStatsLocalService = ratingsStatsLocalService;
 	}
 
 	@Reference(unbind = "-")
-	protected void setResourceActionPersistence(
-		ResourceActionPersistence resourceActionPersistence) {
+	protected void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
 
-		_resourceActionPersistence = resourceActionPersistence;
+		_resourceActionLocalService = resourceActionLocalService;
 	}
 
 	@Reference(unbind = "-")
@@ -215,10 +188,10 @@ public class CalEventUpgrade implements UpgradeStepRegistrator {
 	}
 
 	@Reference(unbind = "-")
-	protected void setSocialActivityPersistence(
-		SocialActivityPersistence socialActivityPersistence) {
+	protected void setSocialActivityLocalService(
+		SocialActivityLocalService socialActivityLocalService) {
 
-		_socialActivityPersistence = socialActivityPersistence;
+		_socialActivityLocalService = socialActivityLocalService;
 	}
 
 	@Reference(unbind = "-")
@@ -233,35 +206,26 @@ public class CalEventUpgrade implements UpgradeStepRegistrator {
 		_userLocalService = userLocalService;
 	}
 
-	@Reference(unbind = "-")
-	protected void setUserPersistence(UserPersistence userPersistence) {
-		_userPersistence = userPersistence;
-	}
-
 	private AssetCategoryLocalService _assetCategoryLocalService;
-	private AssetCategoryPersistence _assetCategoryPersistence;
 	private AssetEntryLocalService _assetEntryLocalService;
 	private AssetLinkLocalService _assetLinkLocalService;
-	private AssetLinkPersistence _assetLinkPersistence;
 	private AssetVocabularyLocalService _assetVocabularyLocalService;
-	private AssetVocabularyPersistence _assetVocabularyPersistence;
 	private CalendarBookingLocalService _calendarBookingLocalService;
 	private CalendarResourceLocalService _calendarResourceLocalService;
 	private ClassNameLocalService _classNameLocalService;
 	private CounterLocalService _counterLocalService;
 	private GroupLocalService _groupLocalService;
 	private MBDiscussionLocalService _mbDiscussionLocalService;
-	private MBMessagePersistence _mbMessagePersistence;
+	private MBMessageLocalService _mbMessageLocalService;
 	private MBThreadLocalService _mbThreadLocalService;
-	private RatingsEntryPersistence _ratingsEntryPersistence;
-	private RatingsStatsPersistence _ratingsStatsPersistence;
-	private ResourceActionPersistence _resourceActionPersistence;
+	private RatingsEntryLocalService _ratingsEntryLocalService;
+	private RatingsStatsLocalService _ratingsStatsLocalService;
+	private ResourceActionLocalService _resourceActionLocalService;
 	private ResourceBlockLocalService _resourceBlockLocalService;
 	private ResourcePermissionLocalService _resourcePermissionLocalService;
 	private RoleLocalService _roleLocalService;
-	private SocialActivityPersistence _socialActivityPersistence;
+	private SocialActivityLocalService _socialActivityLocalService;
 	private SubscriptionLocalService _subscriptionLocalService;
 	private UserLocalService _userLocalService;
-	private UserPersistence _userPersistence;
 
 }

@@ -14,8 +14,8 @@
 
 package com.liferay.calendar.calevent.upgrade.v1_0_0;
 
+import com.liferay.asset.kernel.exception.NoSuchVocabularyException;
 import com.liferay.asset.kernel.model.AssetCategory;
-import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetLink;
 import com.liferay.asset.kernel.model.AssetTag;
@@ -24,9 +24,6 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.kernel.service.AssetLinkLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
-import com.liferay.asset.kernel.service.persistence.AssetCategoryPersistence;
-import com.liferay.asset.kernel.service.persistence.AssetLinkPersistence;
-import com.liferay.asset.kernel.service.persistence.AssetVocabularyPersistence;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.notification.NotificationType;
@@ -43,10 +40,12 @@ import com.liferay.message.boards.kernel.model.MBMessage;
 import com.liferay.message.boards.kernel.model.MBMessageConstants;
 import com.liferay.message.boards.kernel.model.MBThread;
 import com.liferay.message.boards.kernel.service.MBDiscussionLocalService;
+import com.liferay.message.boards.kernel.service.MBMessageLocalService;
 import com.liferay.message.boards.kernel.service.MBThreadLocalService;
-import com.liferay.message.boards.kernel.service.persistence.MBMessagePersistence;
 import com.liferay.portal.kernel.cal.DayAndPosition;
 import com.liferay.portal.kernel.cal.TZSRecurrence;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -68,7 +67,6 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.SubscriptionLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -80,14 +78,15 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.model.RatingsStats;
-import com.liferay.ratings.kernel.service.persistence.RatingsEntryPersistence;
-import com.liferay.ratings.kernel.service.persistence.RatingsStatsPersistence;
+import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
+import com.liferay.ratings.kernel.service.RatingsStatsLocalService;
 import com.liferay.social.kernel.model.SocialActivity;
-import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
+import com.liferay.social.kernel.service.SocialActivityLocalService;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -102,54 +101,47 @@ public class UpgradeCalEvent extends UpgradeProcess {
 
 	public UpgradeCalEvent(
 		AssetCategoryLocalService assetCategoryLocalService,
-		AssetCategoryPersistence assetCategoryPersistence,
 		AssetEntryLocalService assetEntryLocalService,
 		AssetLinkLocalService assetLinkLocalService,
-		AssetLinkPersistence assetLinkPersistence,
 		AssetVocabularyLocalService assetVocabularyLocalService,
-		AssetVocabularyPersistence assetVocabularyPersistence,
 		CalendarBookingLocalService calendarBookingLocalService,
 		CalendarResourceLocalService calendarResourceLocalService,
 		ClassNameLocalService classNameLocalService,
 		CounterLocalService counterLocalService,
 		GroupLocalService groupLocalService,
 		MBDiscussionLocalService mbDiscussionLocalService,
-		MBMessagePersistence mbMessagePersistence,
+		MBMessageLocalService mbMessageLocalService,
 		MBThreadLocalService mbThreadLocalService,
-		RatingsEntryPersistence ratingsEntryPersistence,
-		RatingsStatsPersistence ratingsStatsPersistence,
+		RatingsEntryLocalService ratingsEntryLocalService,
+		RatingsStatsLocalService ratingsStatsLocalService,
 		ResourceActionLocalService resourceActionLocalService,
 		ResourceBlockLocalService resourceBlockLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
 		RoleLocalService roleLocalService,
-		SocialActivityPersistence socialActivityPersistence,
+		SocialActivityLocalService socialActivityLocalService,
 		SubscriptionLocalService subscriptionLocalService,
-		UserPersistence userPersistence, UserLocalService userLocalService) {
+		UserLocalService userLocalService) {
 
 		_assetCategoryLocalService = assetCategoryLocalService;
-		_assetCategoryPersistence = assetCategoryPersistence;
 		_assetEntryLocalService = assetEntryLocalService;
 		_assetLinkLocalService = assetLinkLocalService;
-		_assetLinkPersistence = assetLinkPersistence;
 		_assetVocabularyLocalService = assetVocabularyLocalService;
-		_assetVocabularyPersistence = assetVocabularyPersistence;
 		_calendarBookingLocalService = calendarBookingLocalService;
 		_calendarResourceLocalService = calendarResourceLocalService;
 		_classNameLocalService = classNameLocalService;
 		_counterLocalService = counterLocalService;
 		_groupLocalService = groupLocalService;
 		_mbDiscussionLocalService = mbDiscussionLocalService;
-		_mbMessagePersistence = mbMessagePersistence;
+		_mbMessageLocalService = mbMessageLocalService;
 		_mbThreadLocalService = mbThreadLocalService;
-		_ratingsEntryPersistence = ratingsEntryPersistence;
-		_ratingsStatsPersistence = ratingsStatsPersistence;
+		_ratingsEntryLocalService = ratingsEntryLocalService;
+		_ratingsStatsLocalService = ratingsStatsLocalService;
 		_resourceActionLocalService = resourceActionLocalService;
 		_resourceBlockLocalService = resourceBlockLocalService;
 		_resourcePermissionLocalService = resourcePermissionLocalService;
 		_roleLocalService = roleLocalService;
-		_socialActivityPersistence = socialActivityPersistence;
+		_socialActivityLocalService = socialActivityLocalService;
 		_subscriptionLocalService = subscriptionLocalService;
-		_userPersistence = userPersistence;
 		_userLocalService = userLocalService;
 
 		_userClassNameId = _classNameLocalService.getClassNameId(User.class);
@@ -200,7 +192,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		long linkId, long companyId, long userId, String userName,
 		Date createDate, long entryId1, long entryId2, int type, int weight) {
 
-		AssetLink assetLink = _assetLinkPersistence.create(linkId);
+		AssetLink assetLink = _assetLinkLocalService.createAssetLink(linkId);
 
 		assetLink.setCompanyId(companyId);
 		assetLink.setUserId(userId);
@@ -211,7 +203,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		assetLink.setType(type);
 		assetLink.setWeight(weight);
 
-		_assetLinkPersistence.update(assetLink);
+		_assetLinkLocalService.updateAssetLink(assetLink);
 	}
 
 	protected CalendarBooking addCalendarBooking(
@@ -302,7 +294,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 				parentMessageId, threadId, classPK, mbMessageIds);
 		}
 
-		MBMessage mbMessage = _mbMessagePersistence.create(messageId);
+		MBMessage mbMessage = _mbMessageLocalService.createMBMessage(messageId);
 
 		mbMessage.setUuid(uuid);
 		mbMessage.setGroupId(groupId);
@@ -329,7 +321,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		mbMessage.setStatusByUserName(statusByUserName);
 		mbMessage.setStatusDate(statusDate);
 
-		_mbMessagePersistence.update(mbMessage);
+		_mbMessageLocalService.updateMBMessage(mbMessage);
 	}
 
 	protected void addMBThread(
@@ -368,10 +360,13 @@ public class UpgradeCalEvent extends UpgradeProcess {
 
 	protected RatingsEntry addRatingsEntry(
 		long entryId, long companyId, long userId, String userName,
-		Date createDate, Date modifiedDate, long classNameId, long classPK,
+		Date createDate, Date modifiedDate, String className, long classPK,
 		double score) {
 
-		RatingsEntry ratingsEntry = _ratingsEntryPersistence.create(entryId);
+		long classNameId = _classNameLocalService.getClassNameId(className);
+
+		RatingsEntry ratingsEntry =
+			_ratingsEntryLocalService.createRatingsEntry(entryId);
 
 		ratingsEntry.setCompanyId(companyId);
 		ratingsEntry.setUserId(userId);
@@ -382,22 +377,25 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		ratingsEntry.setClassPK(classPK);
 		ratingsEntry.setScore(score);
 
-		return _ratingsEntryPersistence.update(ratingsEntry);
+		return _ratingsEntryLocalService.updateRatingsEntry(ratingsEntry);
 	}
 
 	protected RatingsStats addRatingsStats(
-		long statsId, long classNameId, long classPK, int totalEntries,
+		long statsId, String className, long classPK, int totalEntries,
 		double totalScore, double averageScore) {
 
-		RatingsStats ratingsStats = _ratingsStatsPersistence.create(statsId);
+		RatingsStats ratingsStats =
+			_ratingsStatsLocalService.createRatingsStats(statsId);
 
+		long classNameId = _classNameLocalService.getClassNameId(className);
 		ratingsStats.setClassNameId(classNameId);
+
 		ratingsStats.setClassPK(classPK);
 		ratingsStats.setTotalEntries(totalEntries);
 		ratingsStats.setTotalScore(totalScore);
 		ratingsStats.setAverageScore(averageScore);
 
-		return _ratingsStatsPersistence.update(ratingsStats);
+		return _ratingsStatsLocalService.updateRatingsStats(ratingsStats);
 	}
 
 	protected void addSocialActivity(
@@ -405,8 +403,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		long createDate, long mirrorActivityId, long classNameId, long classPK,
 		int type, String extraData, long receiverUserId) {
 
-		SocialActivity socialActivity = _socialActivityPersistence.create(
-			activityId);
+		SocialActivity socialActivity =
+			_socialActivityLocalService.createSocialActivity(activityId);
 
 		socialActivity.setGroupId(groupId);
 		socialActivity.setCompanyId(companyId);
@@ -419,7 +417,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		socialActivity.setExtraData(extraData);
 		socialActivity.setReceiverUserId(receiverUserId);
 
-		_socialActivityPersistence.update(socialActivity);
+		_socialActivityLocalService.updateSocialActivity(socialActivity);
 	}
 
 	protected void addSubscription(
@@ -575,35 +573,43 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			long userId, long companyId, long groupId, String name)
 		throws PortalException {
 
-		AssetVocabulary assetVocabulary =
-			_assetVocabularyPersistence.fetchByG_N(
-				groupId, _ASSET_VOCABULARY_NAME);
-
 		ServiceContext serviceContext = new ServiceContext();
 
 		serviceContext.setScopeGroupId(groupId);
 
-		User user = _userPersistence.fetchByC_U(companyId, userId);
+		User user = null;
 
-		if (user == null) {
-			user = _userPersistence.fetchByC_DU(companyId, true);
+		try {
+			user = _userLocalService.getUserById(companyId, userId);
+		}
+		catch (NoSuchUserException nsue) {
+			user = _userLocalService.getDefaultUser(companyId);
 
 			userId = user.getUserId();
 		}
 
 		serviceContext.setUserId(userId);
 
-		if (assetVocabulary == null) {
+		AssetVocabulary assetVocabulary = null;
+
+		try {
+			assetVocabulary = _assetVocabularyLocalService.getGroupVocabulary(
+				groupId, _ASSET_VOCABULARY_NAME);
+		}
+		catch (NoSuchVocabularyException nsve) {
 			assetVocabulary = _assetVocabularyLocalService.addVocabulary(
 				userId, groupId, _ASSET_VOCABULARY_NAME, serviceContext);
 		}
 
-		AssetCategory assetCategory = _assetCategoryPersistence.fetchByP_N_V(
-			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, name,
-			assetVocabulary.getVocabularyId());
+		List<AssetCategory> assetCategories =
+			_assetCategoryLocalService.getVocabularyRootCategories(
+				assetVocabulary.getVocabularyId(), QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, null);
 
-		if (assetCategory != null) {
-			return assetCategory;
+		for (AssetCategory assetCategory : assetCategories) {
+			if (name.equals(assetCategory.getName())) {
+				return assetCategory;
+			}
 		}
 
 		return _assetCategoryLocalService.addCategory(
@@ -744,9 +750,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 				entryId1 = linkedAssetEntry.getEntryId();
 			}
 
-			if (_assetLinkPersistence.countByE_E_T(
-					entryId1, entryId2, assetLink.getType()) > 0) {
-
+			if (isAssetLinkImported(assetLink, entryId1, entryId2)) {
 				return;
 			}
 		}
@@ -986,9 +990,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		// Ratings
 
 		importRatings(
-			_classNameLocalService.getClassNameId(_CAL_EVENT_CLASS_NAME),
-			eventId,
-			_classNameLocalService.getClassNameId(CalendarBooking.class),
+			_CAL_EVENT_CLASS_NAME, eventId, CalendarBooking.class.getName(),
 			calendarBookingId);
 
 		return calendarBooking;
@@ -1026,7 +1028,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			Map<Long, Long> mbMessageIds)
 		throws PortalException {
 
-		MBMessage mbMessage = _mbMessagePersistence.findByPrimaryKey(messageId);
+		MBMessage mbMessage = _mbMessageLocalService.getMBMessage(messageId);
 
 		return importMBMessage(
 			mbMessage, threadId, calendarBookingId, mbMessageIds);
@@ -1061,12 +1063,9 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			mbMessage.getStatusByUserName(), mbMessage.getStatusDate(),
 			mbMessageIds);
 
-		long mbDiscussionClassNameId = _classNameLocalService.getClassNameId(
-			MBDiscussion.class.getName());
-
 		importRatings(
-			mbDiscussionClassNameId, mbMessage.getMessageId(),
-			mbDiscussionClassNameId, messageId);
+			MBDiscussion.class.getName(), mbMessage.getMessageId(),
+			MBDiscussion.class.getName(), messageId);
 
 		mbMessageIds.put(mbMessage.getMessageId(), messageId);
 
@@ -1100,8 +1099,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 
 		Map<Long, Long> mbMessageIds = new HashMap<>();
 
-		List<MBMessage> mbMessages = _mbMessagePersistence.findByThreadId(
-			mbThread.getThreadId());
+		List<MBMessage> mbMessages = _mbMessageLocalService.getThreadMessages(
+			mbThread.getThreadId(), WorkflowConstants.STATUS_ANY);
 
 		for (MBMessage mbMessage : mbMessages) {
 			importMBMessage(
@@ -1115,28 +1114,33 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	}
 
 	protected void importRatings(
-		long oldClassNameId, long oldClassPK, long classNameId, long classPK) {
+		String oldClassName, long oldClassPK, String className, long classPK) {
 
-		List<RatingsEntry> ratingsEntries = _ratingsEntryPersistence.findByC_C(
-			oldClassNameId, oldClassPK);
+		List<RatingsEntry> ratingsEntries =
+			_ratingsEntryLocalService.getEntries(oldClassName, oldClassPK);
 
 		for (RatingsEntry ratingsEntry : ratingsEntries) {
 			addRatingsEntry(
 				_counterLocalService.increment(), ratingsEntry.getCompanyId(),
 				ratingsEntry.getUserId(), ratingsEntry.getUserName(),
 				ratingsEntry.getCreateDate(), ratingsEntry.getModifiedDate(),
-				classNameId, classPK, ratingsEntry.getScore());
+				className, classPK, ratingsEntry.getScore());
 		}
 
-		RatingsStats ratingsStats = _ratingsStatsPersistence.fetchByC_C(
-			oldClassNameId, oldClassPK);
+		List<Long> oldClassPKs = new ArrayList<>();
+		oldClassPKs.add(oldClassPK);
 
-		if (ratingsStats == null) {
+		List<RatingsStats> ratingsStatsList =
+			_ratingsStatsLocalService.getStats(oldClassName, oldClassPKs);
+
+		if (ratingsStatsList.isEmpty()) {
 			return;
 		}
 
+		RatingsStats ratingsStats = ratingsStatsList.get(0);
+
 		addRatingsStats(
-			_counterLocalService.increment(), classNameId, classPK,
+			_counterLocalService.increment(), className, classPK,
 			ratingsStats.getTotalEntries(), ratingsStats.getTotalScore(),
 			ratingsStats.getAverageScore());
 	}
@@ -1145,12 +1149,13 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		long eventId, long calendarBookingId) {
 
 		List<SocialActivity> socialActivities =
-			_socialActivityPersistence.findByC_C(
-				_classNameLocalService.getClassNameId(_CAL_EVENT_CLASS_NAME),
-				eventId);
+			_socialActivityLocalService.getActivities(
+				_CAL_EVENT_CLASS_NAME, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
 		for (SocialActivity socialActivity : socialActivities) {
-			importSocialActivity(socialActivity, calendarBookingId);
+			if (socialActivity.getClassPK() == eventId) {
+				importSocialActivity(socialActivity, calendarBookingId);
+			}
 		}
 	}
 
@@ -1190,6 +1195,26 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		}
 	}
 
+	protected boolean isAssetLinkImported(
+		AssetLink assetLink, long entryId1, long entryId2) {
+
+		List<AssetLink> links = _assetLinkLocalService.getLinks(entryId1);
+
+		for (AssetLink link : links) {
+			if ((link.getEntryId1() != entryId2) &&
+				(link.getEntryId2() != entryId2)) {
+
+				continue;
+			}
+
+			if (link.getType() == assetLink.getType()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	protected void updateMBThreadRootMessageId(
 			long threadId, long rootMessageId)
 		throws PortalException {
@@ -1226,12 +1251,9 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	}
 
 	private final AssetCategoryLocalService _assetCategoryLocalService;
-	private final AssetCategoryPersistence _assetCategoryPersistence;
 	private final AssetEntryLocalService _assetEntryLocalService;
 	private final AssetLinkLocalService _assetLinkLocalService;
-	private final AssetLinkPersistence _assetLinkPersistence;
 	private final AssetVocabularyLocalService _assetVocabularyLocalService;
-	private final AssetVocabularyPersistence _assetVocabularyPersistence;
 	private final CalendarBookingLocalService _calendarBookingLocalService;
 	private final CalendarResourceLocalService _calendarResourceLocalService;
 	private final ClassNameLocalService _classNameLocalService;
@@ -1239,19 +1261,18 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	private final long _groupClassNameId;
 	private final GroupLocalService _groupLocalService;
 	private final MBDiscussionLocalService _mbDiscussionLocalService;
-	private final MBMessagePersistence _mbMessagePersistence;
+	private final MBMessageLocalService _mbMessageLocalService;
 	private final MBThreadLocalService _mbThreadLocalService;
-	private final RatingsEntryPersistence _ratingsEntryPersistence;
-	private final RatingsStatsPersistence _ratingsStatsPersistence;
+	private final RatingsEntryLocalService _ratingsEntryLocalService;
+	private final RatingsStatsLocalService _ratingsStatsLocalService;
 	private final ResourceActionLocalService _resourceActionLocalService;
 	private final ResourceBlockLocalService _resourceBlockLocalService;
 	private final ResourcePermissionLocalService
 		_resourcePermissionLocalService;
 	private final RoleLocalService _roleLocalService;
-	private final SocialActivityPersistence _socialActivityPersistence;
+	private final SocialActivityLocalService _socialActivityLocalService;
 	private final SubscriptionLocalService _subscriptionLocalService;
 	private final long _userClassNameId;
 	private final UserLocalService _userLocalService;
-	private final UserPersistence _userPersistence;
 
 }
