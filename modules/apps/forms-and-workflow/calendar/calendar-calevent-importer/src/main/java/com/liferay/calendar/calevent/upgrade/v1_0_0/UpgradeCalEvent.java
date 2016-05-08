@@ -35,9 +35,8 @@ import com.liferay.calendar.recurrence.PositionalWeekday;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.recurrence.Weekday;
+import com.liferay.calendar.service.CalendarBookingLocalService;
 import com.liferay.calendar.service.CalendarResourceLocalService;
-import com.liferay.calendar.service.persistence.CalendarBookingPersistence;
-import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.message.boards.kernel.model.MBDiscussion;
 import com.liferay.message.boards.kernel.model.MBMessage;
@@ -51,23 +50,28 @@ import com.liferay.portal.kernel.cal.TZSRecurrence;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceBlockConstants;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
+import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.Subscription;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourceBlockLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.SubscriptionLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.service.persistence.ResourceActionPersistence;
 import com.liferay.portal.kernel.service.persistence.UserPersistence;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Time;
@@ -84,11 +88,11 @@ import com.liferay.social.kernel.service.persistence.SocialActivityPersistence;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -104,7 +108,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		AssetLinkPersistence assetLinkPersistence,
 		AssetVocabularyLocalService assetVocabularyLocalService,
 		AssetVocabularyPersistence assetVocabularyPersistence,
-		CalendarBookingPersistence calendarBookingPersistence,
+		CalendarBookingLocalService calendarBookingLocalService,
 		CalendarResourceLocalService calendarResourceLocalService,
 		ClassNameLocalService classNameLocalService,
 		CounterLocalService counterLocalService,
@@ -114,9 +118,10 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		MBThreadLocalService mbThreadLocalService,
 		RatingsEntryPersistence ratingsEntryPersistence,
 		RatingsStatsPersistence ratingsStatsPersistence,
-		ResourceActionPersistence resourceActionPersistence,
+		ResourceActionLocalService resourceActionLocalService,
 		ResourceBlockLocalService resourceBlockLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
+		RoleLocalService roleLocalService,
 		SocialActivityPersistence socialActivityPersistence,
 		SubscriptionLocalService subscriptionLocalService,
 		UserPersistence userPersistence, UserLocalService userLocalService) {
@@ -128,7 +133,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_assetLinkPersistence = assetLinkPersistence;
 		_assetVocabularyLocalService = assetVocabularyLocalService;
 		_assetVocabularyPersistence = assetVocabularyPersistence;
-		_calendarBookingPersistence = calendarBookingPersistence;
+		_calendarBookingLocalService = calendarBookingLocalService;
 		_calendarResourceLocalService = calendarResourceLocalService;
 		_classNameLocalService = classNameLocalService;
 		_counterLocalService = counterLocalService;
@@ -138,9 +143,10 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_mbThreadLocalService = mbThreadLocalService;
 		_ratingsEntryPersistence = ratingsEntryPersistence;
 		_ratingsStatsPersistence = ratingsStatsPersistence;
-		_resourceActionPersistence = resourceActionPersistence;
+		_resourceActionLocalService = resourceActionLocalService;
 		_resourceBlockLocalService = resourceBlockLocalService;
 		_resourcePermissionLocalService = resourcePermissionLocalService;
+		_roleLocalService = roleLocalService;
 		_socialActivityPersistence = socialActivityPersistence;
 		_subscriptionLocalService = subscriptionLocalService;
 		_userPersistence = userPersistence;
@@ -217,7 +223,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		NotificationType firstReminderType, int secondReminder,
 		NotificationType secondReminderType) {
 
-		CalendarBooking calendarBooking = _calendarBookingPersistence.create(
+		CalendarBooking calendarBooking =
+			_calendarBookingLocalService.createCalendarBooking(
 			calendarBookingId);
 
 		calendarBooking.setUuid(uuid);
@@ -247,7 +254,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		calendarBooking.setStatusByUserName(userName);
 		calendarBooking.setStatusDate(createDate);
 
-		return _calendarBookingPersistence.update(calendarBooking);
+		return _calendarBookingLocalService.updateCalendarBooking(
+			calendarBooking);
 	}
 
 	protected void addMBDiscussion(
@@ -521,14 +529,15 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	protected CalendarBooking fetchCalendarBooking(String uuid, long groupId)
 		throws PortalException {
 
-		return _calendarBookingPersistence.fetchByUUID_G(uuid, groupId);
+		return _calendarBookingLocalService
+			.fetchCalendarBookingByUuidAndGroupId(uuid, groupId);
 	}
 
 	protected long getActionId(
 		ResourceAction oldResourceAction, String newClassName) {
 
 		ResourceAction newResourceAction =
-			_resourceActionPersistence.fetchByN_A(
+			_resourceActionLocalService.fetchResourceAction(
 				newClassName, oldResourceAction.getActionId());
 
 		if (newResourceAction == null) {
@@ -545,7 +554,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		long actionIds = 0;
 
 		List<ResourceAction> oldResourceActions =
-			_resourceActionPersistence.findByName(oldClassName);
+			_resourceActionLocalService.getResourceActions(oldClassName);
 
 		for (ResourceAction oldResourceAction : oldResourceActions) {
 			boolean hasActionId = _resourcePermissionLocalService.hasActionId(
@@ -616,12 +625,78 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		Group group = _groupLocalService.getGroup(groupId);
 
 		if (group.isUser()) {
-			return CalendarResourceUtil.getUserCalendarResource(
-				group.getCreatorUserId(), serviceContext);
-		}
+			CalendarResource calendarResource =
+				_calendarResourceLocalService.fetchCalendarResource(
+					_userClassNameId, userId);
 
-		return CalendarResourceUtil.getGroupCalendarResource(
-			groupId, serviceContext);
+			if (calendarResource != null) {
+				return calendarResource;
+			}
+
+			User user = _userLocalService.getUser(userId);
+
+			Group userGroup = null;
+
+			String userName = user.getFullName();
+
+			if (user.isDefaultUser()) {
+				userGroup = _groupLocalService.getGroup(
+					serviceContext.getCompanyId(), GroupConstants.GUEST);
+
+				userName = GroupConstants.GUEST;
+			}
+			else {
+				userGroup = _groupLocalService.getUserGroup(
+					serviceContext.getCompanyId(), userId);
+			}
+
+			Map<Locale, String> nameMap = new HashMap<>();
+
+			nameMap.put(LocaleUtil.getDefault(), userName);
+
+			Map<Locale, String> descriptionMap = new HashMap<>();
+
+			return _calendarResourceLocalService.addCalendarResource(
+				userId, userGroup.getGroupId(), _userClassNameId, userId, null,
+				null, nameMap, descriptionMap, true, serviceContext);
+		}
+		else {
+			if (group.isUser()) {
+				return null;
+			}
+
+			CalendarResource calendarResource =
+				_calendarResourceLocalService.fetchCalendarResource(
+					_groupClassNameId, groupId);
+
+			if (calendarResource != null) {
+				return calendarResource;
+			}
+
+			userId = group.getCreatorUserId();
+
+			User user = _userLocalService.fetchUserById(userId);
+
+			if ((user == null) || user.isDefaultUser()) {
+				Role role = _roleLocalService.getRole(
+					group.getCompanyId(), RoleConstants.ADMINISTRATOR);
+
+				long[] userIds = _userLocalService.getRoleUserIds(
+					role.getRoleId());
+
+				userId = userIds[0];
+			}
+
+			Map<Locale, String> nameMap = new HashMap<>();
+
+			nameMap.put(LocaleUtil.getDefault(), group.getDescriptiveName());
+
+			Map<Locale, String> descriptionMap = new HashMap<>();
+
+			return _calendarResourceLocalService.addCalendarResource(
+				userId, groupId, _groupClassNameId, groupId, null, null,
+				nameMap, descriptionMap, true, serviceContext);
+		}
 	}
 
 	protected void importAssetLink(
@@ -755,7 +830,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		long calendarBookingId) throws PortalException {
 
 		CalendarBooking calendarBooking =
-			_calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
+			_calendarBookingLocalService.getCalendarBooking(calendarBookingId);
 
 		long actionIds = getActionIds(
 			resourcePermission, _CAL_EVENT_CLASS_NAME,
@@ -850,26 +925,16 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	}
 
 	protected CalendarBooking importCalEvent(
-		String uuid, long eventId, long groupId, long companyId, long userId,
-		String userName, Timestamp createDate, Timestamp modifiedDate,
-		String title, String description, String location, Timestamp startDate,
-		int durationHour, int durationMinute, boolean allDay, String recurrence,
-		String type, int firstReminder, int secondReminder) throws Exception {
+			String uuid, long eventId, long groupId, long companyId,
+			long userId, String userName, Timestamp createDate,
+			Timestamp modifiedDate, String title, String description,
+			String location, Timestamp startDate, int durationHour,
+			int durationMinute, boolean allDay, String type, String recurrence,
+			int firstReminder, int secondReminder)
+		throws Exception {
 
-		Group group = _groupLocalService.getGroup(groupId);
-
-		CalendarResource calendarResource;
-
-		if (group.isUser()) {
-			calendarResource =
-				_calendarResourceLocalService.fetchCalendarResource(
-					_userClassNameId, userId);
-		}
-		else {
-			calendarResource =
-				_calendarResourceLocalService.fetchCalendarResource(
-					_groupClassNameId, userId);
-		}
+		CalendarResource calendarResource = getCalendarResource(
+			companyId, groupId);
 
 		CalendarBooking calendarBooking = fetchCalendarBooking(
 			uuid, calendarResource.getGroupId());
@@ -1167,7 +1232,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	private final AssetLinkPersistence _assetLinkPersistence;
 	private final AssetVocabularyLocalService _assetVocabularyLocalService;
 	private final AssetVocabularyPersistence _assetVocabularyPersistence;
-	private final CalendarBookingPersistence _calendarBookingPersistence;
+	private final CalendarBookingLocalService _calendarBookingLocalService;
 	private final CalendarResourceLocalService _calendarResourceLocalService;
 	private final ClassNameLocalService _classNameLocalService;
 	private final CounterLocalService _counterLocalService;
@@ -1178,10 +1243,11 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	private final MBThreadLocalService _mbThreadLocalService;
 	private final RatingsEntryPersistence _ratingsEntryPersistence;
 	private final RatingsStatsPersistence _ratingsStatsPersistence;
-	private final ResourceActionPersistence _resourceActionPersistence;
+	private final ResourceActionLocalService _resourceActionLocalService;
 	private final ResourceBlockLocalService _resourceBlockLocalService;
 	private final ResourcePermissionLocalService
 		_resourcePermissionLocalService;
+	private final RoleLocalService _roleLocalService;
 	private final SocialActivityPersistence _socialActivityPersistence;
 	private final SubscriptionLocalService _subscriptionLocalService;
 	private final long _userClassNameId;
