@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.calendar.calevent.upgrade.v1_0_0;
+package com.liferay.calendar.verify;
 
 import com.liferay.asset.kernel.exception.NoSuchVocabularyException;
 import com.liferay.asset.kernel.model.AssetCategory;
@@ -67,7 +67,6 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.SubscriptionLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
@@ -76,6 +75,7 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.verify.VerifyProcess;
 import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.model.RatingsStats;
 import com.liferay.ratings.kernel.service.RatingsEntryLocalService;
@@ -95,59 +95,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 /**
  * @author Adam Brandizzi
  */
-public class UpgradeCalEvent extends UpgradeProcess {
-
-	public UpgradeCalEvent(
-		AssetCategoryLocalService assetCategoryLocalService,
-		AssetEntryLocalService assetEntryLocalService,
-		AssetLinkLocalService assetLinkLocalService,
-		AssetVocabularyLocalService assetVocabularyLocalService,
-		CalendarBookingLocalService calendarBookingLocalService,
-		CalendarResourceLocalService calendarResourceLocalService,
-		ClassNameLocalService classNameLocalService,
-		CounterLocalService counterLocalService,
-		GroupLocalService groupLocalService,
-		MBDiscussionLocalService mbDiscussionLocalService,
-		MBMessageLocalService mbMessageLocalService,
-		MBThreadLocalService mbThreadLocalService,
-		RatingsEntryLocalService ratingsEntryLocalService,
-		RatingsStatsLocalService ratingsStatsLocalService,
-		ResourceActionLocalService resourceActionLocalService,
-		ResourceBlockLocalService resourceBlockLocalService,
-		ResourcePermissionLocalService resourcePermissionLocalService,
-		RoleLocalService roleLocalService,
-		SocialActivityLocalService socialActivityLocalService,
-		SubscriptionLocalService subscriptionLocalService,
-		UserLocalService userLocalService) {
-
-		_assetCategoryLocalService = assetCategoryLocalService;
-		_assetEntryLocalService = assetEntryLocalService;
-		_assetLinkLocalService = assetLinkLocalService;
-		_assetVocabularyLocalService = assetVocabularyLocalService;
-		_calendarBookingLocalService = calendarBookingLocalService;
-		_calendarResourceLocalService = calendarResourceLocalService;
-		_classNameLocalService = classNameLocalService;
-		_counterLocalService = counterLocalService;
-		_groupLocalService = groupLocalService;
-		_mbDiscussionLocalService = mbDiscussionLocalService;
-		_mbMessageLocalService = mbMessageLocalService;
-		_mbThreadLocalService = mbThreadLocalService;
-		_ratingsEntryLocalService = ratingsEntryLocalService;
-		_ratingsStatsLocalService = ratingsStatsLocalService;
-		_resourceActionLocalService = resourceActionLocalService;
-		_resourceBlockLocalService = resourceBlockLocalService;
-		_resourcePermissionLocalService = resourcePermissionLocalService;
-		_roleLocalService = roleLocalService;
-		_socialActivityLocalService = socialActivityLocalService;
-		_subscriptionLocalService = subscriptionLocalService;
-		_userLocalService = userLocalService;
-
-		_userClassNameId = _classNameLocalService.getClassNameId(User.class);
-		_groupClassNameId = _classNameLocalService.getClassNameId(Group.class);
-	}
+@Component(
+	immediate = true,
+	property = {"verify.process.name=com.liferay.calendar.service"},
+	service = VerifyProcess.class
+)
+public class CalEventVerifyProcess extends VerifyProcess {
 
 	protected void addAssetEntry(
 		long entryId, long groupId, long companyId, long userId,
@@ -218,7 +177,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 
 		CalendarBooking calendarBooking =
 			_calendarBookingLocalService.createCalendarBooking(
-			calendarBookingId);
+				calendarBookingId);
 
 		calendarBooking.setUuid(uuid);
 		calendarBooking.setCompanyId(companyId);
@@ -519,7 +478,7 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	}
 
 	@Override
-	protected void doUpgrade() throws Exception {
+	protected void doVerify() throws Exception {
 		if (hasTable("CalEvent")) {
 			importCalEvents();
 		}
@@ -528,8 +487,8 @@ public class UpgradeCalEvent extends UpgradeProcess {
 	protected CalendarBooking fetchCalendarBooking(String uuid, long groupId)
 		throws PortalException {
 
-		return _calendarBookingLocalService
-			.fetchCalendarBookingByUuidAndGroupId(uuid, groupId);
+		return _calendarBookingLocalService.
+			fetchCalendarBookingByUuidAndGroupId(uuid, groupId);
 	}
 
 	protected long getActionId(
@@ -632,9 +591,11 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		Group group = _groupLocalService.getGroup(groupId);
 
 		if (group.isUser()) {
+			userId = group.getClassPK();
+
 			CalendarResource calendarResource =
 				_calendarResourceLocalService.fetchCalendarResource(
-					_userClassNameId, userId);
+					_classNameLocalService.getClassNameId(User.class), userId);
 
 			if (calendarResource != null) {
 				return calendarResource;
@@ -664,13 +625,15 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			Map<Locale, String> descriptionMap = new HashMap<>();
 
 			return _calendarResourceLocalService.addCalendarResource(
-				userId, userGroup.getGroupId(), _userClassNameId, userId, null,
+				userId, userGroup.getGroupId(),
+				_classNameLocalService.getClassNameId(User.class), userId, null,
 				null, nameMap, descriptionMap, true, serviceContext);
 		}
 		else {
 			CalendarResource calendarResource =
 				_calendarResourceLocalService.fetchCalendarResource(
-					_groupClassNameId, groupId);
+					_classNameLocalService.getClassNameId(Group.class),
+					groupId);
 
 			if (calendarResource != null) {
 				return calendarResource;
@@ -697,8 +660,9 @@ public class UpgradeCalEvent extends UpgradeProcess {
 			Map<Locale, String> descriptionMap = new HashMap<>();
 
 			return _calendarResourceLocalService.addCalendarResource(
-				userId, groupId, _groupClassNameId, groupId, null, null,
-				nameMap, descriptionMap, true, serviceContext);
+				userId, groupId,
+				_classNameLocalService.getClassNameId(Group.class), groupId,
+				null, null, nameMap, descriptionMap, true, serviceContext);
 		}
 	}
 
@@ -1225,6 +1189,147 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		}
 	}
 
+	@Reference(unbind = "-")
+	protected void setAssetCategoryLocalService(
+		AssetCategoryLocalService assetCategoryLocalService) {
+
+		_assetCategoryLocalService = assetCategoryLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setAssetEntryLocalService(
+		AssetEntryLocalService assetEntryLocalService) {
+
+		_assetEntryLocalService = assetEntryLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setAssetLinkLocalService(
+		AssetLinkLocalService assetLinkLocalService) {
+
+		_assetLinkLocalService = assetLinkLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setAssetVocabularyLocalService(
+		AssetVocabularyLocalService assetVocabularyLocalService) {
+
+		_assetVocabularyLocalService = assetVocabularyLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setCalendarBookingLocalService(
+		CalendarBookingLocalService calendarBookingLocalService) {
+
+		_calendarBookingLocalService = calendarBookingLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setCalendarResourceLocalService(
+		CalendarResourceLocalService calendarResourceLocalService) {
+
+		_calendarResourceLocalService = calendarResourceLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setClassNameLocalService(
+		ClassNameLocalService classNameLocalService) {
+
+		_classNameLocalService = classNameLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setCounterLocalService(
+		CounterLocalService counterLocalService) {
+
+		_counterLocalService = counterLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setGroupLocalService(GroupLocalService groupLocalService) {
+		_groupLocalService = groupLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setMBDiscussionLocalService(
+		MBDiscussionLocalService mbDiscussionLocalService) {
+
+		_mbDiscussionLocalService = mbDiscussionLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setMBMessageLocalService(
+		MBMessageLocalService mbMessageLocalService) {
+
+		_mbMessageLocalService = mbMessageLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setMBThreadLocalService(
+		MBThreadLocalService mbThreadLocalService) {
+
+		_mbThreadLocalService = mbThreadLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setRatingsEntryLocalService(
+		RatingsEntryLocalService ratingsEntryLocalService) {
+
+		_ratingsEntryLocalService = ratingsEntryLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setRatingsStatsLocalService(
+		RatingsStatsLocalService ratingsStatsLocalService) {
+
+		_ratingsStatsLocalService = ratingsStatsLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		_resourceActionLocalService = resourceActionLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setResourceBlockLocalService(
+		ResourceBlockLocalService resourceBlockLocalService) {
+
+		_resourceBlockLocalService = resourceBlockLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		_resourcePermissionLocalService = resourcePermissionLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setRoleLocalService(RoleLocalService roleLocalService) {
+		_roleLocalService = roleLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setSocialActivityLocalService(
+		SocialActivityLocalService socialActivityLocalService) {
+
+		_socialActivityLocalService = socialActivityLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setSubscriptionLocalService(
+		SubscriptionLocalService subscriptionLocalService) {
+
+		_subscriptionLocalService = subscriptionLocalService;
+	}
+
+	@Reference(unbind = "-")
+	protected void setUserLocalService(UserLocalService userLocalService) {
+		_userLocalService = userLocalService;
+	}
+
 	protected void updateMBThreadRootMessageId(
 			long threadId, long rootMessageId)
 		throws PortalException {
@@ -1260,29 +1365,26 @@ public class UpgradeCalEvent extends UpgradeProcess {
 		_weekdayMap.put(java.util.Calendar.SATURDAY, Weekday.SATURDAY);
 	}
 
-	private final AssetCategoryLocalService _assetCategoryLocalService;
-	private final AssetEntryLocalService _assetEntryLocalService;
-	private final AssetLinkLocalService _assetLinkLocalService;
-	private final AssetVocabularyLocalService _assetVocabularyLocalService;
-	private final CalendarBookingLocalService _calendarBookingLocalService;
-	private final CalendarResourceLocalService _calendarResourceLocalService;
-	private final ClassNameLocalService _classNameLocalService;
-	private final CounterLocalService _counterLocalService;
-	private final long _groupClassNameId;
-	private final GroupLocalService _groupLocalService;
-	private final MBDiscussionLocalService _mbDiscussionLocalService;
-	private final MBMessageLocalService _mbMessageLocalService;
-	private final MBThreadLocalService _mbThreadLocalService;
-	private final RatingsEntryLocalService _ratingsEntryLocalService;
-	private final RatingsStatsLocalService _ratingsStatsLocalService;
-	private final ResourceActionLocalService _resourceActionLocalService;
-	private final ResourceBlockLocalService _resourceBlockLocalService;
-	private final ResourcePermissionLocalService
-		_resourcePermissionLocalService;
-	private final RoleLocalService _roleLocalService;
-	private final SocialActivityLocalService _socialActivityLocalService;
-	private final SubscriptionLocalService _subscriptionLocalService;
-	private final long _userClassNameId;
-	private final UserLocalService _userLocalService;
+	private AssetCategoryLocalService _assetCategoryLocalService;
+	private AssetEntryLocalService _assetEntryLocalService;
+	private AssetLinkLocalService _assetLinkLocalService;
+	private AssetVocabularyLocalService _assetVocabularyLocalService;
+	private CalendarBookingLocalService _calendarBookingLocalService;
+	private CalendarResourceLocalService _calendarResourceLocalService;
+	private ClassNameLocalService _classNameLocalService;
+	private CounterLocalService _counterLocalService;
+	private GroupLocalService _groupLocalService;
+	private MBDiscussionLocalService _mbDiscussionLocalService;
+	private MBMessageLocalService _mbMessageLocalService;
+	private MBThreadLocalService _mbThreadLocalService;
+	private RatingsEntryLocalService _ratingsEntryLocalService;
+	private RatingsStatsLocalService _ratingsStatsLocalService;
+	private ResourceActionLocalService _resourceActionLocalService;
+	private ResourceBlockLocalService _resourceBlockLocalService;
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+	private RoleLocalService _roleLocalService;
+	private SocialActivityLocalService _socialActivityLocalService;
+	private SubscriptionLocalService _subscriptionLocalService;
+	private UserLocalService _userLocalService;
 
 }
