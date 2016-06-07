@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.form.rule;
 
+import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.StringPool;
 
 /**
@@ -82,12 +83,8 @@ public class DDMFormFieldRuleEvaluationResult {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result +
-			((_instanceId == null) ? 0 : _instanceId.hashCode());
-		result = prime * result + ((_name == null) ? 0 : _name.hashCode());
-		return result;
+		int hash = HashUtil.hash(0, _name);
+		return HashUtil.hash(hash, _instanceId);
 	}
 
 	public boolean isReadOnly() {

@@ -16,6 +16,7 @@ package com.liferay.dynamic.data.mapping.form.rule.internal;
 
 import com.liferay.dynamic.data.mapping.form.rule.DDMFormRuleEvaluationException;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldRuleType;
+import com.liferay.portal.kernel.util.HashUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,23 +96,14 @@ public class DDMFormRuleEvaluatorNode {
 	public String getInstanceId() {
 		return _instanceId;
 	}
-	
-	public void setExpression(String expression) {
-		_expression = expression;
-	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result +
-			((_ddmFormFieldName == null) ? 0 : _ddmFormFieldName.hashCode());
-		result = prime * result +
-			((_ddmFormFieldRuleType == null) ?
-				0 : _ddmFormFieldRuleType.hashCode());
-		result = prime * result +
-			((_instanceId == null) ? 0 : _instanceId.hashCode());
-		return result;
+		int hash = HashUtil.hash(0, _ddmFormFieldName);
+
+		hash = HashUtil.hash(hash, _instanceId);
+
+		return HashUtil.hash(hash, _ddmFormFieldRuleType);
 	}
 
 	public boolean isResolved() {
@@ -122,6 +114,16 @@ public class DDMFormRuleEvaluatorNode {
 		return _visited;
 	}
 
+	public void setExpression(String expression) {
+		_expression = expression;
+	}
+
+	@Override
+	public String toString() {
+		return "{fieldName:" + _ddmFormFieldName + ",instanceId:" +
+			_instanceId + ",ruleType:" + _ddmFormFieldRuleType + "}";
+	}
+	
 	public void visit(List<DDMFormRuleEvaluatorNode> sortedNodes)
 		throws Exception {
 

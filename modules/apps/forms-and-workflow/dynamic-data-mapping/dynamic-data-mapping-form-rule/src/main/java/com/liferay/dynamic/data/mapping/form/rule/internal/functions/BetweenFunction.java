@@ -30,8 +30,9 @@ public class BetweenFunction extends BaseFunction {
 
 	@Override
 	public String execute(
-		DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
-		List<String> parameters) throws DDMFormRuleEvaluationException {
+			DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
+			List<String> parameters)
+		throws DDMFormRuleEvaluationException {
 
 		if (parameters.size() < 5) {
 			throw new DDMFormRuleEvaluationException("Invalid function call");
@@ -98,7 +99,7 @@ public class BetweenFunction extends BaseFunction {
 				}
 			}
 
-			if (actualValue >= value1 && actualValue <= value2) {
+			if ((actualValue >= value1) && (actualValue <= value2)) {
 				return "TRUE";
 			}
 

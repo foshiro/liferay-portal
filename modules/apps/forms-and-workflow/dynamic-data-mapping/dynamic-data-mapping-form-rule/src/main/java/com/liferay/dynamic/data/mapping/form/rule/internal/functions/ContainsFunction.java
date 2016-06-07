@@ -28,8 +28,9 @@ public class ContainsFunction extends BaseFunction {
 
 	@Override
 	public String execute(
-		DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
-		List<String> parameters) throws DDMFormRuleEvaluationException {
+			DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
+			List<String> parameters)
+		throws DDMFormRuleEvaluationException {
 
 		if (parameters.size() < 4) {
 			throw new DDMFormRuleEvaluationException("Invalid function call");
@@ -42,6 +43,13 @@ public class ContainsFunction extends BaseFunction {
 
 		String ddmFormFieldName = parameters.get(2);
 		String value = parameters.get(3);
+
+		if (ddmFormFieldRuleEvaluationResultMap.containsKey(value)) {
+			DDMFormFieldRuleEvaluationResult ddmFormFieldRuleEvaluationResult =
+				ddmFormFieldRuleEvaluationResultMap.get(value);
+
+			value = ddmFormFieldRuleEvaluationResult.getValue().toString();
+		}
 
 		DDMFormFieldRuleEvaluationResult ddmFormFieldRuleEvaluationResult =
 			ddmFormFieldRuleEvaluationResultMap.get(ddmFormFieldName);

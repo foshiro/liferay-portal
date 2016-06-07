@@ -28,8 +28,9 @@ public class EqualsFunction extends BaseFunction {
 
 	@Override
 	public String execute(
-		DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
-		List<String> parameters) throws DDMFormRuleEvaluationException {
+			DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
+			List<String> parameters)
+		throws DDMFormRuleEvaluationException {
 
 		if (parameters.size() < 4) {
 			throw new DDMFormRuleEvaluationException("Invalid function call");

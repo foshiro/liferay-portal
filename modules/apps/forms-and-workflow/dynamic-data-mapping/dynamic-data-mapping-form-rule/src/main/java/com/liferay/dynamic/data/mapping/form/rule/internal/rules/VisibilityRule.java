@@ -37,10 +37,10 @@ public class VisibilityRule extends BaseRule {
 
 	@Override
 	public void execute() throws Exception {
-		if(Validator.isNull(expression)) {
+		if (Validator.isNull(expression)) {
 			return;
 		}
-		
+
 		boolean expressionResult = executeExpression(Boolean.class);
 
 		Map<String, DDMFormFieldRuleEvaluationResult>

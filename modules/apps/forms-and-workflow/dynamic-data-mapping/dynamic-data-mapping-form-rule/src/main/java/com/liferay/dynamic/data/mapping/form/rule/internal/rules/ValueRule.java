@@ -40,10 +40,10 @@ public class ValueRule extends BaseRule {
 
 	@Override
 	public void execute() throws Exception {
-		if(Validator.isNull(expression)) {
+		if (Validator.isNull(expression)) {
 			return;
 		}
-		
+
 		Map<String, DDMFormFieldRuleEvaluationResult>
 			ddmFormFieldRuleEvaluationResultMap =
 				ddmFormRuleEvaluatorContext.
@@ -51,7 +51,6 @@ public class ValueRule extends BaseRule {
 
 		DDMFormFieldRuleEvaluationResult ddmFormFieldRuleEvaluationResult =
 			ddmFormFieldRuleEvaluationResultMap.get(getDDMFormFieldName());
-
 
 		Class<?> expressionClass = Boolean.class;
 
@@ -79,8 +78,8 @@ public class ValueRule extends BaseRule {
 								variableName);
 
 					String dependentValue =
-						dependentDDMFormFieldRuleEvaluationResult
-							.getValue().toString();
+						dependentDDMFormFieldRuleEvaluationResult.getValue().
+							toString();
 
 					if (isNumberExpression()) {
 						Double.parseDouble(dependentValue);

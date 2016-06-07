@@ -44,8 +44,9 @@ public class CallFunction extends BaseFunction {
 
 	@Override
 	public String execute(
-		DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
-		List<String> parameters) throws DDMFormRuleEvaluationException {
+			DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
+			List<String> parameters)
+		throws DDMFormRuleEvaluationException {
 
 		if (parameters.size() < 5) {
 			throw new DDMFormRuleEvaluationException("Invalid function call");
@@ -75,7 +76,8 @@ public class CallFunction extends BaseFunction {
 			}
 
 			return StringPool.BLANK;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new DDMFormRuleEvaluationException(
 				"An error occured while trying to call a data provider", e);
 		}

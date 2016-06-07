@@ -24,12 +24,13 @@ import java.util.Map;
 /**
  * @author Leonardo Barros
  */
-public class VisibleFunction extends BaseFunction {
+public class VisibilityFunction extends BaseFunction {
 
 	@Override
 	public String execute(
-		DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
-		List<String> parameters) throws DDMFormRuleEvaluationException {
+			DDMFormRuleEvaluatorContext ddmFormRuleEvaluatorContext,
+			List<String> parameters)
+		throws DDMFormRuleEvaluationException {
 
 		if (parameters.size() < 3) {
 			throw new DDMFormRuleEvaluationException("Invalid function call");

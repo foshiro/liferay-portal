@@ -36,7 +36,7 @@ public class FunctionFactory {
 			return _readOnlyFunction;
 		}
 		else if(name.equals(_IS_VISIBLE)) {
-			return _visibleFunction;
+			return _visibilityFunction;
 		}
 
 		throw new IllegalArgumentException("Invalid function name");
@@ -47,7 +47,7 @@ public class FunctionFactory {
 			_ALL_FUNCTIONS_PATTERNS = new String[] {
 				_betweenFunction.getPattern(), _callFunction.getPattern(),
 				_containsFunction.getPattern(), _equalsFunction.getPattern(),
-				_readOnlyFunction.getPattern(), _visibleFunction.getPattern()
+				_readOnlyFunction.getPattern(), _visibilityFunction.getPattern()
 			};
 		}
 
@@ -66,7 +66,7 @@ public class FunctionFactory {
 	}
 
 	public static String getVisibilityFunctionPattern() {
-		return _visibleFunction.getPattern();
+		return _visibilityFunction.getPattern();
 	}
 
 	private static String[] _ALL_FUNCTIONS_PATTERNS;
@@ -88,6 +88,7 @@ public class FunctionFactory {
 	private static final Function _containsFunction = new ContainsFunction();
 	private static final Function _equalsFunction = new EqualsFunction();
 	private static final Function _readOnlyFunction = new ReadOnlyFunction();
-	private static final Function _visibleFunction = new VisibleFunction();
+	private static final Function _visibilityFunction =
+		new VisibilityFunction();
 
 }

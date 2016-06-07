@@ -16,7 +16,6 @@ package com.liferay.dynamic.data.mapping.form.rule.internal;
 
 import com.liferay.dynamic.data.mapping.form.rule.DDMFormFieldRuleEvaluationResult;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.SetUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,8 +47,8 @@ public class DDMFormRuleEvaluatorGraph {
 		List<DDMFormRuleEvaluatorNode> sortedNodes = sortNodes();
 
 		for (DDMFormRuleEvaluatorNode node : sortedNodes) {
-			_ddmFormRuleEvaluatorGraphHelper.
-				executeDDMFormRuleEvaluatorNode(node);
+			_ddmFormRuleEvaluatorGraphHelper.executeDDMFormRuleEvaluatorNode(
+				node);
 		}
 
 		Map<String, DDMFormFieldRuleEvaluationResult>
@@ -63,15 +62,13 @@ public class DDMFormRuleEvaluatorGraph {
 
 	protected void createEdges() throws Exception {
 		Set<DDMFormRuleEvaluatorNode> copiedNodes = new HashSet<>(_nodes);
-		
+
 		for (DDMFormRuleEvaluatorNode node : copiedNodes) {
 			createEdges(node);
 		}
 	}
 
-	protected void createEdges(DDMFormRuleEvaluatorNode node) 
-			throws Exception {
-		
+	protected void createEdges(DDMFormRuleEvaluatorNode node) throws Exception {
 		String expression = node.getExpression();
 
 		boolean hasDependencies =
@@ -80,9 +77,9 @@ public class DDMFormRuleEvaluatorGraph {
 		if (!hasDependencies) {
 			return;
 		}
-		
+
 		_nodes.remove(node);
-		
+
 		Set<DDMFormRuleEvaluatorNode> edges =
 			_ddmFormRuleEvaluatorGraphHelper.
 				createDDMFormRuleEvaluatorNodeEdges(expression);
@@ -90,12 +87,9 @@ public class DDMFormRuleEvaluatorGraph {
 		for (DDMFormRuleEvaluatorNode edge : edges) {
 			if (_allNodes.contains(edge)) {
 				int indexOf = _allNodes.indexOf(edge);
-				
-				if(indexOf > -1) {
-					edge.setExpression(_allNodes.get(indexOf).getExpression());
-				}
-				node.getEdges().add(edge);
-				_nodes.remove(edge);
+				DDMFormRuleEvaluatorNode foundNode = _allNodes.get(indexOf);
+				node.getEdges().add(foundNode);
+				_nodes.remove(foundNode);
 			}
 			else {
 				node.getEdges().add(edge);
@@ -115,9 +109,9 @@ public class DDMFormRuleEvaluatorGraph {
 		return sortedNodes;
 	}
 
+	private final List<DDMFormRuleEvaluatorNode> _allNodes;
 	private final DDMFormRuleEvaluatorGraphHelper
 		_ddmFormRuleEvaluatorGraphHelper;
 	private final Set<DDMFormRuleEvaluatorNode> _nodes;
-	private final List<DDMFormRuleEvaluatorNode> _allNodes;
 
 }

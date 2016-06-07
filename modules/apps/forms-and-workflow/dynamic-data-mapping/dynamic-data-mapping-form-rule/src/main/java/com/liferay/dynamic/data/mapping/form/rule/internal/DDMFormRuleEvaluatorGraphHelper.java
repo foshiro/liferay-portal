@@ -217,7 +217,7 @@ public class DDMFormRuleEvaluatorGraphHelper {
 
 		Matcher matcher = pattern.matcher(innerExpression);
 
-		while(matcher.find()) {
+		while (matcher.find()) {
 			String variableName = null;
 
 			for (int i = 1; i <= matcher.groupCount(); i++) {
