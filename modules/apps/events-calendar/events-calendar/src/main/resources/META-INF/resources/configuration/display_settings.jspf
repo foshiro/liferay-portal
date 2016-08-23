@@ -13,6 +13,9 @@
  * details.
  */
 --%>
+<%
+boolean displaySchedulerHeader = GetterUtil.getBoolean(portletPreferences.getValue("displaySchedulerHeader", null), true);
+%>
 
 <aui:fieldset>
 	<aui:input label="display-scheduler-only" name="displaySchedulerOnly" type="checkbox" value="<%= displaySchedulerOnly %>" />

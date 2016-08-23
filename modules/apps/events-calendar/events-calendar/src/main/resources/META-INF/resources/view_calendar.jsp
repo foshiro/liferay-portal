@@ -15,7 +15,7 @@
 --%>
 
 <%@ include file="/init.jsp" %>
-
+<h1>AAABBBBBBBBBBBBBASDGFADFADFADFADFQA</h1>
 <%
 String activeView = ParamUtil.getString(request, "activeView", sessionClicksDefaultView);
 long date = ParamUtil.getLong(request, "date", System.currentTimeMillis());
@@ -25,6 +25,8 @@ JSONArray userCalendarsJSONArray = CalendarUtil.toCalendarsJSONArray(themeDispla
 JSONArray otherCalendarsJSONArray = CalendarUtil.toCalendarsJSONArray(themeDisplay, otherCalendars);
 
 boolean columnOptionsVisible = GetterUtil.getBoolean(SessionClicks.get(request, "com.liferay.calendar.web_columnOptionsVisible", "true"));
+
+boolean displaySchedulerHeader = GetterUtil.getBoolean(portletPreferences.getValue("displaySchedulerHeader", null), true);
 %>
 
 <aui:script use="liferay-calendar-container,liferay-calendar-remote-services,liferay-component">

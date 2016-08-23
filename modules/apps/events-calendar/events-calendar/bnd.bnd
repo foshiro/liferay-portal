@@ -1,0 +1,5 @@
+Bundle-SymbolicName: events.calendar
+Bundle-Version: 1.0.0
+Fragment-Host: com.liferay.calendar.web;bundle-version="1.0.9"
+
+-includeresource: src/main/resources/META-INF/resources
