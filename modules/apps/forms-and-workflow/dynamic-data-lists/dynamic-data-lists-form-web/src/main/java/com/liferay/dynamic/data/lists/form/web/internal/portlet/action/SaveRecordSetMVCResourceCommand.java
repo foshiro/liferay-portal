@@ -21,14 +21,20 @@ import com.liferay.portal.kernel.json.JSONSerializer;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.TransactionConfig;
 import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
+import com.liferay.portal.kernel.util.CalendarFactoryUtil;
+import com.liferay.portal.kernel.util.WebKeys;
 
 import java.io.IOException;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.Callable;
 
 import javax.portlet.ResourceRequest;
@@ -64,7 +70,16 @@ public class SaveRecordSetMVCResourceCommand extends BaseMVCResourceCommand {
 				resourceRequest, resourceResponse);
 
 			response.put("ddmStructureId", recordSet.getDDMStructureId());
-			response.put("modifiedDate", recordSet.getModifiedDate());
+
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)resourceRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
+			Map<String, Object> modifiedDateMap = getDateMap(
+				recordSet.getModifiedDate(), themeDisplay);
+
+			response.put("modifiedDate", modifiedDateMap);
+
 			response.put("recordSetId", recordSet.getRecordSetId());
 		}
 		catch (Throwable t) {
@@ -79,6 +94,32 @@ public class SaveRecordSetMVCResourceCommand extends BaseMVCResourceCommand {
 
 		PortletResponseUtil.write(
 			resourceResponse, jsonSerializer.serializeDeep(response));
+	}
+
+	protected Map<String, Object> getDateMap(
+		Date date, ThemeDisplay themeDisplay) {
+
+		TimeZone timeZone = themeDisplay.getTimeZone();
+
+		Calendar calendar = CalendarFactoryUtil.getCalendar(
+			date.getTime(), timeZone);
+
+		Map<String, Object> dateMap = new HashMap<>();
+
+		dateMap.put("day", calendar.get(Calendar.DATE));
+		dateMap.put("hour", calendar.get(Calendar.HOUR_OF_DAY));
+		dateMap.put("minute", calendar.get(Calendar.MINUTE));
+
+		String monthName = calendar.getDisplayName(
+			Calendar.MONTH, Calendar.LONG, themeDisplay.getLocale());
+
+		dateMap.put("month", monthName);
+
+		dateMap.put("second", calendar.get(Calendar.SECOND));
+		dateMap.put("timeZone", timeZone.getID());
+		dateMap.put("year", calendar.get(Calendar.YEAR));
+
+		return dateMap;
 	}
 
 	protected DDLRecordSet saveRecordSetInTransaction(
