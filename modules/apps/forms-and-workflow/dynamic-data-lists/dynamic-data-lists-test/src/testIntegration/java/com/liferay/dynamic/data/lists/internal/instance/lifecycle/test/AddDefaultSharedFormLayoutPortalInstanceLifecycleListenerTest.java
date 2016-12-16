@@ -23,6 +23,8 @@ import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.rule.Sync;
+import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.registry.Registry;
@@ -41,12 +43,15 @@ import org.junit.runner.RunWith;
  * @author Adam Brandizzi
  */
 @RunWith(Arquillian.class)
+@Sync
 public class AddDefaultSharedFormLayoutPortalInstanceLifecycleListenerTest {
 
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule aggregateTestRule =
-		new LiferayIntegrationTestRule();
+		new AggregateTestRule(
+			new LiferayIntegrationTestRule(),
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
 	public void setUp() throws Exception {
