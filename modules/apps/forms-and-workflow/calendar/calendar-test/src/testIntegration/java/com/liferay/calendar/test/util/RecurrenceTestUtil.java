@@ -70,8 +70,8 @@ public class RecurrenceTestUtil {
 		recurrence.setFrequency(frequency);
 		recurrence.setCount(count);
 		recurrence.setPositionalWeekdays(new ArrayList<PositionalWeekday>());
-		recurrence.setTimeZone(timeZone);
 		recurrence.setUntilJCalendar(untilJCalendar);
+		recurrence.setTimeZone(timeZone);
 
 		return recurrence;
 	}
