@@ -126,18 +126,16 @@ public class CalendarBookingLocalServiceImpl
 			descriptionMap.put(entry.getKey(), sanitizedDescription);
 		}
 
-		TimeZone timeZone = getTimeZone(calendar, allDay);
-
 		java.util.Calendar startTimeJCalendar = JCalendarUtil.getJCalendar(
-			startTime, timeZone);
+			startTime, calendar.getTimeZone());
 		java.util.Calendar endTimeJCalendar = JCalendarUtil.getJCalendar(
-			endTime, timeZone);
+			endTime, calendar.getTimeZone());
 
 		if (allDay) {
 			startTimeJCalendar = JCalendarUtil.toMidnightJCalendar(
-				startTimeJCalendar);
+				startTimeJCalendar, _utcTimeZone);
 			endTimeJCalendar = JCalendarUtil.toLastHourJCalendar(
-				endTimeJCalendar);
+				endTimeJCalendar, _utcTimeZone);
 		}
 
 		if (firstReminder < secondReminder) {
@@ -1102,18 +1100,16 @@ public class CalendarBookingLocalServiceImpl
 			descriptionMap.put(entry.getKey(), sanitizedDescription);
 		}
 
-		TimeZone timeZone = getTimeZone(calendar, allDay);
-
 		java.util.Calendar startTimeJCalendar = JCalendarUtil.getJCalendar(
-			startTime, timeZone);
+			startTime, calendar.getTimeZone());
 		java.util.Calendar endTimeJCalendar = JCalendarUtil.getJCalendar(
-			endTime, timeZone);
+			endTime, calendar.getTimeZone());
 
 		if (allDay) {
 			startTimeJCalendar = JCalendarUtil.toMidnightJCalendar(
-				startTimeJCalendar);
+				startTimeJCalendar, _utcTimeZone);
 			endTimeJCalendar = JCalendarUtil.toLastHourJCalendar(
-				endTimeJCalendar);
+				endTimeJCalendar, _utcTimeZone);
 		}
 
 		if (firstReminder < secondReminder) {
@@ -1891,5 +1887,8 @@ public class CalendarBookingLocalServiceImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CalendarBookingLocalServiceImpl.class);
+
+	private static final TimeZone _utcTimeZone = TimeZoneUtil.getTimeZone(
+		StringPool.UTC);
 
 }
