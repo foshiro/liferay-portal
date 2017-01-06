@@ -168,6 +168,14 @@ public class JCalendarUtil {
 		return lastHourJCalendar;
 	}
 
+	public static Calendar toLastHourJCalendar(
+		Calendar jCalendar, TimeZone timeZone) {
+
+		return CalendarFactoryUtil.getCalendar(
+			jCalendar.get(Calendar.YEAR), jCalendar.get(Calendar.MONTH),
+			jCalendar.get(Calendar.DAY_OF_MONTH), 23, 59, 59, 999, timeZone);
+	}
+
 	public static Calendar toMidnightJCalendar(Calendar jCalendar) {
 		Calendar midnightJCalendar = (Calendar)jCalendar.clone();
 
@@ -177,6 +185,14 @@ public class JCalendarUtil {
 		midnightJCalendar.set(Calendar.MILLISECOND, 0);
 
 		return midnightJCalendar;
+	}
+
+	public static Calendar toMidnightJCalendar(
+		Calendar jCalendar, TimeZone timeZone) {
+
+		return CalendarFactoryUtil.getCalendar(
+			jCalendar.get(Calendar.YEAR), jCalendar.get(Calendar.MONTH),
+			jCalendar.get(Calendar.DAY_OF_MONTH), 0, 0, 0, 0, timeZone);
 	}
 
 	private static final TimeZone _utcTimeZone = TimeZone.getTimeZone(
