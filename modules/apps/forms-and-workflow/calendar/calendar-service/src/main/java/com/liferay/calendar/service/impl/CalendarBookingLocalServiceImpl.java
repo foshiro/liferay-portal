@@ -1628,16 +1628,6 @@ public class CalendarBookingLocalServiceImpl
 		return jsonObject.toString();
 	}
 
-	protected TimeZone getTimeZone(Calendar calendar, boolean allDay) {
-		TimeZone timeZone = calendar.getTimeZone();
-
-		if (allDay) {
-			timeZone = TimeZoneUtil.getTimeZone(StringPool.UTC);
-		}
-
-		return timeZone;
-	}
-
 	protected List<String> getUnmodifiedAttributesNames(
 		CalendarBooking calendarBooking, long calendarId,
 		Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
