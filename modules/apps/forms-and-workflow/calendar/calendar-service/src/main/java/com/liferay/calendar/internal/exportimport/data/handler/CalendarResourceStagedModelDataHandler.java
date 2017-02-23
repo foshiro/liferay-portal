@@ -119,8 +119,8 @@ public class CalendarResourceStagedModelDataHandler
 			CalendarResource calendarResource)
 		throws PortletDataException {
 
-		Group scopeGroup = _groupLocalService.fetchGroup(
-			portletDataContext.getScopeGroupId());
+		Group group = _groupLocalService.fetchGroup(
+			portletDataContext.getGroupId());
 
 		String layoutsImportMode = MapUtil.getString(
 			portletDataContext.getParameterMap(),
@@ -134,10 +134,10 @@ public class CalendarResourceStagedModelDataHandler
 		if (layoutsImportMode.equals(
 				PortletDataHandlerKeys.
 					LAYOUTS_IMPORT_MODE_CREATED_FROM_PROTOTYPE) &&
-			(scopeGroup != null) && scopeGroup.isUser() &&
+			(group != null) && group.isUser() &&
 			calendarResource.getClassNameId() == groupClassNameId) {
 
-			User user = _userLocalService.fetchUser(scopeGroup.getClassPK());
+			User user = _userLocalService.fetchUser(group.getClassPK());
 
 			calendarResource.setClassNameId(userClassNameId);
 			calendarResource.setClassPK(user.getUserId());
