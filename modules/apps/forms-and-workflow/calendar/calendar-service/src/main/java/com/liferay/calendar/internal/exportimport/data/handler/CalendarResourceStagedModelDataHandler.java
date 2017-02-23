@@ -134,7 +134,8 @@ public class CalendarResourceStagedModelDataHandler
 		if (layoutsImportMode.equals(
 				PortletDataHandlerKeys.
 					LAYOUTS_IMPORT_MODE_CREATED_FROM_PROTOTYPE) &&
-			(scopeGroup != null) && scopeGroup.isUser()) {
+			(scopeGroup != null) && scopeGroup.isUser() &&
+			calendarResource.getClassNameId() == groupClassNameId) {
 
 			User user = _userLocalService.fetchUser(scopeGroup.getClassPK());
 
