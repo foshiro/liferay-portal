@@ -22,6 +22,8 @@ import com.liferay.calendar.service.CalendarLocalService;
 import com.liferay.calendar.service.CalendarResourceLocalService;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
+import com.liferay.exportimport.kernel.lar.PortletDataException;
+import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandler;
 import com.liferay.exportimport.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.exportimport.kernel.lar.StagedModelModifiedDateComparator;
@@ -30,6 +32,7 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -108,6 +111,40 @@ public class CalendarResourceStagedModelDataHandler
 	@Override
 	public String getDisplayName(CalendarResource calendarResource) {
 		return calendarResource.getNameCurrentValue();
+	}
+
+	@Override
+	public void importStagedModel(
+			PortletDataContext portletDataContext,
+			CalendarResource calendarResource)
+		throws PortletDataException {
+
+		Group scopeGroup = _groupLocalService.fetchGroup(
+			portletDataContext.getScopeGroupId());
+
+		String layoutsImportMode = MapUtil.getString(
+			portletDataContext.getParameterMap(),
+			PortletDataHandlerKeys.LAYOUTS_IMPORT_MODE);
+
+		long groupClassNameId = _classNameLocalService.getClassNameId(
+			Group.class);
+		long userClassNameId = _classNameLocalService.getClassNameId(
+			User.class);
+
+		if (layoutsImportMode.equals(
+				PortletDataHandlerKeys.
+					LAYOUTS_IMPORT_MODE_CREATED_FROM_PROTOTYPE) &&
+			(scopeGroup != null) && scopeGroup.isUser()) {
+
+			User user = _userLocalService.fetchUser(scopeGroup.getClassPK());
+
+			calendarResource.setClassNameId(userClassNameId);
+			calendarResource.setClassPK(user.getUserId());
+			calendarResource.setName(user.getFullName());
+			calendarResource.setUserId(user.getUserId());
+		}
+
+		super.importStagedModel(portletDataContext, calendarResource);
 	}
 
 	@Override
@@ -326,6 +363,13 @@ public class CalendarResourceStagedModelDataHandler
 	}
 
 	@Reference(unbind = "-")
+	protected void setClassNameLocalLocalService(
+		ClassNameLocalService classNameLocalService) {
+
+		_classNameLocalService = classNameLocalService;
+	}
+
+	@Reference(unbind = "-")
 	protected void setGroupLocalService(GroupLocalService groupLocalService) {
 		_groupLocalService = groupLocalService;
 	}
@@ -366,6 +410,7 @@ public class CalendarResourceStagedModelDataHandler
 
 	private CalendarLocalService _calendarLocalService;
 	private CalendarResourceLocalService _calendarResourceLocalService;
+	private ClassNameLocalService _classNameLocalService;
 	private GroupLocalService _groupLocalService;
 
 	@Reference
