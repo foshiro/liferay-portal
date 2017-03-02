@@ -14,11 +14,8 @@
 
 package com.liferay.journal.workflow;
 
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.journal.model.JournalArticle;
-import com.liferay.journal.model.JournalArticleConstants;
-import com.liferay.journal.model.JournalFolder;
 import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.journal.service.JournalFolderLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -70,29 +67,8 @@ public class JournalArticleWorkflowHandler
 			long companyId, long groupId, long classPK)
 		throws PortalException {
 
-		JournalArticle article = _journalArticleLocalService.getArticle(
-			classPK);
-
-		long folderId = _journalFolderLocalService.getInheritedWorkflowFolderId(
-			article.getFolderId());
-
-		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
-			article.getGroupId(), _portal.getClassNameId(JournalArticle.class),
-			article.getDDMStructureKey(), true);
-
-		WorkflowDefinitionLink workflowDefinitionLink =
-			_workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
-				companyId, groupId, JournalFolder.class.getName(), folderId,
-				ddmStructure.getStructureId(), true);
-
-		if (workflowDefinitionLink == null) {
-			workflowDefinitionLink =
-				_workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
-					companyId, groupId, JournalFolder.class.getName(), folderId,
-					JournalArticleConstants.DDM_STRUCTURE_ID_ALL, true);
-		}
-
-		return workflowDefinitionLink;
+		return _journalArticleLocalService.getWorkflowDefinitionLink(
+			companyId, groupId, classPK);
 	}
 
 	@Override

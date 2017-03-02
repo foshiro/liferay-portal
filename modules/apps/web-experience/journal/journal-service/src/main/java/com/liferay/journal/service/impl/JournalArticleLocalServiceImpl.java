@@ -97,6 +97,7 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
@@ -155,6 +156,7 @@ import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
@@ -189,6 +191,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.portlet.PortletPreferences;
+
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * Provides the local service for accessing, adding, deleting, and updating web
@@ -828,10 +832,11 @@ public class JournalArticleLocalServiceImpl
 		newArticle.setSmallImageId(counterLocalService.increment());
 		newArticle.setSmallImageURL(oldArticle.getSmallImageURL());
 
-		if (oldArticle.isPending() ||
-			workflowDefinitionLinkLocalService.hasWorkflowDefinitionLink(
-				user.getCompanyId(), groupId, JournalArticle.class.getName())) {
+		WorkflowDefinitionLink workflowDefinitionLink =
+			getWorkflowDefinitionLink(
+				user.getCompanyId(), groupId, oldArticle.getPrimaryKey());
 
+		if (oldArticle.isPending() || workflowDefinitionLink != null) {
 			newArticle.setStatus(WorkflowConstants.STATUS_DRAFT);
 		}
 		else {
@@ -3382,6 +3387,36 @@ public class JournalArticleLocalServiceImpl
 		}
 
 		return urlTitle;
+	}
+
+	@Override
+	public WorkflowDefinitionLink getWorkflowDefinitionLink(
+			long companyId, long groupId, long classPK)
+		throws PortalException {
+
+		JournalArticle article = getArticle(classPK);
+
+		long folderId = journalFolderLocalService.getInheritedWorkflowFolderId(
+			article.getFolderId());
+
+		DDMStructure ddmStructure = ddmStructureLocalService.getStructure(
+			article.getGroupId(),
+			classNameLocalService.getClassNameId(JournalArticle.class),
+			article.getDDMStructureKey(), true);
+
+		WorkflowDefinitionLink workflowDefinitionLink =
+			workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
+				companyId, groupId, JournalFolder.class.getName(), folderId,
+				ddmStructure.getStructureId(), true);
+
+		if (workflowDefinitionLink == null) {
+			workflowDefinitionLink =
+				workflowDefinitionLinkLocalService.fetchWorkflowDefinitionLink(
+					companyId, groupId, JournalFolder.class.getName(), folderId,
+					JournalArticleConstants.DDM_STRUCTURE_ID_ALL, true);
+		}
+
+		return workflowDefinitionLink;
 	}
 
 	/**
@@ -8264,6 +8299,9 @@ public class JournalArticleLocalServiceImpl
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalArticleLocalServiceImpl.class);
+
+	@Reference
+	private WorkflowHandler<JournalArticle> _journalArticleWorkflowHandler;
 
 	@ServiceReference(type = JournalFileUploadsConfiguration.class)
 	private JournalFileUploadsConfiguration _journalFileUploadsConfiguration;

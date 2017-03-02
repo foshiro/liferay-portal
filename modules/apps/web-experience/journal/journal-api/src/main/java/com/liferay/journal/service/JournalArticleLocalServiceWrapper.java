@@ -1683,6 +1683,14 @@ public class JournalArticleLocalServiceWrapper
 		return _journalArticleLocalService.getPersistedModel(primaryKeyObj);
 	}
 
+	@Override
+	public com.liferay.portal.kernel.model.WorkflowDefinitionLink getWorkflowDefinitionLink(
+		long companyId, long groupId, long classPK)
+		throws com.liferay.portal.kernel.exception.PortalException {
+		return _journalArticleLocalService.getWorkflowDefinitionLink(companyId,
+			groupId, classPK);
+	}
+
 	/**
 	* Returns a {@link BaseModelSearchResult} containing the total number of
 	* hits and an ordered range of all the web content articles matching the
