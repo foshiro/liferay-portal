@@ -25,10 +25,12 @@ import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.search.Summary;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -50,7 +52,9 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.security.permission.SimplePermissionChecker;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.stream.Stream;
 
@@ -202,6 +206,31 @@ public class CalendarBookingIndexerTest {
 		assertSearchHitsLength(title, 1, LocaleUtil.US);
 	}
 
+	@Test
+	public void testSearchSummaryContainsTitle() throws Exception {
+		setUpSearchContext(_group, TestPropsValues.getUser());
+
+		String title = RandomTestUtil.randomString();
+
+		addCalendarBooking(
+			new LocalizedValuesMap() {
+				{
+					put(LocaleUtil.US, title);
+				}
+			});
+
+		assertSearchHitsLength(title, 1, LocaleUtil.US);
+
+		List<Document> documents = getDocuments(title, LocaleUtil.US);
+
+		Assert.assertEquals(documents.toString(), 1, documents.size());
+
+		Summary summary = _indexer.getSummary(
+			documents.get(0), StringPool.BLANK, null, null);
+
+		Assert.assertTrue(summary.getTitle().contains(title));
+	}
+
 	protected static SearchContext getSearchContext(Group group, User user)
 		throws Exception {
 
@@ -259,6 +288,25 @@ public class CalendarBookingIndexerTest {
 
 			Assert.assertEquals(
 				hits.toString(), expectedLength, hits.getLength());
+		}
+		catch (SearchException se) {
+			throw new RuntimeException(se);
+		}
+		finally {
+			_searchContext.setLocale(currentLocale);
+		}
+	}
+
+	protected List<Document> getDocuments(String keywords, Locale locale) {
+		Locale currentLocale = _searchContext.getLocale();
+
+		try {
+			_searchContext.setLocale(locale);
+			_searchContext.setKeywords(keywords);
+
+			Hits hits = _indexer.search(_searchContext);
+
+			return Arrays.asList(hits.getDocs());
 		}
 		catch (SearchException se) {
 			throw new RuntimeException(se);
