@@ -770,7 +770,7 @@ public class CalendarBookingServiceImpl extends CalendarBookingServiceBaseImpl {
 		return calendarBookingLocalService.updateRecurringCalendarBooking(
 			getUserId(), calendarBookingId, calendarId, childCalendarIds,
 			titleMap, descriptionMap, location, startTime, endTime, allDay,
-			firstReminder, firstReminderType, secondReminder,
+			recurrence, firstReminder, firstReminderType, secondReminder,
 			secondReminderType, serviceContext);
 	}
 
