@@ -26,6 +26,7 @@ import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -235,6 +236,24 @@ public class CalendarBookingTestUtil {
 	}
 
 	public static CalendarBooking updateCalendarBookingInstance(
+			CalendarBooking calendarBooking, int instanceIndex,
+			Map<Locale, String> titleMap, ServiceContext serviceContext)
+		throws PortalException {
+
+		long endTime = calendarBooking.getEndTime() + Time.DAY * instanceIndex;
+
+		long startTime =
+			calendarBooking.getStartTime() + Time.DAY * instanceIndex;
+
+		User user = UserLocalServiceUtil.fetchUser(calendarBooking.getUserId());
+
+		return updateCalendarBookingInstance(
+			user, calendarBooking, instanceIndex, titleMap,
+			calendarBooking.getDescriptionMap(), startTime, endTime,
+			serviceContext);
+	}
+
+	public static CalendarBooking updateCalendarBookingInstance(
 			User user, CalendarBooking calendarBooking, int instanceIndex,
 			Map<Locale, String> titleMap, Map<Locale, String> descriptionMap,
 			long instanceStartTime, long instanceEndTime,
@@ -246,6 +265,26 @@ public class CalendarBookingTestUtil {
 			instanceIndex, calendarBooking.getCalendarId(), titleMap,
 			descriptionMap, calendarBooking.getLocation(), instanceStartTime,
 			instanceEndTime, false, null, false, 0, null, 0, null,
+			serviceContext);
+	}
+
+	public static CalendarBooking updateCalendarBookingInstanceAndAllFollowing(
+			CalendarBooking calendarBooking, int instanceIndex,
+			Map<Locale, String> titleMap, ServiceContext serviceContext)
+		throws PortalException {
+
+		long endTime = calendarBooking.getEndTime() + Time.DAY * instanceIndex;
+
+		long startTime =
+			calendarBooking.getStartTime() + Time.DAY * instanceIndex;
+
+		User user = UserLocalServiceUtil.fetchUser(calendarBooking.getUserId());
+
+		return CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
+			user.getUserId(), calendarBooking.getCalendarBookingId(),
+			instanceIndex, calendarBooking.getCalendarId(), titleMap,
+			calendarBooking.getDescriptionMap(), calendarBooking.getLocation(),
+			startTime, endTime, false, null, true, 0, null, 0, null,
 			serviceContext);
 	}
 

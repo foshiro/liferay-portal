@@ -1336,16 +1336,9 @@ public class CalendarBookingLocalServiceTest {
 		Map<Locale, String> instanceTitleMap =
 			RandomTestUtil.randomLocaleStringMap();
 
-		long instanceStartTime = startTime + Time.DAY * 2;
-
 		CalendarBooking calendarBookingInstance =
-			CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
-				_user.getUserId(), calendarBooking.getCalendarBookingId(), 2,
-				calendar.getCalendarId(), instanceTitleMap,
-				calendarBooking.getDescriptionMap(),
-				calendarBooking.getLocation(), instanceStartTime,
-				instanceStartTime + (Time.HOUR * 10), false, null, false, 0,
-				null, 0, null, serviceContext);
+			CalendarBookingTestUtil.updateCalendarBookingInstance(
+				calendarBooking, 2, instanceTitleMap, serviceContext);
 
 		Assert.assertEquals(
 			instanceTitleMap, calendarBookingInstance.getTitleMap());
@@ -1353,13 +1346,8 @@ public class CalendarBookingLocalServiceTest {
 		Map<Locale, String> newTitleMap =
 			RandomTestUtil.randomLocaleStringMap();
 
-		CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
-			_user.getUserId(), calendarBooking.getCalendarBookingId(), 1,
-			calendar.getCalendarId(), newTitleMap,
-			calendarBooking.getDescriptionMap(), calendarBooking.getLocation(),
-			startTime, startTime + (Time.HOUR * 10), false,
-			calendarBooking.getRecurrence(), true, 0, null, 0, null,
-			serviceContext);
+		CalendarBookingTestUtil.updateCalendarBookingInstanceAndAllFollowing(
+			calendarBooking, 0, newTitleMap, serviceContext);
 
 		calendarBookingInstance =
 			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
@@ -1698,16 +1686,9 @@ public class CalendarBookingLocalServiceTest {
 		Map<Locale, String> instanceTitleMap =
 			RandomTestUtil.randomLocaleStringMap();
 
-		long instanceStartTime = startTime + Time.DAY * 2;
-
 		CalendarBooking calendarBookingInstance =
-			CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
-				_user.getUserId(), calendarBooking.getCalendarBookingId(), 2,
-				calendar.getCalendarId(), instanceTitleMap,
-				calendarBooking.getDescriptionMap(),
-				calendarBooking.getLocation(), instanceStartTime,
-				instanceStartTime + (Time.HOUR * 10), false, null, false, 0,
-				null, 0, null, serviceContext);
+			CalendarBookingTestUtil.updateCalendarBookingInstance(
+				calendarBooking, 2, instanceTitleMap, serviceContext);
 
 		Assert.assertEquals(
 			instanceTitleMap, calendarBookingInstance.getTitleMap());
