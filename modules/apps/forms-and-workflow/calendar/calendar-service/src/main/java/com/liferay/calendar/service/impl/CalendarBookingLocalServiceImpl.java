@@ -1378,6 +1378,12 @@ public class CalendarBookingLocalServiceImpl
 			serviceContext, recurringCalendarBookings,
 			unmodifiedAttributesNames);
 
+		updateLastInstanceCalendarBookingRecurrence(
+			recurringCalendarBookings, recurrence);
+
+		calendarBooking = calendarBookingPersistence.findByPrimaryKey(
+			calendarBookingId);
+
 		return calendarBooking;
 	}
 
@@ -1997,6 +2003,17 @@ public class CalendarBookingLocalServiceImpl
 
 			calendarBookingPersistence.update(childCalendarBooking);
 		}
+	}
+
+	protected void updateLastInstanceCalendarBookingRecurrence(
+		List<CalendarBooking> calendarBookings, String recurrence) {
+
+		CalendarBooking lastInstanceCalendarBooking =
+			RecurrenceUtil.getLastInstanceCalendarBooking(calendarBookings);
+
+		lastInstanceCalendarBooking.setRecurrence(recurrence);
+
+		calendarBookingPersistence.update(lastInstanceCalendarBooking);
 	}
 
 	protected void validate(
