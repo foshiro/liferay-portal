@@ -46,6 +46,7 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
@@ -1754,6 +1755,64 @@ public class CalendarBookingLocalServiceTest {
 			calendarBooking.getSecondReminderType(), serviceContext);
 
 		assertCalendarBookingInstancesCount(calendarBookingId, 1);
+	}
+
+	@Test
+	public void testUpdateRecurringCalendarBookingUpdatesLastRecurrence()
+		throws Exception {
+
+		ServiceContext serviceContext = createServiceContext();
+
+		Calendar calendar = CalendarTestUtil.addCalendar(_user, serviceContext);
+
+		java.util.Calendar startTimeJCalendar =
+			CalendarFactoryUtil.getCalendar();
+
+		long startTime = System.currentTimeMillis();
+
+		long endTime = startTime + (Time.HOUR * 10);
+
+		Recurrence recurrence = RecurrenceTestUtil.getDailyRecurrence();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addRecurringCalendarBooking(
+				_user, calendar, startTime, endTime, recurrence,
+				serviceContext);
+
+		CalendarBooking calendarBookingInstance =
+			CalendarBookingTestUtil.updateCalendarBookingInstance(
+				calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
+				serviceContext);
+
+		java.util.Calendar untilJCalendar =
+			(java.util.Calendar)startTimeJCalendar.clone();
+
+		untilJCalendar.add(java.util.Calendar.DAY_OF_MONTH, 10);
+
+		Recurrence newRecurrence = RecurrenceTestUtil.getDailyRecurrence(
+			untilJCalendar);
+
+		CalendarBookingLocalServiceUtil.updateRecurringCalendarBooking(
+			_user.getUserId(), calendarBooking.getCalendarBookingId(),
+			calendar.getCalendarId(), new long[0],
+			calendarBooking.getTitleMap(), calendarBooking.getDescriptionMap(),
+			calendarBooking.getLocation(), startTime, endTime, false,
+			RecurrenceSerializer.serialize(newRecurrence), 0, null, 0, null,
+			serviceContext);
+
+		calendarBookingInstance =
+			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+				calendarBookingInstance.getCalendarBookingId());
+
+		Assert.assertTrue(
+			Validator.isNull(calendarBookingInstance.getRecurrence()));
+
+		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+			calendarBooking.getCalendarBookingId());
+
+		recurrence = calendarBooking.getRecurrenceObj();
+
+		assertSameDay(untilJCalendar, recurrence.getUntilJCalendar());
 	}
 
 	@Test
