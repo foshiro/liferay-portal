@@ -46,7 +46,6 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
@@ -379,8 +378,8 @@ public class CalendarBookingLocalServiceTest {
 				calendar.getCalendarId(), titleMap,
 				calendarBooking.getDescriptionMap(),
 				calendarBooking.getLocation(), instanceStartTime,
-				instanceStartTime + (Time.HOUR * 10), false, null, false, 0,
-				null, 0, null, serviceContext);
+				instanceStartTime + (Time.HOUR * 10), false, StringPool.BLANK,
+				false, 0, null, 0, null, serviceContext);
 
 		CalendarBookingLocalServiceUtil.deleteCalendarBooking(
 			calendarBooking, false);
@@ -455,7 +454,7 @@ public class CalendarBookingLocalServiceTest {
 			instanceIndex, calendar.getCalendarId(), instanceTitleMap,
 			calendarBooking.getDescriptionMap(), calendarBooking.getLocation(),
 			instanceStartTime, instanceStartTime + (Time.HOUR * 10), false,
-			null, false, 0, null, 0, null, serviceContext);
+			StringPool.BLANK, false, 0, null, 0, null, serviceContext);
 
 		instanceIndex = 4;
 
@@ -514,7 +513,7 @@ public class CalendarBookingLocalServiceTest {
 			instanceIndex, calendar.getCalendarId(), instanceTitleMap,
 			calendarBooking.getDescriptionMap(), calendarBooking.getLocation(),
 			firstInstancStartTime, firstInstancStartTime + (Time.HOUR * 10),
-			false, null, false, 0, null, 0, null, serviceContext);
+			false, StringPool.BLANK, false, 0, null, 0, null, serviceContext);
 
 		instanceIndex = 4;
 
@@ -1358,6 +1357,54 @@ public class CalendarBookingLocalServiceTest {
 	}
 
 	@Test
+	public void testUpdateCalendarBookingInstanceUpdatesRecurrence()
+		throws Exception {
+
+		ServiceContext serviceContext = createServiceContext();
+
+		Calendar calendar = CalendarTestUtil.addCalendar(_user, serviceContext);
+
+		long startTime = System.currentTimeMillis();
+
+		Recurrence recurrence = RecurrenceTestUtil.getDailyRecurrence();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addRecurringCalendarBooking(
+				_user, calendar, startTime, startTime + (Time.HOUR * 10),
+				recurrence, serviceContext);
+
+		Map<Locale, String> instanceTitleMap =
+			RandomTestUtil.randomLocaleStringMap();
+
+		CalendarBooking calendarBookingInstance =
+			CalendarBookingTestUtil.updateCalendarBookingInstance(
+				calendarBooking, 2, instanceTitleMap, serviceContext);
+
+		Assert.assertEquals(
+			instanceTitleMap, calendarBookingInstance.getTitleMap());
+
+		recurrence = RecurrenceTestUtil.getDailyRecurrence(10);
+
+		CalendarBookingTestUtil.updateCalendarBookingInstanceAndAllFollowing(
+			calendarBooking, 0, recurrence, serviceContext);
+
+		calendarBookingInstance =
+				CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+					calendarBookingInstance.getCalendarBookingId());
+
+		recurrence = calendarBookingInstance.getRecurrenceObj();
+
+		Assert.assertNull(recurrence);
+
+		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+			calendarBooking.getCalendarBookingId());
+
+		recurrence = calendarBooking.getRecurrenceObj();
+
+		Assert.assertEquals(10, recurrence.getCount());
+	}
+
+	@Test
 	public void testUpdateCalendarBookingPreservesChildReminders()
 		throws Exception {
 
@@ -1804,8 +1851,7 @@ public class CalendarBookingLocalServiceTest {
 			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 				calendarBookingInstance.getCalendarBookingId());
 
-		Assert.assertTrue(
-			Validator.isNull(calendarBookingInstance.getRecurrence()));
+		Assert.assertNull(calendarBookingInstance.getRecurrenceObj());
 
 		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 			calendarBooking.getCalendarBookingId());

@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
@@ -264,7 +265,7 @@ public class CalendarBookingTestUtil {
 			user.getUserId(), calendarBooking.getCalendarBookingId(),
 			instanceIndex, calendarBooking.getCalendarId(), titleMap,
 			descriptionMap, calendarBooking.getLocation(), instanceStartTime,
-			instanceEndTime, false, null, false, 0, null, 0, null,
+			instanceEndTime, false, StringPool.BLANK, false, 0, null, 0, null,
 			serviceContext);
 	}
 
@@ -285,6 +286,27 @@ public class CalendarBookingTestUtil {
 			instanceIndex, calendarBooking.getCalendarId(), titleMap,
 			calendarBooking.getDescriptionMap(), calendarBooking.getLocation(),
 			startTime, endTime, false, null, true, 0, null, 0, null,
+			serviceContext);
+	}
+
+	public static CalendarBooking updateCalendarBookingInstanceAndAllFollowing(
+			CalendarBooking calendarBooking, int instanceIndex,
+			Recurrence recurrence, ServiceContext serviceContext)
+		throws PortalException {
+
+		long endTime = calendarBooking.getEndTime() + Time.DAY * instanceIndex;
+
+		long startTime =
+			calendarBooking.getStartTime() + Time.DAY * instanceIndex;
+
+		User user = UserLocalServiceUtil.fetchUser(calendarBooking.getUserId());
+
+		return CalendarBookingLocalServiceUtil.updateCalendarBookingInstance(
+			user.getUserId(), calendarBooking.getCalendarBookingId(),
+			instanceIndex, calendarBooking.getCalendarId(),
+			calendarBooking.getTitleMap(), calendarBooking.getDescriptionMap(),
+			calendarBooking.getLocation(), startTime, endTime, false,
+			RecurrenceSerializer.serialize(recurrence), true, 0, null, 0, null,
 			serviceContext);
 	}
 

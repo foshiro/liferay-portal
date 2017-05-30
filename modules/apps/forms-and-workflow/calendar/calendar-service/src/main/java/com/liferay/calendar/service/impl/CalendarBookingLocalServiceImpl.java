@@ -1381,10 +1381,7 @@ public class CalendarBookingLocalServiceImpl
 		updateLastInstanceCalendarBookingRecurrence(
 			recurringCalendarBookings, recurrence);
 
-		calendarBooking = calendarBookingPersistence.findByPrimaryKey(
-			calendarBookingId);
-
-		return calendarBooking;
+		return calendarBookingPersistence.findByPrimaryKey(calendarBookingId);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -2006,14 +2003,30 @@ public class CalendarBookingLocalServiceImpl
 	}
 
 	protected void updateLastInstanceCalendarBookingRecurrence(
+		CalendarBooking calendarBooking, String newRecurrence) {
+
+		List<CalendarBooking> calendarBookings = getRecurringCalendarBookings(
+			calendarBooking);
+
+		updateLastInstanceCalendarBookingRecurrence(
+			calendarBookings, newRecurrence);
+	}
+
+	protected void updateLastInstanceCalendarBookingRecurrence(
 		List<CalendarBooking> calendarBookings, String recurrence) {
 
 		CalendarBooking lastInstanceCalendarBooking =
 			RecurrenceUtil.getLastInstanceCalendarBooking(calendarBookings);
 
-		lastInstanceCalendarBooking.setRecurrence(recurrence);
+		if (recurrence == null) {
+			recurrence = StringPool.BLANK;
+		}
 
-		calendarBookingPersistence.update(lastInstanceCalendarBooking);
+		if (!recurrence.equals(lastInstanceCalendarBooking.getRecurrence())) {
+			lastInstanceCalendarBooking.setRecurrence(recurrence);
+
+			calendarBookingPersistence.update(lastInstanceCalendarBooking);
+		}
 	}
 
 	protected void validate(
