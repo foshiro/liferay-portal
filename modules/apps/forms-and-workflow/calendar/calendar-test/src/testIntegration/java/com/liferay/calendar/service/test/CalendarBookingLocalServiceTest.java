@@ -31,6 +31,7 @@ import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -41,6 +42,7 @@ import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.TimeZoneUtil;
@@ -89,7 +91,11 @@ public class CalendarBookingLocalServiceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		_user = UserTestUtil.addUser();
+		_user = UserTestUtil.addUser("user");
+
+		_user.setEmailAddress("user@test.com");
+
+		_user = UserLocalServiceUtil.updateUser(_user);
 
 		setUpCheckBookingMessageListener();
 	}
@@ -276,14 +282,22 @@ public class CalendarBookingLocalServiceTest {
 	public void testAddCalendarBookingResourceRequestedNotifiesInvitees()
 		throws Exception {
 
-		_invitingUser = UserTestUtil.addUser();
+		_invitingUser = UserTestUtil.addUser("inviting");
+
+		_invitingUser.setEmailAddress("inviting@test.com");
+
+		_invitingUser = UserLocalServiceUtil.updateUser(_invitingUser);
 
 		Calendar invintingCalendar = CalendarTestUtil.addCalendar(
 			_invitingUser);
 
 		Calendar invitedCalendar = CalendarTestUtil.addCalendar(_user);
 
-		_resourceUser = UserTestUtil.addUser();
+		_resourceUser = UserTestUtil.addUser("resource");
+
+		_resourceUser.setEmailAddress("resource@test.com");
+
+		_resourceUser = UserLocalServiceUtil.updateUser(_resourceUser);
 
 		Calendar resourceCalendar =
 			CalendarTestUtil.addCalendarResourceCalendar(_resourceUser);
@@ -297,13 +311,14 @@ public class CalendarBookingLocalServiceTest {
 		};
 
 		CalendarBookingTestUtil.addMasterCalendarBooking(
-			_user, invintingCalendar, childCalendarIds,
+			_invitingUser, invintingCalendar, childCalendarIds,
 			firstChildCalendarBooking.getStartTime(),
-			firstChildCalendarBooking.getEndTime(), createServiceContext());
+			firstChildCalendarBooking.getEndTime(),
+			createServiceContext(_invitingUser));
 
-		assertSentEmail(_user.getEmailAddress());
+		assertSentEmail(_invitingUser, _user, "invited");
 
-		assertSentEmail(_invitingUser.getEmailAddress());
+		assertSentEmail(_resourceUser, _invitingUser, "denied");
 	}
 
 	@Test
@@ -2140,17 +2155,61 @@ public class CalendarBookingLocalServiceTest {
 			actualJCalendar.get(java.util.Calendar.MINUTE));
 	}
 
-	protected void assertSentEmail(String to) {
+	protected void assertSentEmail(String from, String to, String bodySnippet) {
 		List<MailMessage> mailMessages = MailServiceTestUtil.getMailMessages(
 			"To", to);
 
-		Assert.assertFalse(mailMessages.toString(), mailMessages.isEmpty());
+		String message = "No email sent to " + to + ".";
+
+		Assert.assertFalse(message, mailMessages.isEmpty());
+
+		MailMessage foundMailMessage = null;
+
+		for (MailMessage mailMessage : mailMessages) {
+			List<String> fromHeaders = mailMessage.getHeaderValues("From");
+
+			for (String fromHeader : fromHeaders) {
+				if (fromHeader.contains(from)) {
+					foundMailMessage = mailMessage;
+				}
+			}
+		}
+
+		StringBundler sb = new StringBundler(5 + mailMessages.size()*2);
+
+		sb.append("No email sent by ");
+		sb.append(from);
+		sb.append(" to ");
+		sb.append(to);
+		sb.append(". Emails sent by ");
+
+		for (MailMessage mailMessage1 : mailMessages) {
+			sb.append(mailMessage1.getFirstHeaderValue("From"));
+			sb.append(" ");
+		}
+
+		Assert.assertNotNull(sb.toString(), foundMailMessage);
+
+		String body = foundMailMessage.getBody();
+
+		Assert.assertTrue(body, body.contains(bodySnippet));
+	}
+
+	protected void assertSentEmail(
+		User fromUser, User toUser, String bodySnippet) {
+
+		assertSentEmail(
+			fromUser.getEmailAddress(), toUser.getEmailAddress(), bodySnippet);
 	}
 
 	protected ServiceContext createServiceContext() {
+		return createServiceContext(_user);
+	}
+
+	protected ServiceContext createServiceContext(User user) {
 		ServiceContext serviceContext = new ServiceContext();
 
-		serviceContext.setCompanyId(_user.getCompanyId());
+		serviceContext.setCompanyId(user.getCompanyId());
 
 		serviceContext.setUserId(_user.getUserId());
 
