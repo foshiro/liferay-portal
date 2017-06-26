@@ -202,7 +202,7 @@ public class CalendarBookingLocalServiceTest {
 
 		CalendarBookingLocalServiceUtil.updateStatus(
 			_user.getUserId(), childCalendarBooking,
-			CalendarBookingWorkflowConstants.STATUS_APPROVED, serviceContext);
+			WorkflowConstants.STATUS_APPROVED, serviceContext);
 
 		CalendarBookingLocalServiceUtil.checkCalendarBookings();
 
@@ -1010,9 +1010,8 @@ public class CalendarBookingLocalServiceTest {
 			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 				childCalendarBooking.getUuid(), _liveGroup.getGroupId());
 
-		Assert.assertEquals(
-			CalendarBookingWorkflowConstants.STATUS_PENDING,
-			liveChildCalendarBooking.getStatus());
+		assertStatus(
+			liveChildCalendarBooking, WorkflowConstants.STATUS_PENDING);
 	}
 
 	@Test
@@ -1038,9 +1037,9 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking childCalendarBooking = getChildCalendarBooking(
 			calendarBooking);
 
-		Assert.assertEquals(
-			CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING,
-			childCalendarBooking.getStatus());
+		assertStatus(
+			childCalendarBooking,
+			CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING);
 	}
 
 	@Test
@@ -1092,8 +1091,7 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking childCalendarBooking = getChildCalendarBooking(
 			calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_PENDING, childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_PENDING);
 	}
 
 	@Test
@@ -1195,17 +1193,14 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking childCalendarBooking = getChildCalendarBooking(
 			calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_PENDING, childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_PENDING);
 
 		CalendarBookingLocalServiceUtil.moveCalendarBookingToTrash(
 			_user.getUserId(), calendarBooking);
 
 		childCalendarBooking = getChildCalendarBooking(calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_IN_TRASH,
-			childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_IN_TRASH);
 	}
 
 	@Test
@@ -1226,8 +1221,7 @@ public class CalendarBookingLocalServiceTest {
 		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 			calendarBooking.getCalendarBookingId());
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_APPROVED, calendarBooking.getStatus());
+		assertStatus(calendarBooking, WorkflowConstants.STATUS_APPROVED);
 	}
 
 	@Test
@@ -1259,8 +1253,7 @@ public class CalendarBookingLocalServiceTest {
 		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 			calendarBooking.getCalendarBookingId());
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_APPROVED, calendarBooking.getStatus());
+		assertStatus(calendarBooking, WorkflowConstants.STATUS_APPROVED);
 	}
 
 	@Test
@@ -1286,9 +1279,9 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking childCalendarBooking = getChildCalendarBooking(
 			calendarBooking);
 
-		Assert.assertEquals(
-			CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING,
-			childCalendarBooking.getStatus());
+		assertStatus(
+			childCalendarBooking,
+			CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING);
 
 		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_PUBLISH);
 
@@ -1304,9 +1297,7 @@ public class CalendarBookingLocalServiceTest {
 
 		childCalendarBooking = getChildCalendarBooking(calendarBooking);
 
-		Assert.assertEquals(
-			CalendarBookingWorkflowConstants.STATUS_PENDING,
-			childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_PENDING);
 	}
 
 	@Test
@@ -1330,25 +1321,21 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking childCalendarBooking = getChildCalendarBooking(
 			calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_PENDING, childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_PENDING);
 
 		CalendarBookingLocalServiceUtil.moveCalendarBookingToTrash(
 			_user.getUserId(), calendarBooking);
 
 		childCalendarBooking = getChildCalendarBooking(calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_IN_TRASH,
-			childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_IN_TRASH);
 
 		CalendarBookingLocalServiceUtil.restoreCalendarBookingFromTrash(
 			_user.getUserId(), calendarBooking.getCalendarBookingId());
 
 		childCalendarBooking = getChildCalendarBooking(calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_PENDING, childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_PENDING);
 	}
 
 	@Test
@@ -1369,8 +1356,7 @@ public class CalendarBookingLocalServiceTest {
 		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 			calendarBooking.getCalendarBookingId());
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_DRAFT, calendarBooking.getStatus());
+		assertStatus(calendarBooking, WorkflowConstants.STATUS_DRAFT);
 	}
 
 	@Test
@@ -1402,8 +1388,7 @@ public class CalendarBookingLocalServiceTest {
 		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 			calendarBooking.getCalendarBookingId());
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_DRAFT, calendarBooking.getStatus());
+		assertStatus(calendarBooking, WorkflowConstants.STATUS_DRAFT);
 	}
 
 	@Test
@@ -1435,8 +1420,7 @@ public class CalendarBookingLocalServiceTest {
 		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 			calendarBooking.getCalendarBookingId());
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_DRAFT, calendarBooking.getStatus());
+		assertStatus(calendarBooking, WorkflowConstants.STATUS_DRAFT);
 	}
 
 	@Test(expected = CalendarBookingRecurrenceException.class)
@@ -1781,9 +1765,9 @@ public class CalendarBookingLocalServiceTest {
 			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
 				thirdCalendarBookingInstance.getCalendarBookingId());
 
-		Assert.assertEquals(
-			CalendarBookingWorkflowConstants.STATUS_MAYBE,
-			thirdCalendarBookingInstance.getStatus());
+		assertStatus(
+			thirdCalendarBookingInstance,
+			CalendarBookingWorkflowConstants.STATUS_MAYBE);
 	}
 
 	@Test
@@ -1958,8 +1942,7 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking childCalendarBooking = getChildCalendarBooking(
 			calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_PENDING, childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_PENDING);
 
 		CalendarBookingLocalServiceUtil.updateStatus(
 			_user.getUserId(), childCalendarBooking,
@@ -1980,9 +1963,9 @@ public class CalendarBookingLocalServiceTest {
 
 		childCalendarBooking = getChildCalendarBooking(calendarBooking);
 
-		Assert.assertEquals(
-			CalendarBookingWorkflowConstants.STATUS_MAYBE,
-			childCalendarBooking.getStatus());
+		assertStatus(
+			childCalendarBooking,
+			CalendarBookingWorkflowConstants.STATUS_MAYBE);
 
 		long newEndTime = endTime + 1000000;
 
@@ -2144,8 +2127,7 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking childCalendarBooking = getChildCalendarBooking(
 			calendarBooking);
 
-		Assert.assertEquals(
-			WorkflowConstants.STATUS_PENDING, childCalendarBooking.getStatus());
+		assertStatus(childCalendarBooking, WorkflowConstants.STATUS_PENDING);
 
 		childCalendarBooking = CalendarBookingLocalServiceUtil.updateStatus(
 			_user.getUserId(), childCalendarBooking,
@@ -2167,9 +2149,9 @@ public class CalendarBookingLocalServiceTest {
 
 		childCalendarBooking = getChildCalendarBooking(calendarBooking);
 
-		Assert.assertEquals(
-			CalendarBookingWorkflowConstants.STATUS_MAYBE,
-			childCalendarBooking.getStatus());
+		assertStatus(
+			childCalendarBooking,
+			CalendarBookingWorkflowConstants.STATUS_MAYBE);
 	}
 
 	@Test
@@ -2527,6 +2509,10 @@ public class CalendarBookingLocalServiceTest {
 			"To", to);
 
 		Assert.assertFalse(mailMessages.toString(), mailMessages.isEmpty());
+	}
+
+	protected void assertStatus(CalendarBooking calendarBooking, int status) {
+		Assert.assertEquals(status, calendarBooking.getStatus());
 	}
 
 	protected ServiceContext createServiceContext() {
