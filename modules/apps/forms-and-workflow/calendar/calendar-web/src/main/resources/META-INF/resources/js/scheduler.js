@@ -8,6 +8,7 @@ AUI.add(
 		var RecurrenceUtil = Liferay.RecurrenceUtil;
 
 		var isBoolean = Lang.isBoolean;
+		var isDate = Lang.isDate;
 		var isFunction = Lang.isFunction;
 		var isObject = Lang.isObject;
 		var isValue = Lang.isValue;
@@ -52,6 +53,11 @@ AUI.add(
 					calendarContainer: {
 						validator: isObject,
 						value: null
+					},
+
+					currentTime: {
+						validator: isDate,
+						value: new Date()
 					},
 
 					eventsPerPage: {
@@ -141,7 +147,17 @@ AUI.add(
 							}
 						);
 
+						instance._bindCurrentTimeInterval();
+
 						Scheduler.superclass.bindUI.apply(this, arguments);
+					},
+
+					destructor: function() {
+						var instance = this;
+
+						clearInterval(instance._currentTimeInterval);
+
+						Scheduler.superclass.destructor.apply(instance, arguments);
 					},
 
 					getEventsByCalendarBookingId: function(calendarBookingId) {
@@ -267,6 +283,12 @@ AUI.add(
 								instance._updateSchedulerEvent(schedulerEvent, changedAttributes);
 							}
 						}
+					},
+
+					_bindCurrentTimeInterval: function() {
+						var instance = this;
+
+						instance._currentTimeInterval = setInterval(A.bind(instance._updateCurrentTime, instance), 60000);
 					},
 
 					_createViewTriggerNode: function(view, tpl) {
@@ -492,6 +514,18 @@ AUI.add(
 
 							remoteServices.updateEvent(schedulerEvent, !!answers.updateInstance, !!answers.allFollowing, showNextQuestion);
 						}
+					},
+
+					_updateCurrentTime: function() {
+						var instance = this;
+
+						var currentTimeFn = instance.get('currentTimeFn');
+
+						currentTimeFn(
+							function(time) {
+								instance.set('currentTime', time);
+							}
+						);
 					},
 
 					_updateSchedulerEvent: function(schedulerEvent, changedAttributes) {
