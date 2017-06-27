@@ -601,6 +601,16 @@ AUI.add(
 								}
 							);
 						}
+					},
+
+					syncCurrentTimeUI: function() {
+						var instance = this;
+
+						var scheduler = instance.get('scheduler');
+
+						var currentTime = scheduler.get('currentTime');
+
+						instance._moveCurrentTimeNode(currentTime);
 					}
 				}
 			}
