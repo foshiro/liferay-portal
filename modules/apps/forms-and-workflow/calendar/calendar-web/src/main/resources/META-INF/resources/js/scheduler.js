@@ -149,6 +149,8 @@ AUI.add(
 
 						instance._bindCurrentTimeInterval();
 
+						instance.on('currentTimeChange', instance._updatePastEvents);
+
 						Scheduler.superclass.bindUI.apply(this, arguments);
 					},
 
@@ -524,6 +526,28 @@ AUI.add(
 						currentTimeFn(
 							function(time) {
 								instance.set('currentTime', time);
+							}
+						);
+					},
+
+					_updatePastEvents: function(event) {
+						var instance = this;
+
+						var currentTime = event.newVal;
+
+						var pastSchedulerEvents = instance.getEvents(
+							function(schedulerEvent) {
+								var endDate = schedulerEvent.get('endDate');
+
+								return endDate.getTime() <= currentTime;
+							},
+							false
+						);
+
+						A.each(
+							pastSchedulerEvents,
+							function(schedulerEvent) {
+								return schedulerEvent._uiSetPast(true);
 							}
 						);
 					},
