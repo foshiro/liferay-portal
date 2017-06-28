@@ -210,7 +210,11 @@ public class DeleteAfterTestRunTestCallback
 					break;
 				}
 
-				classes.add(clazz.getSuperclass());
+				Class<?> superclass = clazz.getSuperclass();
+
+				if (superclass != null) {
+					classes.add(superclass);
+				}
 
 				Collections.addAll(classes, clazz.getInterfaces());
 			}

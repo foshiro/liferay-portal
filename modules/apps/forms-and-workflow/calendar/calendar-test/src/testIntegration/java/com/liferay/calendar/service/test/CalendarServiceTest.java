@@ -20,6 +20,7 @@ import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.service.CalendarResourceLocalServiceUtil;
 import com.liferay.calendar.service.CalendarServiceUtil;
 import com.liferay.calendar.test.util.CalendarStagingTestUtil;
+import com.liferay.calendar.test.util.CalendarTestUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
@@ -35,7 +36,9 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -58,6 +61,14 @@ public class CalendarServiceTest {
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
+
+	private Group _group;
+
+	@DeleteAfterTestRun
+	private List<Calendar> _calendars;
+
+	@DeleteAfterTestRun
+	private Calendar _calendar;
 
 	@After
 	public void tearDown() {
@@ -98,6 +109,17 @@ public class CalendarServiceTest {
 			assertNotManageableFromGroup(stagingCalendar, _liveGroup);
 			assertManageableFromGroup(stagingCalendar, stagingGroup);
 		}
+	}
+
+	@Test
+	public void testDATRC() throws Exception {
+		_group = GroupTestUtil.addGroup();
+
+		_calendar = CalendarTestUtil.addCalendar(_group);
+
+		_calendars = new ArrayList<>();
+
+		_calendars.add(CalendarTestUtil.addCalendar(_group));
 	}
 
 	protected void assertManageableFromGroup(Calendar calendar, Group group)
