@@ -16,10 +16,10 @@ package com.liferay.calendar.util.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.calendar.model.CalendarResource;
+import com.liferay.calendar.test.util.CalendarStagingTestUtil;
 import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -56,7 +56,7 @@ public class CalendarResourceUtilTest {
 
 	@After
 	public void tearDown() {
-		tearDownPortletPreferences();
+		CalendarStagingTestUtil.cleanUp();
 	}
 
 	@Test
@@ -124,10 +124,6 @@ public class CalendarResourceUtilTest {
 				_group.getGroupId(), serviceContext);
 
 		Assert.assertNull(calendarResource);
-	}
-
-	protected void tearDownPortletPreferences() {
-		PortletPreferencesLocalServiceUtil.deletePortletPreferencesByPlid(0);
 	}
 
 	@DeleteAfterTestRun

@@ -19,9 +19,9 @@ import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.service.CalendarResourceLocalServiceUtil;
 import com.liferay.calendar.service.CalendarServiceUtil;
+import com.liferay.calendar.test.util.CalendarStagingTestUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
@@ -60,7 +60,7 @@ public class CalendarServiceTest {
 
 	@After
 	public void tearDown() {
-		tearDownPortletPreferences();
+		CalendarStagingTestUtil.cleanUp();
 	}
 
 	@Sync
@@ -145,10 +145,6 @@ public class CalendarServiceTest {
 		}
 
 		return calendarResource.getDefaultCalendar();
-	}
-
-	protected void tearDownPortletPreferences() {
-		PortletPreferencesLocalServiceUtil.deletePortletPreferencesByPlid(0);
 	}
 
 	@DeleteAfterTestRun
