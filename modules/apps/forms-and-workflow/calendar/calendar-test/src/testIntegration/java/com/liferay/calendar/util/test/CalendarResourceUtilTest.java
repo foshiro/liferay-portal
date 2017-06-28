@@ -19,6 +19,7 @@ import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -27,6 +28,7 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.SynchronousMailTestRule;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -50,6 +52,11 @@ public class CalendarResourceUtilTest {
 	@Before
 	public void setUp() throws Exception {
 		_group = GroupTestUtil.addGroup();
+	}
+
+	@After
+	public void tearDown() {
+		tearDownPortletPreferences();
 	}
 
 	@Test
@@ -117,6 +124,10 @@ public class CalendarResourceUtilTest {
 				_group.getGroupId(), serviceContext);
 
 		Assert.assertNull(calendarResource);
+	}
+
+	protected void tearDownPortletPreferences() {
+		PortletPreferencesLocalServiceUtil.deletePortletPreferencesByPlid(0);
 	}
 
 	@DeleteAfterTestRun

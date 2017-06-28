@@ -21,11 +21,11 @@ import com.liferay.calendar.service.CalendarResourceLocalServiceUtil;
 import com.liferay.calendar.service.CalendarServiceUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -57,44 +58,51 @@ public class CalendarServiceTest {
 			new LiferayIntegrationTestRule(),
 			SynchronousDestinationTestRule.INSTANCE);
 
+	@After
+	public void tearDown() {
+		tearDownPortletPreferences();
+	}
+
 	@Sync
 	@Test
 	public void testIsManageableFromGroup() throws Exception {
-		Group liveGroup = GroupTestUtil.addGroup();
+		_liveGroup = GroupTestUtil.addGroup();
 
-		GroupTestUtil.enableLocalStaging(liveGroup);
+		GroupTestUtil.enableLocalStaging(_liveGroup);
 
-		Group notStagedGroup = GroupTestUtil.addGroup();
+		_notStagedGroup = GroupTestUtil.addGroup();
 
-		Group stagingGroup = liveGroup.getStagingGroup();
+		Group stagingGroup = _liveGroup.getStagingGroup();
 
-		User adminUser = UserTestUtil.addOmniAdminUser();
+		_adminUser = UserTestUtil.addOmniAdminUser();
 
 		try (ContextUserReplace contextUserReplacer = new ContextUserReplace(
-				adminUser)) {
+				_adminUser)) {
 
-			Calendar notStagedCalendar = getGroupCalendar(notStagedGroup);
+			Calendar notStagedCalendar = getGroupCalendar(_notStagedGroup);
 
 			Assert.assertTrue(
 				CalendarServiceUtil.isManageableFromGroup(
 					notStagedCalendar.getCalendarId(),
-					notStagedGroup.getGroupId()));
+					_notStagedGroup.getGroupId()));
 			Assert.assertTrue(
 				CalendarServiceUtil.isManageableFromGroup(
-					notStagedCalendar.getCalendarId(), liveGroup.getGroupId()));
+					notStagedCalendar.getCalendarId(),
+					_liveGroup.getGroupId()));
 			Assert.assertTrue(
 				CalendarServiceUtil.isManageableFromGroup(
 					notStagedCalendar.getCalendarId(),
 					stagingGroup.getGroupId()));
 
-			Calendar liveCalendar = getGroupCalendar(liveGroup);
+			Calendar liveCalendar = getGroupCalendar(_liveGroup);
 
 			Assert.assertFalse(
 				CalendarServiceUtil.isManageableFromGroup(
-					liveCalendar.getCalendarId(), notStagedGroup.getGroupId()));
+					liveCalendar.getCalendarId(),
+					_notStagedGroup.getGroupId()));
 			Assert.assertFalse(
 				CalendarServiceUtil.isManageableFromGroup(
-					liveCalendar.getCalendarId(), liveGroup.getGroupId()));
+					liveCalendar.getCalendarId(), _liveGroup.getGroupId()));
 			Assert.assertFalse(
 				CalendarServiceUtil.isManageableFromGroup(
 					liveCalendar.getCalendarId(), stagingGroup.getGroupId()));
@@ -104,19 +112,14 @@ public class CalendarServiceTest {
 			Assert.assertFalse(
 				CalendarServiceUtil.isManageableFromGroup(
 					stagingCalendar.getCalendarId(),
-					notStagedGroup.getGroupId()));
+					_notStagedGroup.getGroupId()));
 			Assert.assertFalse(
 				CalendarServiceUtil.isManageableFromGroup(
-					stagingCalendar.getCalendarId(), liveGroup.getGroupId()));
+					stagingCalendar.getCalendarId(), _liveGroup.getGroupId()));
 			Assert.assertTrue(
 				CalendarServiceUtil.isManageableFromGroup(
 					stagingCalendar.getCalendarId(),
 					stagingGroup.getGroupId()));
-		}
-		finally {
-			GroupLocalServiceUtil.deleteGroup(liveGroup);
-			GroupLocalServiceUtil.deleteGroup(notStagedGroup);
-			UserLocalServiceUtil.deleteUser(adminUser);
 		}
 	}
 
@@ -143,5 +146,18 @@ public class CalendarServiceTest {
 
 		return calendarResource.getDefaultCalendar();
 	}
+
+	protected void tearDownPortletPreferences() {
+		PortletPreferencesLocalServiceUtil.deletePortletPreferencesByPlid(0);
+	}
+
+	@DeleteAfterTestRun
+	private User _adminUser;
+
+	@DeleteAfterTestRun
+	private Group _liveGroup;
+
+	@DeleteAfterTestRun
+	private Group _notStagedGroup;
 
 }
