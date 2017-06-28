@@ -925,3 +925,14 @@
 		@include col-md-8;
 	}
 }
+
+.scheduler-view-table-colgrid-today.scheduler-view-table-colgrid-first,
+td + .scheduler-view-table-colgrid-today {
+	border: 1px solid #009be6;
+}
+
+.scheduler-view-table-colgrid-today,
+.scheduler-view-table-data-col-title-down,
+.scheduler-view-table-data-col-title-today {
+	border: inherit;
+}
