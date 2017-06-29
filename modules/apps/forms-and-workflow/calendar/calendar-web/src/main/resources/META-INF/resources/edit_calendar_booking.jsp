@@ -810,19 +810,6 @@ while (manageableCalendarsIterator.hasNext()) {
 					return false;
 				};
 
-				if (containsCalendar(calendar.calendarId, <%= acceptedCalendarsJSONArray %>) {
-					<portlet:namespace />calendarListAccepted.add(calendar);
-				}
-				else if (containsCalendar(calendar.calendarId, <%= maybeCalendarsJSONArray %>) {
-					<portlet:namespace />calendarListMaybe.add(calendar);
-				}
-				else if (containsCalendar(calendar.calendarId, <%= declinedCalendarsJSONArray %>) {
-					<portlet:namespace />calendarListDeclined.add(calendar);
-				}
-				else {
-					<portlet:namespace />calendarListPending.add(calendar);
-				}
-
 				addToList(calendar);
 
 				inviteResourcesInput.val('');
@@ -839,6 +826,15 @@ while (manageableCalendarsIterator.hasNext()) {
 					placeholderSchedulerEvent.get('endDate'),
 					function(result) {
 						if (result) {
+							<portlet:namespace />calendarListDeclined.add(calendar);
+						}
+						else if (containsCalendar(calendar.calendarId, <%= acceptedCalendarsJSONArray %>)) {
+							<portlet:namespace />calendarListAccepted.add(calendar);
+						}
+						else if (containsCalendar(calendar.calendarId, <%= maybeCalendarsJSONArray %>)) {
+							<portlet:namespace />calendarListMaybe.add(calendar);
+						}
+						else if (containsCalendar(calendar.calendarId, <%= declinedCalendarsJSONArray %>)) {
 							<portlet:namespace />calendarListDeclined.add(calendar);
 						}
 						else {
