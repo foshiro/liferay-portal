@@ -141,15 +141,16 @@ public class UpgradeResourcePermissions extends UpgradeProcess {
 
 						StringBundler sbUpdate = new StringBundler(3);
 
-						sbUpdate.append("update CalendarResource ");
-						sbUpdate.append("set resourceBlockId = ? ");
-						sbUpdate.append("where calendarResourceId = ?");
+						sbUpdate.append("update CalendarResource set ");
+						sbUpdate.append("resourceBlockId = ? where ");
+						sbUpdate.append("calendarResourceId = ?");
 
 						try (PreparedStatement ps = connection.prepareStatement(
 								sbUpdate.toString())) {
 
 							ps.setLong(1, newResourceBlockId);
 							ps.setLong(2, calendarResourceId);
+
 							ps.execute();
 						}
 						catch (SQLException sqle) {
