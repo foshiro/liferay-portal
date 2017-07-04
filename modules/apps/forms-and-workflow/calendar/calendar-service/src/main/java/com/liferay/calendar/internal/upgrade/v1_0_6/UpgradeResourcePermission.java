@@ -41,9 +41,9 @@ import java.util.List;
  * @author José María Muñoz
  * @author Alberto Chaparro
  */
-public class UpgradeResourcePermissions extends UpgradeProcess {
+public class UpgradeResourcePermission extends UpgradeProcess {
 
-	public UpgradeResourcePermissions(
+	public UpgradeResourcePermission(
 		ResourceActionLocalService resourceActionLocalService,
 		ResourceBlockLocalService resourceBlockLocalService,
 		RoleLocalService roleLocalService) {
