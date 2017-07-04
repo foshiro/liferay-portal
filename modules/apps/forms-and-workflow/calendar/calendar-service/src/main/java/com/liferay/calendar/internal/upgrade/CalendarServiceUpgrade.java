@@ -18,7 +18,7 @@ import com.liferay.calendar.internal.upgrade.v1_0_4.UpgradeClassNames;
 import com.liferay.calendar.internal.upgrade.v1_0_5.UpgradeCalendarResource;
 import com.liferay.calendar.internal.upgrade.v1_0_5.UpgradeCompanyId;
 import com.liferay.calendar.internal.upgrade.v1_0_5.UpgradeLastPublishDate;
-import com.liferay.calendar.internal.upgrade.v1_0_6.UpgradeResourcePermissions;
+import com.liferay.calendar.internal.upgrade.v1_0_6.UpgradeResourcePermission;
 import com.liferay.calendar.upgrade.v1_0_2.UpgradeCalendar;
 import com.liferay.calendar.upgrade.v2_0_0.UpgradeSchema;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
@@ -76,7 +76,7 @@ public class CalendarServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register(
 			"com.liferay.calendar.service", "1.0.5", "1.0.6",
-			new UpgradeResourcePermissions(
+			new UpgradeResourcePermission(
 				_resourceActionLocalService, _resourceBlockLocalService,
 				_roleLocalService));
 
