@@ -17,6 +17,7 @@ package com.liferay.calendar.upgrade.v1_0_6.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.test.util.CalendarResourceTestUtil;
+import com.liferay.calendar.test.util.CalendarUpgradeTestUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
@@ -32,11 +33,7 @@ import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
 
 import java.util.List;
 
@@ -153,34 +150,8 @@ public class UpgradeResourcePermissionTest {
 	}
 
 	protected void setUpUpgradeResourcePermissions() {
-		Registry registry = RegistryUtil.getRegistry();
-
-		UpgradeStepRegistrator upgradeStepRegistror = registry.getService(
-			"com.liferay.calendar.internal.upgrade.CalendarServiceUpgrade");
-
-		upgradeStepRegistror.register(
-			new UpgradeStepRegistrator.Registry() {
-
-				@Override
-				public void register(
-					String bundleSymbolicName, String fromSchemaVersionString,
-					String toSchemaVersionString, UpgradeStep... upgradeSteps) {
-
-					for (UpgradeStep upgradeStep : upgradeSteps) {
-						Class<?> clazz = upgradeStep.getClass();
-
-						String className = clazz.getName();
-
-						if (className.contains(
-								"v1_0_6.UpgradeResourcePermission")) {
-
-							_upgradeResourcePermission =
-								(UpgradeProcess)upgradeStep;
-						}
-					}
-				}
-
-			});
+		_upgradeResourcePermission = CalendarUpgradeTestUtil.getUpgradeStep(
+			"v1_0_6.UpgradeResourcePermission");
 	}
 
 	private static final String _CALENDAR_RESOURCE_NAME =
