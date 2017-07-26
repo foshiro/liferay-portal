@@ -94,17 +94,8 @@ public class CalendarUtilTest {
 	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithAllFollowingInstanceFromChildRecurringInstance()
 		throws Exception {
 
-		ServiceContext serviceContext = createServiceContext();
-
-		CalendarBooking calendarBooking =
-			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
-				_user, serviceContext);
-
 		CalendarBooking calendarBookingInstance =
-			CalendarBookingTestUtil.
-				updateCalendarBookingInstanceAndAllFollowing(
-					calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
-					serviceContext);
+			getCalendarBookingChildAllFollowingInstnace();
 
 		JSONObject jsonObject = CalendarUtil.toCalendarBookingJSONObject(
 			createThemeDisplay(), calendarBookingInstance,
@@ -114,31 +105,19 @@ public class CalendarUtilTest {
 			jsonObject.getString("recurrence"),
 			calendarBookingInstance.getTimeZone());
 
-		Assert.assertNotNull(recurrence);
-
-		Assert.assertNull(recurrence.getUntilJCalendar());
-
-		Assert.assertEquals(0, recurrence.getCount());
+		assertRepeatsForever(recurrence);
 	}
 
 	@Test
 	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithAllFollowingInstanceFromParentRecurringInstance()
 		throws Exception {
 
-		ServiceContext serviceContext = createServiceContext();
+		CalendarBooking calendarBookingInstance =
+			getCalendarBookingChildAllFollowingInstnace();
 
 		CalendarBooking calendarBooking =
-			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
-				_user, serviceContext);
-
-		CalendarBooking calendarBookingInstance =
-			CalendarBookingTestUtil.
-				updateCalendarBookingInstanceAndAllFollowing(
-					calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
-					serviceContext);
-
-		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
-			calendarBooking.getCalendarBookingId());
+			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+				calendarBookingInstance.getRecurringCalendarBookingId());
 
 		JSONObject jsonObject = CalendarUtil.toCalendarBookingJSONObject(
 			createThemeDisplay(), calendarBooking,
@@ -147,27 +126,15 @@ public class CalendarUtilTest {
 		Recurrence recurrence = RecurrenceSerializer.deserialize(
 			jsonObject.getString("recurrence"), calendarBooking.getTimeZone());
 
-		Assert.assertNotNull(recurrence);
-
-		Assert.assertNull(recurrence.getUntilJCalendar());
-
-		Assert.assertEquals(0, recurrence.getCount());
+		assertRepeatsForever(recurrence);
 	}
 
 	@Test
 	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithSingleInstanceFromChildRecurringInstance()
 		throws Exception {
 
-		ServiceContext serviceContext = createServiceContext();
-
-		CalendarBooking calendarBooking =
-			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
-				_user, serviceContext);
-
 		CalendarBooking calendarBookingInstance =
-			CalendarBookingTestUtil.updateCalendarBookingInstance(
-				calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
-				serviceContext);
+			getCalendarBookingChildSingleInstance();
 
 		JSONObject jsonObject = CalendarUtil.toCalendarBookingJSONObject(
 			createThemeDisplay(), calendarBookingInstance,
@@ -177,30 +144,19 @@ public class CalendarUtilTest {
 			jsonObject.getString("recurrence"),
 			calendarBookingInstance.getTimeZone());
 
-		Assert.assertNotNull(recurrence);
-
-		Assert.assertNull(recurrence.getUntilJCalendar());
-
-		Assert.assertEquals(0, recurrence.getCount());
+		assertRepeatsForever(recurrence);
 	}
 
 	@Test
 	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithSingleInstanceFromParentRecurringInstance()
 		throws Exception {
 
-		ServiceContext serviceContext = createServiceContext();
+		CalendarBooking calendarBookingInstance =
+			getCalendarBookingChildSingleInstance();
 
 		CalendarBooking calendarBooking =
-			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
-				_user, serviceContext);
-
-		CalendarBooking calendarBookingInstance =
-			CalendarBookingTestUtil.updateCalendarBookingInstance(
-				calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
-				serviceContext);
-
-		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
-			calendarBooking.getCalendarBookingId());
+			CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+				calendarBookingInstance.getRecurringCalendarBookingId());
 
 		JSONObject jsonObject = CalendarUtil.toCalendarBookingJSONObject(
 			createThemeDisplay(), calendarBooking,
@@ -209,11 +165,7 @@ public class CalendarUtilTest {
 		Recurrence recurrence = RecurrenceSerializer.deserialize(
 			jsonObject.getString("recurrence"), calendarBooking.getTimeZone());
 
-		Assert.assertNotNull(recurrence);
-
-		Assert.assertNull(recurrence.getUntilJCalendar());
-
-		Assert.assertEquals(0, recurrence.getCount());
+		assertRepeatsForever(recurrence);
 	}
 
 	@Test
@@ -269,6 +221,14 @@ public class CalendarUtilTest {
 			excpectedCalendarBookingIds, actualCalendarBookingIds);
 	}
 
+	protected void assertRepeatsForever(Recurrence recurrence) {
+		Assert.assertNotNull(recurrence);
+
+		Assert.assertNull(recurrence.getUntilJCalendar());
+
+		Assert.assertEquals(0, recurrence.getCount());
+	}
+
 	protected ServiceContext createServiceContext() {
 		ServiceContext serviceContext = new ServiceContext();
 
@@ -297,6 +257,41 @@ public class CalendarUtilTest {
 		themeDisplay.setUser(_user);
 
 		return themeDisplay;
+	}
+
+	protected CalendarBooking getCalendarBookingChildAllFollowingInstnace()
+		throws PortalException {
+
+		ServiceContext serviceContext = createServiceContext();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
+				_user, serviceContext);
+
+		CalendarBooking calendarBookingInstance =
+			CalendarBookingTestUtil.
+				updateCalendarBookingInstanceAndAllFollowing(
+					calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
+					serviceContext);
+
+		return calendarBookingInstance;
+	}
+
+	protected CalendarBooking getCalendarBookingChildSingleInstance()
+		throws PortalException {
+
+		ServiceContext serviceContext = createServiceContext();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
+				_user, serviceContext);
+
+		CalendarBooking calendarBookingInstance =
+			CalendarBookingTestUtil.updateCalendarBookingInstance(
+				calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
+				serviceContext);
+
+		return calendarBookingInstance;
 	}
 
 	protected Set<Long> getCalendarBookingIds(JSONArray jsonArray) {
