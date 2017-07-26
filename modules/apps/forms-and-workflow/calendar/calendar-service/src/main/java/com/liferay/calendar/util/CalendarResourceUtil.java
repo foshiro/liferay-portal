@@ -14,29 +14,52 @@
 
 package com.liferay.calendar.util;
 
+import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarResource;
+import com.liferay.calendar.search.CalendarSearcher;
+import com.liferay.calendar.service.CalendarLocalServiceUtil;
 import com.liferay.calendar.service.CalendarResourceLocalServiceUtil;
 import com.liferay.calendar.service.CalendarResourceServiceUtil;
+import com.liferay.calendar.service.permission.CalendarPermission;
 import com.liferay.calendar.util.comparator.CalendarResourceCodeComparator;
 import com.liferay.calendar.util.comparator.CalendarResourceNameComparator;
+import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
+import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Document;
+import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Hits;
+import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.StringPool;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.kernel.util.comparator.UserFirstNameComparator;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.portlet.PortletRequest;
 
@@ -229,6 +252,141 @@ public class CalendarResourceUtil {
 		serviceContext.setUserId(userId);
 
 		return getUserCalendarResource(userId, serviceContext);
+	}
+
+	public static Set<Calendar> searchAndCreateCalendars(
+			PortletRequest portletRequest, String keywords)
+		throws Exception {
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Set<Calendar> calendarsSet = new LinkedHashSet<>();
+
+		Hits hits = search(themeDisplay, keywords);
+
+		for (Document document : hits.getDocs()) {
+			long calendarId = GetterUtil.getLong(
+				document.get(Field.ENTRY_CLASS_PK));
+
+			Calendar calendar = CalendarLocalServiceUtil.getCalendar(
+				calendarId);
+
+			CalendarResource calendarResource = calendar.getCalendarResource();
+
+			if (calendarResource.isActive()) {
+				Group group = GroupLocalServiceUtil.getGroup(
+					calendar.getGroupId());
+
+				if (group.hasStagingGroup()) {
+					Group stagingGroup = group.getStagingGroup();
+
+					long stagingGroupId = stagingGroup.getGroupId();
+
+					if (stagingGroupId == themeDisplay.getScopeGroupId()) {
+						calendar =
+							CalendarLocalServiceUtil.
+								fetchCalendarByUuidAndGroupId(
+									calendar.getUuid(), stagingGroupId);
+					}
+				}
+
+				calendarsSet.add(calendar);
+			}
+		}
+
+		String name = StringUtil.merge(
+			CustomSQLUtil.keywords(keywords), StringPool.BLANK);
+
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+
+		params.put("usersGroups", themeDisplay.getUserId());
+
+		List<Group> groups = GroupLocalServiceUtil.search(
+			themeDisplay.getCompanyId(), name, null, params, true, 0,
+			SearchContainer.DEFAULT_DELTA);
+
+		for (Group group : groups) {
+			long groupClassNameId = PortalUtil.getClassNameId(Group.class);
+
+			addCalendar(
+				portletRequest, calendarsSet, groupClassNameId,
+				group.getGroupId());
+		}
+
+		long userClassNameId = PortalUtil.getClassNameId(User.class);
+
+		List<User> users = UserLocalServiceUtil.search(
+			themeDisplay.getCompanyId(), keywords, 0, null, 0,
+			SearchContainer.DEFAULT_DELTA, new UserFirstNameComparator());
+
+		for (User user : users) {
+			addCalendar(
+				portletRequest, calendarsSet, userClassNameId,
+				user.getUserId());
+		}
+
+		return calendarsSet;
+	}
+
+	protected static void addCalendar(
+			PortletRequest portletRequest, Set<Calendar> calendarsSet,
+			long classNameId, long classPK)
+		throws PortalException {
+
+		CalendarResource calendarResource = getCalendarResource(
+			portletRequest, classNameId, classPK);
+
+		if (calendarResource == null) {
+			return;
+		}
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		PermissionChecker permissionChecker =
+			themeDisplay.getPermissionChecker();
+
+		List<Calendar> calendars =
+			CalendarLocalServiceUtil.getCalendarResourceCalendars(
+				calendarResource.getGroupId(),
+				calendarResource.getCalendarResourceId());
+
+		for (Calendar calendar : calendars) {
+			if (!CalendarPermission.contains(
+					permissionChecker, calendar, ActionKeys.VIEW)) {
+
+				continue;
+			}
+
+			calendarsSet.add(calendar);
+		}
+	}
+
+	protected static Hits search(ThemeDisplay themeDisplay, String keywords)
+		throws Exception {
+
+		SearchContext searchContext = new SearchContext();
+
+		keywords = StringUtil.toLowerCase(keywords);
+
+		searchContext.setAttribute(Field.NAME, keywords);
+		searchContext.setAttribute("resourceName", keywords);
+
+		searchContext.setCompanyId(themeDisplay.getCompanyId());
+		searchContext.setEnd(SearchContainer.DEFAULT_DELTA);
+		searchContext.setGroupIds(new long[0]);
+
+		Group group = themeDisplay.getScopeGroup();
+
+		searchContext.setIncludeStagingGroups(group.isStagingGroup());
+
+		searchContext.setStart(0);
+		searchContext.setUserId(themeDisplay.getUserId());
+
+		Indexer<?> indexer = CalendarSearcher.getInstance();
+
+		return indexer.search(searchContext);
 	}
 
 }

@@ -41,14 +41,12 @@ import com.liferay.calendar.recurrence.PositionalWeekday;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.RecurrenceSerializer;
 import com.liferay.calendar.recurrence.Weekday;
-import com.liferay.calendar.search.CalendarSearcher;
 import com.liferay.calendar.service.CalendarBookingLocalService;
 import com.liferay.calendar.service.CalendarBookingService;
 import com.liferay.calendar.service.CalendarLocalService;
 import com.liferay.calendar.service.CalendarNotificationTemplateService;
 import com.liferay.calendar.service.CalendarResourceService;
 import com.liferay.calendar.service.CalendarService;
-import com.liferay.calendar.service.permission.CalendarPermission;
 import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.calendar.util.CalendarUtil;
 import com.liferay.calendar.util.JCalendarUtil;
@@ -59,7 +57,6 @@ import com.liferay.calendar.web.internal.constants.CalendarWebKeys;
 import com.liferay.calendar.web.internal.display.context.CalendarDisplayContext;
 import com.liferay.calendar.web.internal.upgrade.CalendarWebUpgrade;
 import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
-import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -68,20 +65,12 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
-import com.liferay.portal.kernel.search.Document;
-import com.liferay.portal.kernel.search.Field;
-import com.liferay.portal.kernel.search.Hits;
-import com.liferay.portal.kernel.search.Indexer;
-import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
-import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
@@ -108,7 +97,6 @@ import com.liferay.portal.kernel.util.TimeZoneUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.util.comparator.UserFirstNameComparator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 
 import java.io.File;
@@ -120,8 +108,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -625,41 +611,6 @@ public class CalendarPortlet extends MVCPortlet {
 		writeJSON(actionRequest, actionResponse, jsonObject);
 	}
 
-	protected void addCalendar(
-			PortletRequest portletRequest, Set<Calendar> calendarsSet,
-			long classNameId, long classPK)
-		throws PortalException {
-
-		CalendarResource calendarResource =
-			CalendarResourceUtil.getCalendarResource(
-				portletRequest, classNameId, classPK);
-
-		if (calendarResource == null) {
-			return;
-		}
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		PermissionChecker permissionChecker =
-			themeDisplay.getPermissionChecker();
-
-		List<Calendar> calendars =
-			_calendarLocalService.getCalendarResourceCalendars(
-				calendarResource.getGroupId(),
-				calendarResource.getCalendarResourceId());
-
-		for (Calendar calendar : calendars) {
-			if (!CalendarPermission.contains(
-					permissionChecker, calendar, ActionKeys.VIEW)) {
-
-				continue;
-			}
-
-			calendarsSet.add(calendar);
-		}
-	}
-
 	@Override
 	protected void doDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
@@ -1119,32 +1070,6 @@ public class CalendarPortlet extends MVCPortlet {
 		return false;
 	}
 
-	protected Hits search(ThemeDisplay themeDisplay, String keywords)
-		throws Exception {
-
-		SearchContext searchContext = new SearchContext();
-
-		keywords = StringUtil.toLowerCase(keywords);
-
-		searchContext.setAttribute(Field.NAME, keywords);
-		searchContext.setAttribute("resourceName", keywords);
-
-		searchContext.setCompanyId(themeDisplay.getCompanyId());
-		searchContext.setEnd(SearchContainer.DEFAULT_DELTA);
-		searchContext.setGroupIds(new long[0]);
-
-		Group group = themeDisplay.getScopeGroup();
-
-		searchContext.setIncludeStagingGroups(group.isStagingGroup());
-
-		searchContext.setStart(0);
-		searchContext.setUserId(themeDisplay.getUserId());
-
-		Indexer<?> indexer = CalendarSearcher.getInstance();
-
-		return indexer.search(searchContext);
-	}
-
 	protected void serveCalendar(
 			ResourceRequest resourceRequest, ResourceResponse resourceResponse)
 		throws Exception {
@@ -1322,68 +1247,9 @@ public class CalendarPortlet extends MVCPortlet {
 
 		String keywords = ParamUtil.getString(resourceRequest, "keywords");
 
-		Set<Calendar> calendarsSet = new LinkedHashSet<>();
-
-		Hits hits = search(themeDisplay, keywords);
-
-		for (Document document : hits.getDocs()) {
-			long calendarId = GetterUtil.getLong(
-				document.get(Field.ENTRY_CLASS_PK));
-
-			Calendar calendar = _calendarService.getCalendar(calendarId);
-
-			CalendarResource calendarResource = calendar.getCalendarResource();
-
-			if (calendarResource.isActive()) {
-				Group group = _groupLocalService.getGroup(
-					calendar.getGroupId());
-
-				if (group.hasStagingGroup()) {
-					Group stagingGroup = group.getStagingGroup();
-
-					long stagingGroupId = stagingGroup.getGroupId();
-
-					if (stagingGroupId == themeDisplay.getScopeGroupId()) {
-						calendar =
-							_calendarLocalService.fetchCalendarByUuidAndGroupId(
-								calendar.getUuid(), stagingGroupId);
-					}
-				}
-
-				calendarsSet.add(calendar);
-			}
-		}
-
-		String name = StringUtil.merge(
-			CustomSQLUtil.keywords(keywords), StringPool.BLANK);
-
-		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
-
-		params.put("usersGroups", themeDisplay.getUserId());
-
-		List<Group> groups = _groupLocalService.search(
-			themeDisplay.getCompanyId(), name, null, params, true, 0,
-			SearchContainer.DEFAULT_DELTA);
-
-		for (Group group : groups) {
-			long groupClassNameId = _portal.getClassNameId(Group.class);
-
-			addCalendar(
-				resourceRequest, calendarsSet, groupClassNameId,
-				group.getGroupId());
-		}
-
-		long userClassNameId = _portal.getClassNameId(User.class);
-
-		List<User> users = _userLocalService.search(
-			themeDisplay.getCompanyId(), keywords, 0, null, 0,
-			SearchContainer.DEFAULT_DELTA, new UserFirstNameComparator());
-
-		for (User user : users) {
-			addCalendar(
-				resourceRequest, calendarsSet, userClassNameId,
-				user.getUserId());
-		}
+		Set<Calendar> calendarsSet =
+			CalendarResourceUtil.searchAndCreateCalendars(
+				resourceRequest, keywords);
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
