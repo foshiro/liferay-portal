@@ -19,6 +19,7 @@ import com.liferay.calendar.model.Calendar;
 import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.recurrence.Recurrence;
 import com.liferay.calendar.recurrence.RecurrenceSerializer;
+import com.liferay.calendar.service.CalendarBookingLocalServiceUtil;
 import com.liferay.calendar.test.util.CalendarBookingTestUtil;
 import com.liferay.calendar.test.util.CalendarTestUtil;
 import com.liferay.calendar.test.util.RecurrenceTestUtil;
@@ -90,7 +91,71 @@ public class CalendarUtilTest {
 	}
 
 	@Test
-	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrence()
+	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithAllFollowingInstanceFromChildRecurringInstance()
+		throws Exception {
+
+		ServiceContext serviceContext = createServiceContext();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
+				_user, serviceContext);
+
+		CalendarBooking calendarBookingInstance =
+			CalendarBookingTestUtil.
+				updateCalendarBookingInstanceAndAllFollowing(
+					calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
+					serviceContext);
+
+		JSONObject jsonObject = CalendarUtil.toCalendarBookingJSONObject(
+			createThemeDisplay(), calendarBookingInstance,
+			calendarBookingInstance.getTimeZone());
+
+		Recurrence recurrence = RecurrenceSerializer.deserialize(
+			jsonObject.getString("recurrence"),
+			calendarBookingInstance.getTimeZone());
+
+		Assert.assertNotNull(recurrence);
+
+		Assert.assertNull(recurrence.getUntilJCalendar());
+
+		Assert.assertEquals(0, recurrence.getCount());
+	}
+
+	@Test
+	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithAllFollowingInstanceFromParentRecurringInstance()
+		throws Exception {
+
+		ServiceContext serviceContext = createServiceContext();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
+				_user, serviceContext);
+
+		CalendarBooking calendarBookingInstance =
+			CalendarBookingTestUtil.
+				updateCalendarBookingInstanceAndAllFollowing(
+					calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
+					serviceContext);
+
+		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+			calendarBooking.getCalendarBookingId());
+
+		JSONObject jsonObject = CalendarUtil.toCalendarBookingJSONObject(
+			createThemeDisplay(), calendarBooking,
+			calendarBooking.getTimeZone());
+
+		Recurrence recurrence = RecurrenceSerializer.deserialize(
+			jsonObject.getString("recurrence"), calendarBooking.getTimeZone());
+
+		Assert.assertNotNull(recurrence);
+
+		Assert.assertNull(recurrence.getUntilJCalendar());
+
+		Assert.assertEquals(0, recurrence.getCount());
+	}
+
+	@Test
+	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithSingleInstanceFromChildRecurringInstance()
 		throws Exception {
 
 		ServiceContext serviceContext = createServiceContext();
@@ -111,6 +176,38 @@ public class CalendarUtilTest {
 		Recurrence recurrence = RecurrenceSerializer.deserialize(
 			jsonObject.getString("recurrence"),
 			calendarBookingInstance.getTimeZone());
+
+		Assert.assertNotNull(recurrence);
+
+		Assert.assertNull(recurrence.getUntilJCalendar());
+
+		Assert.assertEquals(0, recurrence.getCount());
+	}
+
+	@Test
+	public void testToCalendarBookingJSONObjectSendLastInstanceRecurrenceWithSingleInstanceFromParentRecurringInstance()
+		throws Exception {
+
+		ServiceContext serviceContext = createServiceContext();
+
+		CalendarBooking calendarBooking =
+			CalendarBookingTestUtil.addDailyRecurringCalendarBooking(
+				_user, serviceContext);
+
+		CalendarBooking calendarBookingInstance =
+			CalendarBookingTestUtil.updateCalendarBookingInstance(
+				calendarBooking, 2, RandomTestUtil.randomLocaleStringMap(),
+				serviceContext);
+
+		calendarBooking = CalendarBookingLocalServiceUtil.fetchCalendarBooking(
+			calendarBooking.getCalendarBookingId());
+
+		JSONObject jsonObject = CalendarUtil.toCalendarBookingJSONObject(
+			createThemeDisplay(), calendarBooking,
+			calendarBooking.getTimeZone());
+
+		Recurrence recurrence = RecurrenceSerializer.deserialize(
+			jsonObject.getString("recurrence"), calendarBooking.getTimeZone());
 
 		Assert.assertNotNull(recurrence);
 
