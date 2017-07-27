@@ -278,75 +278,20 @@ public class CalendarResourceUtil {
 	}
 
 	public static Set<Calendar> searchAndCreateCalendars(
-			Company company, User currentUser, Group scopeGroup,
-			String keywords, PermissionChecker permissionChecker,
-			ServiceContext serviceContext)
+			Company company, User user, Group group, String keywords,
+			PermissionChecker permissionChecker, ServiceContext serviceContext)
 		throws Exception, PortalException {
 
 		Set<Calendar> calendarsSet = new LinkedHashSet<>();
 
-		Hits hits = search(company, currentUser, scopeGroup, keywords);
+		searchAndAddCalendars(company, user, group, keywords, calendarsSet);
 
-		for (Document document : hits.getDocs()) {
-			long calendarId = GetterUtil.getLong(
-				document.get(Field.ENTRY_CLASS_PK));
+		createAndAddGroupCalendars(
+			company, user, permissionChecker, keywords, serviceContext,
+			calendarsSet);
 
-			Calendar calendar = CalendarLocalServiceUtil.getCalendar(
-				calendarId);
-
-			CalendarResource calendarResource = calendar.getCalendarResource();
-
-			if (calendarResource.isActive()) {
-				Group group = GroupLocalServiceUtil.getGroup(
-					calendar.getGroupId());
-
-				if (group.hasStagingGroup()) {
-					Group stagingGroup = group.getStagingGroup();
-
-					long stagingGroupId = stagingGroup.getGroupId();
-
-					if (stagingGroupId == scopeGroup.getGroupId()) {
-						calendar =
-							CalendarLocalServiceUtil.
-								fetchCalendarByUuidAndGroupId(
-									calendar.getUuid(), stagingGroupId);
-					}
-				}
-
-				calendarsSet.add(calendar);
-			}
-		}
-
-		String name = StringUtil.merge(
-			CustomSQLUtil.keywords(keywords), StringPool.BLANK);
-
-		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
-
-		params.put("usersGroups", currentUser.getUserId());
-
-		List<Group> groups = GroupLocalServiceUtil.search(
-			company.getCompanyId(), name, null, params, true, 0,
-			SearchContainer.DEFAULT_DELTA);
-
-		for (Group group : groups) {
-			long groupClassNameId = PortalUtil.getClassNameId(Group.class);
-
-			addCalendar(
-				permissionChecker, calendarsSet, groupClassNameId,
-				group.getGroupId(), serviceContext);
-		}
-
-		long userClassNameId = PortalUtil.getClassNameId(User.class);
-
-		List<User> users = UserLocalServiceUtil.search(
-			company.getCompanyId(), keywords, 0, null, 0,
-			SearchContainer.DEFAULT_DELTA, new UserFirstNameComparator());
-
-		for (User user : users) {
-			addCalendar(
-				permissionChecker, calendarsSet, userClassNameId,
-				user.getUserId(), serviceContext);
-		}
+		createAndAddUserCalendars(
+			company, keywords, permissionChecker, serviceContext, calendarsSet);
 
 		return calendarsSet;
 	}
@@ -402,6 +347,51 @@ public class CalendarResourceUtil {
 		}
 	}
 
+	protected static void createAndAddGroupCalendars(
+			Company company, User user, PermissionChecker permissionChecker,
+			String keywords, ServiceContext serviceContext,
+			Set<Calendar> calendarsSet)
+		throws PortalException {
+
+		String name = StringUtil.merge(
+			CustomSQLUtil.keywords(keywords), StringPool.BLANK);
+
+		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+
+		params.put("usersGroups", user.getUserId());
+
+		List<Group> groups = GroupLocalServiceUtil.search(
+			company.getCompanyId(), name, null, params, true, 0,
+			SearchContainer.DEFAULT_DELTA);
+
+		for (Group group : groups) {
+			long groupClassNameId = PortalUtil.getClassNameId(Group.class);
+
+			addCalendar(
+				permissionChecker, calendarsSet, groupClassNameId,
+				group.getGroupId(), serviceContext);
+		}
+	}
+
+	protected static void createAndAddUserCalendars(
+			Company company, String keywords,
+			PermissionChecker permissionChecker, ServiceContext serviceContext,
+			Set<Calendar> calendarsSet)
+		throws PortalException {
+
+		long userClassNameId = PortalUtil.getClassNameId(User.class);
+
+		List<User> users = UserLocalServiceUtil.search(
+			company.getCompanyId(), keywords, 0, null, 0,
+			SearchContainer.DEFAULT_DELTA, new UserFirstNameComparator());
+
+		for (User user : users) {
+			addCalendar(
+				permissionChecker, calendarsSet, userClassNameId,
+				user.getUserId(), serviceContext);
+		}
+	}
+
 	protected static Hits search(
 			Company company, User user, Group group, String keywords)
 		throws Exception {
@@ -425,6 +415,44 @@ public class CalendarResourceUtil {
 		Indexer<?> indexer = CalendarSearcher.getInstance();
 
 		return indexer.search(searchContext);
+	}
+
+	protected static void searchAndAddCalendars(
+			Company company, User user, Group scopeGroup, String keywords,
+			Set<Calendar> calendarsSet)
+		throws Exception {
+
+		Hits hits = search(company, user, scopeGroup, keywords);
+
+		for (Document document : hits.getDocs()) {
+			long calendarId = GetterUtil.getLong(
+				document.get(Field.ENTRY_CLASS_PK));
+
+			Calendar calendar = CalendarLocalServiceUtil.getCalendar(
+				calendarId);
+
+			CalendarResource calendarResource = calendar.getCalendarResource();
+
+			if (calendarResource.isActive()) {
+				Group group = GroupLocalServiceUtil.getGroup(
+					calendar.getGroupId());
+
+				if (group.hasStagingGroup()) {
+					Group stagingGroup = group.getStagingGroup();
+
+					long stagingGroupId = stagingGroup.getGroupId();
+
+					if (stagingGroupId == scopeGroup.getGroupId()) {
+						calendar =
+							CalendarLocalServiceUtil.
+								fetchCalendarByUuidAndGroupId(
+									calendar.getUuid(), stagingGroupId);
+					}
+				}
+
+				calendarsSet.add(calendar);
+			}
+		}
 	}
 
 }
