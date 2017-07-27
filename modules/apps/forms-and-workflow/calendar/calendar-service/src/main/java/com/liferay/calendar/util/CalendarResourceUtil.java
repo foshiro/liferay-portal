@@ -79,6 +79,28 @@ public class CalendarResourceUtil {
 	}
 
 	public static CalendarResource getCalendarResource(
+			long classNameId, long classPK, ServiceContext serviceContext)
+		throws PortalException {
+
+		long groupClassNameId = PortalUtil.getClassNameId(Group.class);
+
+		if (classNameId == groupClassNameId) {
+			return getGroupCalendarResource(classPK, serviceContext);
+		}
+
+		long userClassNameId = PortalUtil.getClassNameId(User.class);
+
+		if (classNameId == userClassNameId) {
+			serviceContext.setUserId(classPK);
+
+			return getUserCalendarResource(classPK, serviceContext);
+		}
+
+		return CalendarResourceServiceUtil.fetchCalendarResource(
+			classNameId, classPK);
+	}
+
+	public static CalendarResource getCalendarResource(
 			PortletRequest portletRequest, long classNameId, long classPK)
 		throws PortalException {
 
