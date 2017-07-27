@@ -26,6 +26,7 @@ import com.liferay.calendar.util.comparator.CalendarResourceNameComparator;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Role;
@@ -277,25 +278,14 @@ public class CalendarResourceUtil {
 	}
 
 	public static Set<Calendar> searchAndCreateCalendars(
-			PortletRequest portletRequest, String keywords)
-		throws Exception {
-
-		ServiceContext serviceContext = ServiceContextFactory.getInstance(
-			portletRequest);
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		return searchAndCreateCalendars(themeDisplay, keywords, serviceContext);
-	}
-
-	public static Set<Calendar> searchAndCreateCalendars(
-			ThemeDisplay themeDisplay, String keywords,
+			Company company, User currentUser, Group scopeGroup,
+			String keywords, PermissionChecker permissionChecker,
 			ServiceContext serviceContext)
 		throws Exception, PortalException {
 
 		Set<Calendar> calendarsSet = new LinkedHashSet<>();
 
-		Hits hits = search(themeDisplay, keywords);
+		Hits hits = search(company, currentUser, scopeGroup, keywords);
 
 		for (Document document : hits.getDocs()) {
 			long calendarId = GetterUtil.getLong(
@@ -315,7 +305,7 @@ public class CalendarResourceUtil {
 
 					long stagingGroupId = stagingGroup.getGroupId();
 
-					if (stagingGroupId == themeDisplay.getScopeGroupId()) {
+					if (stagingGroupId == scopeGroup.getGroupId()) {
 						calendar =
 							CalendarLocalServiceUtil.
 								fetchCalendarByUuidAndGroupId(
@@ -332,37 +322,60 @@ public class CalendarResourceUtil {
 
 		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
 
-		params.put("usersGroups", themeDisplay.getUserId());
+		params.put("usersGroups", currentUser.getUserId());
 
 		List<Group> groups = GroupLocalServiceUtil.search(
-			themeDisplay.getCompanyId(), name, null, params, true, 0,
+			company.getCompanyId(), name, null, params, true, 0,
 			SearchContainer.DEFAULT_DELTA);
 
 		for (Group group : groups) {
 			long groupClassNameId = PortalUtil.getClassNameId(Group.class);
 
 			addCalendar(
-				themeDisplay, calendarsSet, groupClassNameId,
+				permissionChecker, calendarsSet, groupClassNameId,
 				group.getGroupId(), serviceContext);
 		}
 
 		long userClassNameId = PortalUtil.getClassNameId(User.class);
 
 		List<User> users = UserLocalServiceUtil.search(
-			themeDisplay.getCompanyId(), keywords, 0, null, 0,
+			company.getCompanyId(), keywords, 0, null, 0,
 			SearchContainer.DEFAULT_DELTA, new UserFirstNameComparator());
 
 		for (User user : users) {
 			addCalendar(
-				themeDisplay, calendarsSet, userClassNameId, user.getUserId(),
-				serviceContext);
+				permissionChecker, calendarsSet, userClassNameId,
+				user.getUserId(), serviceContext);
 		}
 
 		return calendarsSet;
 	}
 
+	public static Set<Calendar> searchAndCreateCalendars(
+			PortletRequest portletRequest, String keywords)
+		throws Exception {
+
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			portletRequest);
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		return searchAndCreateCalendars(themeDisplay, keywords, serviceContext);
+	}
+
+	public static Set<Calendar> searchAndCreateCalendars(
+			ThemeDisplay themeDisplay, String keywords,
+			ServiceContext serviceContext)
+		throws Exception, PortalException {
+
+		return searchAndCreateCalendars(
+			themeDisplay.getCompany(), themeDisplay.getUser(),
+			themeDisplay.getScopeGroup(), keywords,
+			themeDisplay.getPermissionChecker(), serviceContext);
+	}
+
 	protected static void addCalendar(
-			ThemeDisplay themeDisplay, Set<Calendar> calendarsSet,
+			PermissionChecker permissionChecker, Set<Calendar> calendarsSet,
 			long classNameId, long classPK, ServiceContext serviceContext)
 		throws PortalException {
 
@@ -372,9 +385,6 @@ public class CalendarResourceUtil {
 		if (calendarResource == null) {
 			return;
 		}
-
-		PermissionChecker permissionChecker =
-			themeDisplay.getPermissionChecker();
 
 		List<Calendar> calendars =
 			CalendarLocalServiceUtil.getCalendarResourceCalendars(
@@ -392,7 +402,8 @@ public class CalendarResourceUtil {
 		}
 	}
 
-	protected static Hits search(ThemeDisplay themeDisplay, String keywords)
+	protected static Hits search(
+			Company company, User user, Group group, String keywords)
 		throws Exception {
 
 		SearchContext searchContext = new SearchContext();
@@ -402,16 +413,14 @@ public class CalendarResourceUtil {
 		searchContext.setAttribute(Field.NAME, keywords);
 		searchContext.setAttribute("resourceName", keywords);
 
-		searchContext.setCompanyId(themeDisplay.getCompanyId());
+		searchContext.setCompanyId(company.getCompanyId());
 		searchContext.setEnd(SearchContainer.DEFAULT_DELTA);
 		searchContext.setGroupIds(new long[0]);
-
-		Group group = themeDisplay.getScopeGroup();
 
 		searchContext.setIncludeStagingGroups(group.isStagingGroup());
 
 		searchContext.setStart(0);
-		searchContext.setUserId(themeDisplay.getUserId());
+		searchContext.setUserId(user.getUserId());
 
 		Indexer<?> indexer = CalendarSearcher.getInstance();
 
