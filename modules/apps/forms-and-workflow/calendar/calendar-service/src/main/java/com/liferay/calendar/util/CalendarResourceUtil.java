@@ -280,8 +280,18 @@ public class CalendarResourceUtil {
 			PortletRequest portletRequest, String keywords)
 		throws Exception {
 
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			portletRequest);
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
+
+		return searchAndCreateCalendars(themeDisplay, keywords, serviceContext);
+	}
+
+	public static Set<Calendar> searchAndCreateCalendars(
+			ThemeDisplay themeDisplay, String keywords,
+			ServiceContext serviceContext)
+		throws Exception, PortalException {
 
 		Set<Calendar> calendarsSet = new LinkedHashSet<>();
 
@@ -332,8 +342,8 @@ public class CalendarResourceUtil {
 			long groupClassNameId = PortalUtil.getClassNameId(Group.class);
 
 			addCalendar(
-				portletRequest, calendarsSet, groupClassNameId,
-				group.getGroupId());
+				themeDisplay, calendarsSet, groupClassNameId,
+				group.getGroupId(), serviceContext);
 		}
 
 		long userClassNameId = PortalUtil.getClassNameId(User.class);
@@ -344,27 +354,24 @@ public class CalendarResourceUtil {
 
 		for (User user : users) {
 			addCalendar(
-				portletRequest, calendarsSet, userClassNameId,
-				user.getUserId());
+				themeDisplay, calendarsSet, userClassNameId, user.getUserId(),
+				serviceContext);
 		}
 
 		return calendarsSet;
 	}
 
 	protected static void addCalendar(
-			PortletRequest portletRequest, Set<Calendar> calendarsSet,
-			long classNameId, long classPK)
+			ThemeDisplay themeDisplay, Set<Calendar> calendarsSet,
+			long classNameId, long classPK, ServiceContext serviceContext)
 		throws PortalException {
 
 		CalendarResource calendarResource = getCalendarResource(
-			portletRequest, classNameId, classPK);
+			classNameId, classPK, serviceContext);
 
 		if (calendarResource == null) {
 			return;
 		}
-
-		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
 
 		PermissionChecker permissionChecker =
 			themeDisplay.getPermissionChecker();
