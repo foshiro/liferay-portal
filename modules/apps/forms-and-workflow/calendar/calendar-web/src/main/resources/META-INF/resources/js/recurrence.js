@@ -529,7 +529,7 @@ AUI.add(
 
 					_setDatePicker: function(datePicker) {
 						var popover = datePicker.get('popover');
-						
+
 						if (popover) {
 							popover.zIndex = Liferay.zIndex.POPOVER;
 						}
