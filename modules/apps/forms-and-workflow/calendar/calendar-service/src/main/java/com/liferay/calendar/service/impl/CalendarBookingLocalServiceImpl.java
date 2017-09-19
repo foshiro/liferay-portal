@@ -1494,81 +1494,49 @@ public class CalendarBookingLocalServiceImpl
 
 		// Child calendar bookings
 
-		if (status == CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
+		List<CalendarBooking> childCalendarBookings =
+			calendarBooking.getChildCalendarBookings();
 
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
-					continue;
-				}
-
-				updateStatus(
-					userId, childCalendarBooking,
-					CalendarBookingWorkflowConstants.STATUS_IN_TRASH,
-					serviceContext);
+		for (CalendarBooking childCalendarBooking : childCalendarBookings) {
+			if (childCalendarBooking.equals(calendarBooking)) {
+				continue;
 			}
-		}
-		else if (oldStatus ==
-					CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
 
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
+			int newStatus = 0;
 
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
-					continue;
-				}
-
-				updateStatus(
-					userId, childCalendarBooking,
-					CalendarBookingWorkflowConstants.STATUS_PENDING,
-					serviceContext);
+			if (status == CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
+				newStatus = CalendarBookingWorkflowConstants.STATUS_IN_TRASH;
 			}
-		}
-		else if (status == CalendarBookingWorkflowConstants.STATUS_APPROVED) {
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
+			else if (oldStatus ==
+						CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
 
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
-					continue;
-				}
-
+				newStatus = CalendarBookingWorkflowConstants.STATUS_PENDING;
+			}
+			else if (status == CalendarBookingWorkflowConstants.STATUS_APPROVED) {
 				if (childCalendarBooking.getStatus() ==
 						CalendarBookingWorkflowConstants.
 							STATUS_MASTER_PENDING) {
 
 					if (isStagingCalendarBooking(calendarBooking)) {
-						updateStatus(
-							userId, childCalendarBooking,
-							CalendarBookingWorkflowConstants.
-								STATUS_MASTER_STAGING,
-							serviceContext);
+						newStatus =
+							CalendarBookingWorkflowConstants.STATUS_MASTER_STAGING;
 					}
 					else {
-						updateStatus(
-							userId, childCalendarBooking,
-							CalendarBookingWorkflowConstants.STATUS_PENDING,
-							serviceContext);
+						newStatus =
+							CalendarBookingWorkflowConstants.STATUS_PENDING;
 					}
 				}
-			}
-		}
-		else {
-			List<CalendarBooking> childCalendarBookings =
-				calendarBooking.getChildCalendarBookings();
-
-			for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-				if (childCalendarBooking.equals(calendarBooking)) {
+				else {
 					continue;
 				}
-
-				updateStatus(
-					userId, childCalendarBooking,
-					CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING,
-					serviceContext);
 			}
+			else {
+				newStatus =
+					CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING;
+			}
+
+			updateStatus(
+				userId, childCalendarBooking, newStatus, serviceContext);
 		}
 
 		// Asset
