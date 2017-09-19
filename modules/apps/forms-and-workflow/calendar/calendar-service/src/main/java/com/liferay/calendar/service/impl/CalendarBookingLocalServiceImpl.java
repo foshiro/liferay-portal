@@ -1502,24 +1502,15 @@ public class CalendarBookingLocalServiceImpl
 				continue;
 			}
 
-			boolean updateStatus = true;
-
-			if ((oldStatus !=
-					CalendarBookingWorkflowConstants.STATUS_IN_TRASH) &&
-				(status == CalendarBookingWorkflowConstants.STATUS_APPROVED) &&
-				(childCalendarBooking.getStatus() !=
-					CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING)) {
-
-				updateStatus = false;
-			}
-
-			if (updateStatus) {
-				int newStatus = getNewChildStatus(
-					status, oldStatus, childCalendarBooking.getStatus(),
-					isStagingCalendarBooking(calendarBooking));
+			if (isChildStatusUpdateNeeded(
+					status, oldStatus, childCalendarBooking.getStatus())) {
 
 				updateStatus(
-					userId, childCalendarBooking, newStatus, serviceContext);
+					userId, childCalendarBooking,
+					getNewChildStatus(
+						status, oldStatus, childCalendarBooking.getStatus(),
+						isStagingCalendarBooking(calendarBooking)),
+					serviceContext);
 			}
 		}
 
@@ -1934,6 +1925,26 @@ public class CalendarBookingLocalServiceImpl
 		};
 
 		return stagingGroup.isInStagingPortlet(CalendarPortletKeys.CALENDAR);
+	}
+
+	protected boolean isChildStatusUpdateNeeded(
+		int newParentStatus, int oldParentStatus, int oldChildStatus) {
+
+		if (newParentStatus != WorkflowConstants.STATUS_APPROVED) {
+			return true;
+		}
+
+		if (oldParentStatus == WorkflowConstants.STATUS_IN_TRASH) {
+			return true;
+		}
+
+		if (oldChildStatus ==
+				CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	protected boolean isCustomCalendarResource(
