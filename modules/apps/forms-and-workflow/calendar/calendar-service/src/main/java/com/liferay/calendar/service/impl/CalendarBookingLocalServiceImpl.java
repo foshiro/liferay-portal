@@ -1502,6 +1502,17 @@ public class CalendarBookingLocalServiceImpl
 				continue;
 			}
 
+			boolean updateStatus = true;
+
+			if ((oldStatus !=
+					CalendarBookingWorkflowConstants.STATUS_IN_TRASH) &&
+				(status == CalendarBookingWorkflowConstants.STATUS_APPROVED) &&
+				(childCalendarBooking.getStatus() !=
+					CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING)) {
+
+				updateStatus = false;
+			}
+
 			int newStatus =
 				CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING;
 
@@ -1530,13 +1541,12 @@ public class CalendarBookingLocalServiceImpl
 							CalendarBookingWorkflowConstants.STATUS_PENDING;
 					}
 				}
-				else {
-					continue;
-				}
 			}
 
-			updateStatus(
-				userId, childCalendarBooking, newStatus, serviceContext);
+			if (updateStatus) {
+				updateStatus(
+					userId, childCalendarBooking, newStatus, serviceContext);
+			}
 		}
 
 		// Asset
