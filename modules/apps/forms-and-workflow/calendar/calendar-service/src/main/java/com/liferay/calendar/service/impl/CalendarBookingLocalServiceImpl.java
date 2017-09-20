@@ -1502,38 +1502,9 @@ public class CalendarBookingLocalServiceImpl
 				continue;
 			}
 
-			int newStatus = 0;
-
-			if (status == CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
-				newStatus = CalendarBookingWorkflowConstants.STATUS_IN_TRASH;
-			}
-			else if (oldStatus ==
-						CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
-
-				newStatus = CalendarBookingWorkflowConstants.STATUS_PENDING;
-			}
-			else if (status == CalendarBookingWorkflowConstants.STATUS_APPROVED) {
-				if (childCalendarBooking.getStatus() ==
-						CalendarBookingWorkflowConstants.
-							STATUS_MASTER_PENDING) {
-
-					if (isStagingCalendarBooking(calendarBooking)) {
-						newStatus =
-							CalendarBookingWorkflowConstants.STATUS_MASTER_STAGING;
-					}
-					else {
-						newStatus =
-							CalendarBookingWorkflowConstants.STATUS_PENDING;
-					}
-				}
-				else {
-					newStatus = childCalendarBooking.getStatus();
-				}
-			}
-			else {
-				newStatus =
-					CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING;
-			}
+			int newStatus = getNewChildStatus(
+				status, oldStatus, childCalendarBooking.getStatus(),
+				isStagingCalendarBooking(calendarBooking));
 
 			updateStatus(
 				userId, childCalendarBooking, newStatus, serviceContext);
@@ -1753,6 +1724,43 @@ public class CalendarBookingLocalServiceImpl
 		jsonObject.put("title", calendarBooking.getTitle());
 
 		return jsonObject.toString();
+	}
+
+	protected int getNewChildStatus(
+			int status, int oldStatus,
+			int oldChildStatus, boolean isStagingMasterCalendarBooking) {
+
+		int newStatus = 0;
+
+		if (status == CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
+			newStatus = CalendarBookingWorkflowConstants.STATUS_IN_TRASH;
+		}
+		else if (oldStatus ==
+					CalendarBookingWorkflowConstants.STATUS_IN_TRASH) {
+
+			newStatus = CalendarBookingWorkflowConstants.STATUS_PENDING;
+		}
+		else if (status == CalendarBookingWorkflowConstants.STATUS_APPROVED) {
+			if (oldChildStatus ==
+					CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING) {
+
+				if (isStagingMasterCalendarBooking) {
+					newStatus =
+						CalendarBookingWorkflowConstants.STATUS_MASTER_STAGING;
+				}
+				else {
+					newStatus = CalendarBookingWorkflowConstants.STATUS_PENDING;
+				}
+			}
+			else {
+				newStatus = oldChildStatus;
+			}
+		}
+		else {
+			newStatus = CalendarBookingWorkflowConstants.STATUS_MASTER_PENDING;
+		}
+
+		return newStatus;
 	}
 
 	protected Calendar getNotLiveCalendar(Calendar calendar)
