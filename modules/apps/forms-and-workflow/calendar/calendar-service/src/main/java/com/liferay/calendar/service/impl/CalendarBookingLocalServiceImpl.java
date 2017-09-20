@@ -1506,6 +1506,10 @@ public class CalendarBookingLocalServiceImpl
 				status, oldStatus, childCalendarBooking.getStatus(),
 				isStagingCalendarBooking(calendarBooking));
 
+			if (newStatus == childCalendarBooking.getStatus()) {
+				continue;
+			}
+
 			updateStatus(
 				userId, childCalendarBooking, newStatus, serviceContext);
 		}
