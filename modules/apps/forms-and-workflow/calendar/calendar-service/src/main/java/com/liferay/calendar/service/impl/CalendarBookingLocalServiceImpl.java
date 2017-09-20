@@ -1527,7 +1527,7 @@ public class CalendarBookingLocalServiceImpl
 					}
 				}
 				else {
-					continue;
+					newStatus = childCalendarBooking.getStatus();
 				}
 			}
 			else {
