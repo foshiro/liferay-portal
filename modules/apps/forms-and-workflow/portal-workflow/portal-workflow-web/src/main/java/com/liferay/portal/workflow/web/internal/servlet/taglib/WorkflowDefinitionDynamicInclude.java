@@ -51,6 +51,11 @@ public class WorkflowDefinitionDynamicInclude
 	extends BaseWorkflowDynamicInclude {
 
 	@Override
+	public String getTabName() {
+		return WorkflowWebKeys.WORKFLOW_TAB_DEFINITION;
+	}
+
+	@Override
 	public void prepareRender(
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException {

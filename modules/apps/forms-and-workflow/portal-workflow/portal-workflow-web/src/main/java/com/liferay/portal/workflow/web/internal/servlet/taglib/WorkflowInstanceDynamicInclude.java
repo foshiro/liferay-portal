@@ -56,6 +56,11 @@ import org.osgi.service.component.annotations.Reference;
 public class WorkflowInstanceDynamicInclude extends BaseWorkflowDynamicInclude {
 
 	@Override
+	public String getTabName() {
+		return WorkflowWebKeys.WORKFLOW_TAB_INSTANCE;
+	}
+
+	@Override
 	public void prepareDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException {

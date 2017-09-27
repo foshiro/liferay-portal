@@ -27,6 +27,8 @@ import javax.portlet.RenderResponse;
  */
 public interface WorkflowDynamicInclude extends DynamicInclude {
 
+	public String getTabName();
+
 	public void prepareDispatch(
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException;
