@@ -28,6 +28,8 @@ import javax.portlet.RenderResponse;
  */
 public interface WorkflowDynamicInclude extends DynamicInclude {
 
+	public String getSearchJspPath();
+
 	public PortletURL getSearchURL(
 		RenderRequest renderRequest, RenderResponse renderResponse);
 

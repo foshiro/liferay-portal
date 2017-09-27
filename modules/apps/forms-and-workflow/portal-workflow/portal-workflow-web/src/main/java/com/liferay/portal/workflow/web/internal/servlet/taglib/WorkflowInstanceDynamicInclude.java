@@ -56,6 +56,11 @@ import org.osgi.service.component.annotations.Reference;
 public class WorkflowInstanceDynamicInclude extends BaseWorkflowDynamicInclude {
 
 	@Override
+	public String getSearchJspPath() {
+		return "/instance/workflow_instance_search.jsp";
+	}
+
+	@Override
 	public String getTabName() {
 		return WorkflowWebKeys.WORKFLOW_TAB_INSTANCE;
 	}
