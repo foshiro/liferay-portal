@@ -37,7 +37,8 @@ String orderByType = ParamUtil.getString(request, "orderByType", "asc");
 
 PortletURL navigationPortletURL = renderResponse.createRenderURL();
 
-navigationPortletURL.setParameter("mvcPath", "/definition/view.jsp");
+navigationPortletURL.setParameter("mvcPath", "/view.jsp");
+navigationPortletURL.setParameter("tab", WorkflowWebKeys.WORKFLOW_TAB_DEFINITION);
 
 if (delta > 0) {
 	navigationPortletURL.setParameter("delta", String.valueOf(delta));
