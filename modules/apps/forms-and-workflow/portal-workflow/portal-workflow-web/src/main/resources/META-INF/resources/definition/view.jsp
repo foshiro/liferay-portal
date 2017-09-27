@@ -56,23 +56,12 @@ if (cur > 0) {
 	displayStyleURL.setParameter("cur", String.valueOf(cur));
 }
 
-PortletURL searchURL = renderResponse.createRenderURL();
-
-searchURL.setParameter("groupId", String.valueOf(themeDisplay.getScopeGroupId()));
-searchURL.setParameter("mvcPath", "/definition/view.jsp");
-searchURL.setParameter("tab", "workflows");
-
 WorkflowDefinitionSearch workflowDefinitionSearch = new WorkflowDefinitionSearch(renderRequest, portletURL);
 %>
 
 <liferay-ui:error exception="<%= RequiredWorkflowDefinitionException.class %>" message="you-cannot-deactivate-or-delete-this-definition" />
 
 <liferay-util:include page="/definition/add_button.jsp" servletContext="<%= application %>" />
-
-<liferay-util:include page="/navigation.jsp" servletContext="<%= application %>">
-	<liferay-util:param name="searchPage" value="/definition/workflow_definition_search.jsp" />
-	<liferay-util:param name="searchURL" value="<%= searchURL.toString() %>" />
-</liferay-util:include>
 
 <liferay-frontend:management-bar
 	searchContainerId="workflowDefinitions"
