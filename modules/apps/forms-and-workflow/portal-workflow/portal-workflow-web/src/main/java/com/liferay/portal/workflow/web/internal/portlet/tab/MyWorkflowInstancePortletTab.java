@@ -15,7 +15,8 @@
 package com.liferay.portal.workflow.web.internal.portlet.tab;
 
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
-import com.liferay.portal.workflow.web.internal.constants.WorkflowWebKeys;
+import com.liferay.portal.workflow.web.constants.WorkflowWebKeys;
+import com.liferay.portal.workflow.web.portlet.tab.WorkflowPortletTab;
 
 import org.osgi.service.component.annotations.Component;
 

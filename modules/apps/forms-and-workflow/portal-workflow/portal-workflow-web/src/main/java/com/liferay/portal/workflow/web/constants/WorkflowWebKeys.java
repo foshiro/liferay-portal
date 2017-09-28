@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.portal.workflow.web.internal.constants;
+package com.liferay.portal.workflow.web.constants;
 
 /**
  * @author Adam Brandizzi
