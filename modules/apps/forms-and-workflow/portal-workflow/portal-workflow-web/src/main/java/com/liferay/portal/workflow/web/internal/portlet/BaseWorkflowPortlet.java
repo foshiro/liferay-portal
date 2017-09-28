@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -124,6 +126,26 @@ public abstract class BaseWorkflowPortlet extends MVCPortlet {
 
 			super.doDispatch(renderRequest, renderResponse);
 		}
+	}
+
+	protected WorkflowPortletTab getPortletTab(String name) {
+		return _portletTabMap.get(name);
+	}
+
+	protected WorkflowPortletTab getSelectedPortletTab(
+		RenderRequest renderRequest) {
+
+		String tabName = ParamUtil.get(renderRequest, "tab", getDefaultTab());
+		List<WorkflowPortletTab> portletTabs = getPortletTabs();
+
+		Stream<WorkflowPortletTab> stream = portletTabs.stream();
+
+		return stream.filter(
+			portletTab -> portletTab.getName().equals(tabName)
+		).findFirst(
+		).orElse(
+			portletTabs.get(0)
+		);
 	}
 
 	@Reference(
