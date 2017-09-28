@@ -39,7 +39,6 @@ String defaultTab = (String)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_
 
 String tab = ParamUtil.get(request, "tab", defaultTab);
 
-Map<String, WorkflowPortletTab> portletTabs = (Map<String, WorkflowPortletTab>)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_TABS);
-List<String> tabNames = (List<String>)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_TAB_NAMES);
-WorkflowPortletTab portletTab = portletTabs.get(tab);
+List<WorkflowPortletTab> portletTabs = (List<WorkflowPortletTab>)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_PORTLET_TABS);
+WorkflowPortletTab selectedPortletTab = (WorkflowPortletTab)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_SELECTED_PORTLET_TAB);
 %>
