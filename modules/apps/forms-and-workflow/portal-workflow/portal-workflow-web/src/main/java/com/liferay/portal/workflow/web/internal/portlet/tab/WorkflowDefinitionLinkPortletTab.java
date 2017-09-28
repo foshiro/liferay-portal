@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.portal.workflow.web.internal.servlet.taglib;
+package com.liferay.portal.workflow.web.internal.portlet.tab;
 
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
@@ -34,19 +34,18 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {"portal.workflow.tabs.name=" + WorkflowWebKeys.WORKFLOW_TAB_DEFINITION_LINK},
-	service = {DynamicInclude.class, WorkflowDynamicInclude.class}
+	service = {DynamicInclude.class, WorkflowPortletTab.class}
 )
-public class WorkflowDefinitionLinkDynamicInclude
-	extends BaseWorkflowDynamicInclude {
+public class WorkflowDefinitionLinkPortletTab extends BaseWorkflowPortletTab {
+
+	@Override
+	public String getName() {
+		return WorkflowWebKeys.WORKFLOW_TAB_DEFINITION_LINK;
+	}
 
 	@Override
 	public String getSearchJspPath() {
 		return "/definition_link/workflow_definition_link_search.jsp";
-	}
-
-	@Override
-	public String getTabName() {
-		return WorkflowWebKeys.WORKFLOW_TAB_DEFINITION_LINK;
 	}
 
 	@Override

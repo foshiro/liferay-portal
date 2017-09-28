@@ -31,13 +31,12 @@ public class WorkflowWebKeys {
 
 	public static final String WORKFLOW_TAB_DEFINITION_LINK = "schemes";
 
-	public static final String WORKFLOW_TAB_DYNAMIC_INCLUDES =
-		"WORKFLOW_TAB_DYNAMIC_INCLUDES";
-
 	public static final String WORKFLOW_TAB_INSTANCE = "monitoring";
 
 	public static final String WORKFLOW_TAB_MY_SUBMISSIONS = "my-submissions";
 
 	public static final String WORKFLOW_TAB_NAMES = "WORKFLOW_TAB_NAMES";
+
+	public static final String WORKFLOW_TABS = "WORKFLOW_TABS";
 
 }

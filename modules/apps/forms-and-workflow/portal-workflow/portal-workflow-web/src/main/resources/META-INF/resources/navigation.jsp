@@ -47,7 +47,7 @@ String searchURL = ParamUtil.getString(request, "searchURL");
 
 	<aui:nav-bar-search>
 		<aui:form action="<%= searchURL %>" method="post" name="fm1">
-			<liferay-util:include page="<%= searchPage %>" servletContext="<%= dynamicInclude.getServletContext() %>" />
+			<liferay-util:include page="<%= searchPage %>" servletContext="<%= portletTab.getServletContext() %>" />
 		</aui:form>
 	</aui:nav-bar-search>
 </aui:nav-bar>
