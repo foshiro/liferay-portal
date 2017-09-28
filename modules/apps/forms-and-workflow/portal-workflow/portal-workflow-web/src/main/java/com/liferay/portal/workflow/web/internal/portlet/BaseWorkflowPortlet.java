@@ -70,9 +70,6 @@ public abstract class BaseWorkflowPortlet extends MVCPortlet {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws IOException, PortletException {
 
-		actionRequest.setAttribute(
-			WorkflowWebKeys.WORKFLOW_DEFAULT_TAB, getDefaultTab());
-
 		for (WorkflowPortletTab portletTab : getPortletTabs()) {
 			portletTab.prepareProcessAction(actionRequest, actionResponse);
 		}
@@ -96,18 +93,10 @@ public abstract class BaseWorkflowPortlet extends MVCPortlet {
 
 	protected void addRenderRequestAttributes(RenderRequest renderRequest) {
 		renderRequest.setAttribute(
-			WorkflowWebKeys.WORKFLOW_DEFAULT_TAB, getDefaultTab());
-
-		renderRequest.setAttribute(
 			WorkflowWebKeys.WORKFLOW_PORTLET_TABS, getPortletTabs());
 		renderRequest.setAttribute(
 			WorkflowWebKeys.WORKFLOW_SELECTED_PORTLET_TAB,
 			getSelectedPortletTab(renderRequest));
-
-		renderRequest.setAttribute(
-			WorkflowWebKeys.WORKFLOW_TABS, _dynamicIncludes);
-		renderRequest.setAttribute(
-			WorkflowWebKeys.WORKFLOW_TAB_NAMES, getWorkflowTabNames());
 	}
 
 	@Override

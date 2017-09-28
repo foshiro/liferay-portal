@@ -19,8 +19,6 @@ package com.liferay.portal.workflow.web.internal.constants;
  */
 public class WorkflowWebKeys {
 
-	public static final String WORKFLOW_DEFAULT_TAB = "WORKFLOW_DEFAULT_TAB";
-
 	public static final String WORKFLOW_DEFINITION_DISPLAY_CONTEXT =
 		"WORKFLOW_DEFINITION_DISPLAY_CONTEXT";
 
@@ -39,9 +37,5 @@ public class WorkflowWebKeys {
 	public static final String WORKFLOW_TAB_INSTANCE = "monitoring";
 
 	public static final String WORKFLOW_TAB_MY_SUBMISSIONS = "my-submissions";
-
-	public static final String WORKFLOW_TAB_NAMES = "WORKFLOW_TAB_NAMES";
-
-	public static final String WORKFLOW_TABS = "WORKFLOW_TABS";
 
 }

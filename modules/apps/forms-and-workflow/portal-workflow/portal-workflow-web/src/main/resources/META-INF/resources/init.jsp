@@ -27,18 +27,13 @@ page import="com.liferay.portal.workflow.web.internal.constants.WorkflowWebKeys"
 page import="com.liferay.portal.workflow.web.internal.portlet.tab.WorkflowPortletTab" %><%@
 page import="com.liferay.taglib.servlet.PipingServletResponse" %>
 
-<%@ page import="java.util.List" %><%@
-page import="java.util.Map" %>
+<%@ page import="java.util.List" %>
 
 <%@ page import="javax.portlet.PortletURL" %>
 
 <portlet:defineObjects />
 
 <%
-String defaultTab = (String)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_DEFAULT_TAB);
-
-String tab = ParamUtil.get(request, "tab", defaultTab);
-
 List<WorkflowPortletTab> portletTabs = (List<WorkflowPortletTab>)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_PORTLET_TABS);
 WorkflowPortletTab selectedPortletTab = (WorkflowPortletTab)renderRequest.getAttribute(WorkflowWebKeys.WORKFLOW_SELECTED_PORTLET_TAB);
 %>
