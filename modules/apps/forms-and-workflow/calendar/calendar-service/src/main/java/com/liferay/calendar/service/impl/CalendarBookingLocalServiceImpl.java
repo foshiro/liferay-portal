@@ -2348,7 +2348,7 @@ public class CalendarBookingLocalServiceImpl
 
 	private void _sendChildrenNotifications(
 		CalendarBooking calendarBooking,
-		NotificationTemplateType notificationType,
+		NotificationTemplateType notificationTemplateType,
 		ServiceContext serviceContext) {
 
 		List<CalendarBooking> childCalendarBookings =
@@ -2360,10 +2360,10 @@ public class CalendarBookingLocalServiceImpl
 			}
 
 			sendNotification(
-				childCalendarBooking, notificationType, serviceContext);
+				childCalendarBooking, notificationTemplateType, serviceContext);
 
 			_sendChildrenNotifications(
-				childCalendarBooking, notificationType, serviceContext);
+				childCalendarBooking, notificationTemplateType, serviceContext);
 		}
 	}
 
