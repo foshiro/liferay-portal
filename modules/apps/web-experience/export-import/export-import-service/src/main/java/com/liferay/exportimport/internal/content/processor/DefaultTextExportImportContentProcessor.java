@@ -1082,6 +1082,9 @@ public class DefaultTextExportImportContentProcessor
 
 				continue;
 			}
+			else if (groupFriendlyUrlGroup.isStaged()) {
+				groupFriendlyUrlGroup = groupFriendlyUrlGroup.getLiveGroup();
+			}
 
 			content = StringUtil.replaceFirst(
 				content, _DATA_HANDLER_GROUP_FRIENDLY_URL, StringPool.BLANK,
