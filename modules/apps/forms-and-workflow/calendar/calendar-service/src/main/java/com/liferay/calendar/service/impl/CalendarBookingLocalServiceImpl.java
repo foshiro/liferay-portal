@@ -1616,6 +1616,20 @@ public class CalendarBookingLocalServiceImpl
 			if (ArrayUtil.contains(
 					childCalendarIds, childCalendarBooking.getCalendarId())) {
 
+				int workflowAction = GetterUtil.getInteger(
+					serviceContext.getAttribute("workflowAction"));
+
+				boolean makePending = false;
+
+				if ((calendarBooking.getStartTime() !=
+						childCalendarBooking.getStartTime()) ||
+					(calendarBooking.getEndTime() !=
+						childCalendarBooking.getEndTime()) ||
+					(workflowAction == WorkflowConstants.ACTION_SAVE_DRAFT)) {
+
+					makePending = true;
+				}
+
 				updateCalendarBooking(
 					childCalendarBooking.getUserId(),
 					childCalendarBooking.getCalendarBookingId(),
@@ -1632,15 +1646,7 @@ public class CalendarBookingLocalServiceImpl
 					childCalendarBooking.getSecondReminderType(),
 					serviceContext);
 
-				int workflowAction = GetterUtil.getInteger(
-					serviceContext.getAttribute("workflowAction"));
-
-				if ((calendarBooking.getStartTime() !=
-						childCalendarBooking.getStartTime()) ||
-					(calendarBooking.getEndTime() !=
-						childCalendarBooking.getEndTime()) ||
-					(workflowAction == WorkflowConstants.ACTION_SAVE_DRAFT)) {
-
+				if (makePending) {
 					updateStatus(
 						childCalendarBooking.getUserId(), childCalendarBooking,
 						CalendarBookingWorkflowConstants.STATUS_PENDING,
