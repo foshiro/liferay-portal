@@ -454,10 +454,15 @@ public class CalendarBookingLocalServiceImpl
 	 * #deleteCalendarBookingInstance(long, CalendarBooking, int, boolean)}
 	 */
 	@Deprecated
+	@Override
 	public void deleteCalendarBookingInstance(
 			CalendarBooking calendarBooking, int instanceIndex,
 			boolean allFollowing)
 		throws PortalException {
+
+		deleteCalendarBookingInstance(
+			calendarBooking.getUserId(), calendarBooking, instanceIndex,
+			allFollowing);
 	}
 
 	/**
@@ -466,10 +471,15 @@ public class CalendarBookingLocalServiceImpl
 	 * boolean)}
 	 */
 	@Deprecated
+	@Override
 	public void deleteCalendarBookingInstance(
 			CalendarBooking calendarBooking, int instanceIndex,
 			boolean allFollowing, boolean deleteRecurringCalendarBookings)
 		throws PortalException {
+
+		deleteCalendarBookingInstance(
+			calendarBooking.getUserId(), calendarBooking, instanceIndex,
+			allFollowing, deleteRecurringCalendarBookings);
 	}
 
 	/**
@@ -477,10 +487,15 @@ public class CalendarBookingLocalServiceImpl
 	 * #deleteCalendarBookingInstance(long, CalendarBooking, long, boolean)}
 	 */
 	@Deprecated
+	@Override
 	public void deleteCalendarBookingInstance(
 			CalendarBooking calendarBooking, long startTime,
 			boolean allFollowing)
 		throws PortalException {
+
+		deleteCalendarBookingInstance(
+			calendarBooking.getUserId(), calendarBooking, startTime,
+			allFollowing);
 	}
 
 	/**
@@ -489,10 +504,15 @@ public class CalendarBookingLocalServiceImpl
 	 * boolean)}
 	 */
 	@Deprecated
+	@Override
 	public void deleteCalendarBookingInstance(
 			CalendarBooking calendarBooking, long startTime,
 			boolean allFollowing, boolean deleteRecurringCalendarBookings)
 		throws PortalException {
+
+		deleteCalendarBookingInstance(
+			calendarBooking.getUserId(), calendarBooking, startTime,
+			allFollowing, deleteRecurringCalendarBookings);
 	}
 
 	@Override
@@ -622,9 +642,17 @@ public class CalendarBookingLocalServiceImpl
 	 * #deleteCalendarBookingInstance(long, long, long, boolean)}
 	 */
 	@Deprecated
+	@Override
 	public void deleteCalendarBookingInstance(
 			long calendarBookingId, long startTime, boolean allFollowing)
 		throws PortalException {
+
+		CalendarBooking calendarBooking = fetchCalendarBooking(
+			calendarBookingId);
+
+		deleteCalendarBookingInstance(
+			calendarBooking.getUserId(), calendarBookingId, startTime,
+			allFollowing);
 	}
 
 	@Override
