@@ -561,9 +561,9 @@ public class CalendarBookingLocalServiceImpl
 			boolean allFollowing, boolean deleteRecurringCalendarBookings)
 		throws PortalException {
 
-		Date now = new Date();
 		NotificationTemplateType notificationTemplateType =
 			NotificationTemplateType.INSTANCE_DELETED;
+		Date now = new Date();
 		ServiceContext serviceContext = new ServiceContext();
 
 		serviceContext.setUserId(userId);
@@ -587,7 +587,7 @@ public class CalendarBookingLocalServiceImpl
 			}
 
 			if (startTime == calendarBooking.getStartTime()) {
-				_sendChildrenNotifications(
+				sendChildrenNotifications(
 					calendarBooking, NotificationTemplateType.MOVED_TO_TRASH,
 					serviceContext);
 
@@ -614,7 +614,7 @@ public class CalendarBookingLocalServiceImpl
 				RecurrenceUtil.getCalendarBookingInstance(calendarBooking, 1);
 
 			if (calendarBookingInstance == null) {
-				_sendChildrenNotifications(
+				sendChildrenNotifications(
 					calendarBooking, NotificationTemplateType.MOVED_TO_TRASH,
 					serviceContext);
 
@@ -633,7 +633,7 @@ public class CalendarBookingLocalServiceImpl
 
 		serviceContext.setAttribute("instanceStartTime", startTime);
 
-		_sendChildrenNotifications(
+		sendChildrenNotifications(
 			calendarBooking, notificationTemplateType, serviceContext);
 	}
 
@@ -2109,6 +2109,27 @@ public class CalendarBookingLocalServiceImpl
 		return false;
 	}
 
+	protected void sendChildrenNotifications(
+		CalendarBooking calendarBooking,
+		NotificationTemplateType notificationTemplateType,
+		ServiceContext serviceContext) {
+
+		List<CalendarBooking> childCalendarBookings =
+			calendarBooking.getChildCalendarBookings();
+
+		for (CalendarBooking childCalendarBooking : childCalendarBookings) {
+			if (childCalendarBooking.equals(calendarBooking)) {
+				continue;
+			}
+
+			sendNotification(
+				childCalendarBooking, notificationTemplateType, serviceContext);
+
+			sendChildrenNotifications(
+				childCalendarBooking, notificationTemplateType, serviceContext);
+		}
+	}
+
 	protected void sendNotification(
 		CalendarBooking calendarBooking,
 		NotificationTemplateType notificationTemplateType,
@@ -2385,27 +2406,6 @@ public class CalendarBookingLocalServiceImpl
 
 	@ServiceReference(type = TrashEntryLocalService.class)
 	protected TrashEntryLocalService trashEntryLocalService;
-
-	private void _sendChildrenNotifications(
-		CalendarBooking calendarBooking,
-		NotificationTemplateType notificationTemplateType,
-		ServiceContext serviceContext) {
-
-		List<CalendarBooking> childCalendarBookings =
-			calendarBooking.getChildCalendarBookings();
-
-		for (CalendarBooking childCalendarBooking : childCalendarBookings) {
-			if (childCalendarBooking.equals(calendarBooking)) {
-				continue;
-			}
-
-			sendNotification(
-				childCalendarBooking, notificationTemplateType, serviceContext);
-
-			_sendChildrenNotifications(
-				childCalendarBooking, notificationTemplateType, serviceContext);
-		}
-	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CalendarBookingLocalServiceImpl.class);
