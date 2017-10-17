@@ -270,6 +270,19 @@ public class CalendarBookingTestUtil {
 
 	public static CalendarBooking addRecurringCalendarBooking(
 			Calendar invitingCalendar, Calendar invitedCalendar,
+			Recurrence recurrence)
+		throws PortalException {
+
+		User user = UserLocalServiceUtil.fetchUser(
+			invitingCalendar.getUserId());
+
+		return addRecurringCalendarBooking(
+			invitingCalendar, invitedCalendar, recurrence,
+			createServiceContext(user));
+	}
+
+	public static CalendarBooking addRecurringCalendarBooking(
+			Calendar invitingCalendar, Calendar invitedCalendar,
 			Recurrence recurrence, ServiceContext serviceContext)
 		throws PortalException {
 

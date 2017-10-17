@@ -196,10 +196,7 @@ public class CalendarBookingLocalServiceTest {
 				calendarBooking.getTitle(LocaleUtil.getDefault()) +
 					StringPool.QUOTE;
 
-		List<MailMessage> mailMessages = MailServiceTestUtil.getMailMessages(
-			"Subject", mailMessageSubject);
-
-		Assert.assertEquals(mailMessages.toString(), 2, mailMessages.size());
+		assertMailSubjectCount(mailMessageSubject, 2);
 	}
 
 	@Test
@@ -569,8 +566,6 @@ public class CalendarBookingLocalServiceTest {
 	public void testDeleteCalendarBookingRecurringInstanceNotifiesInvitees()
 		throws Exception {
 
-		ServiceContext serviceContext = createServiceContext();
-
 		_invitingUser = UserTestUtil.addUser();
 
 		Calendar invitingCalendar = CalendarTestUtil.addCalendar(_invitingUser);
@@ -580,7 +575,7 @@ public class CalendarBookingLocalServiceTest {
 		CalendarBooking calendarBooking =
 			CalendarBookingTestUtil.addRecurringCalendarBooking(
 				invitingCalendar, invitedCalendar,
-				RecurrenceTestUtil.getDailyRecurrence(5), serviceContext);
+				RecurrenceTestUtil.getDailyRecurrence(5));
 
 		long calendarBookingId = calendarBooking.getCalendarBookingId();
 
@@ -601,10 +596,7 @@ public class CalendarBookingLocalServiceTest {
 				calendarBooking.getTitle(LocaleUtil.getDefault()) +
 					StringPool.QUOTE;
 
-		List<MailMessage> mailMessages = MailServiceTestUtil.getMailMessages(
-			"Subject", mailMessageSubject);
-
-		Assert.assertEquals(mailMessages.toString(), 1, mailMessages.size());
+		assertMailSubjectCount(mailMessageSubject, 1);
 
 		CalendarBookingLocalServiceUtil.deleteCalendarBookingInstance(
 			_invitingUser.getUserId(), calendarBooking, 2, true);
@@ -622,10 +614,7 @@ public class CalendarBookingLocalServiceTest {
 				calendarBooking.getTitle(LocaleUtil.getDefault()) +
 					StringPool.QUOTE;
 
-		mailMessages = MailServiceTestUtil.getMailMessages(
-			"Subject", mailMessageSubject);
-
-		Assert.assertEquals(mailMessages.toString(), 2, mailMessages.size());
+		assertMailSubjectCount(mailMessageSubject, 2);
 
 		CalendarBookingLocalServiceUtil.deleteCalendarBookingInstance(
 			_user.getUserId(), calendarBooking, 0, false);
@@ -1145,10 +1134,7 @@ public class CalendarBookingLocalServiceTest {
 				calendarBooking.getTitle(LocaleUtil.getDefault()) +
 					StringPool.QUOTE;
 
-		List<MailMessage> mailMessages = MailServiceTestUtil.getMailMessages(
-			"Subject", mailMessageSubject);
-
-		Assert.assertEquals(mailMessages.toString(), 1, mailMessages.size());
+		assertMailSubjectCount(mailMessageSubject, 1);
 	}
 
 	@Test
@@ -2905,6 +2891,14 @@ public class CalendarBookingLocalServiceTest {
 			hour, jCalendar.get(java.util.Calendar.HOUR_OF_DAY));
 
 		Assert.assertEquals(minute, jCalendar.get(java.util.Calendar.MINUTE));
+	}
+
+	protected void assertMailSubjectCount(String messageSubject, int count) {
+		List<MailMessage> mailMessages = MailServiceTestUtil.getMailMessages(
+			"Subject", messageSubject);
+
+		Assert.assertEquals(
+			mailMessages.toString(), count, mailMessages.size());
 	}
 
 	protected void assertRepeatsExceptFor(
