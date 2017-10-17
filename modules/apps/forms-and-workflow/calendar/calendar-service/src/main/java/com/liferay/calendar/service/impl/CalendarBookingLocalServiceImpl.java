@@ -2124,9 +2124,6 @@ public class CalendarBookingLocalServiceImpl
 
 			sendNotification(
 				childCalendarBooking, notificationTemplateType, serviceContext);
-
-			sendChildrenNotifications(
-				childCalendarBooking, notificationTemplateType, serviceContext);
 		}
 	}
 
