@@ -40,6 +40,7 @@ import com.liferay.portal.test.rule.SynchronousMailTestRule;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -68,6 +69,11 @@ public class CalendarBookingServiceTest {
 		_omnidminUser = UserTestUtil.addOmniAdminUser();
 		_user1 = UserTestUtil.addUser();
 		_user2 = UserTestUtil.addUser();
+	}
+
+	@After
+	public void tearDown() {
+		CalendarStagingTestUtil.cleanUp();
 	}
 
 	@Test
