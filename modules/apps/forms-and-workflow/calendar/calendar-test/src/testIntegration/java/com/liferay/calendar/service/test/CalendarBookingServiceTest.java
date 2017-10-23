@@ -162,8 +162,6 @@ public class CalendarBookingServiceTest {
 		Calendar stagingCalendar = CalendarStagingTestUtil.getStagingCalendar(
 			_liveGroup, liveCalendar);
 
-		Assert.assertNotNull(stagingCalendar);
-
 		CalendarBooking childCalendarBooking =
 			CalendarBookingTestUtil.addChildCalendarBooking(
 				invitingCalendar, liveCalendar);
