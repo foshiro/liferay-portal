@@ -1769,8 +1769,6 @@ public class CalendarBookingLocalServiceTest {
 	public void testStagingCalendarBookingDoesNotSendReminderNotification()
 		throws Exception {
 
-		ServiceContext serviceContext = createServiceContext();
-
 		_liveGroup = GroupTestUtil.addGroup();
 
 		Calendar liveCalendar = CalendarTestUtil.getDefaultCalendar(_liveGroup);
@@ -1780,33 +1778,14 @@ public class CalendarBookingLocalServiceTest {
 		Calendar stagingCalendar = CalendarStagingTestUtil.getStagingCalendar(
 			_liveGroup, liveCalendar);
 
-		Assert.assertNotNull(stagingCalendar);
-
 		CalendarStagingTestUtil.publishLayouts(_liveGroup, true);
 
 		long startTime = System.currentTimeMillis() + (Time.MINUTE * 2);
 
-		long endTime = startTime + Time.HOUR;
-
-		long firstReminder = Time.MINUTE;
-
-		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_PUBLISH);
-
 		CalendarBooking calendarBooking =
-			CalendarBookingTestUtil.addRegularCalendarBooking(stagingCalendar);
-
-		calendarBooking = CalendarBookingLocalServiceUtil.updateCalendarBooking(
-			calendarBooking.getUserId(), calendarBooking.getCalendarBookingId(),
-			stagingCalendar.getCalendarId(), calendarBooking.getTitleMap(),
-			calendarBooking.getDescriptionMap(), calendarBooking.getLocation(),
-			startTime, endTime, calendarBooking.isAllDay(),
-			calendarBooking.getRecurrence(), firstReminder,
-			NotificationType.EMAIL.getValue(), 0,
-			NotificationType.EMAIL.getValue(), serviceContext);
-
-		CalendarBookingLocalServiceUtil.updateStatus(
-			_user.getUserId(), calendarBooking,
-			WorkflowConstants.STATUS_APPROVED, serviceContext);
+			CalendarBookingTestUtil.addRegularCalendarBookingWithReminders(
+				stagingCalendar, startTime, startTime + Time.HOUR,
+				(int)Time.MINUTE, 0);
 
 		CalendarStagingTestUtil.publishLayouts(_liveGroup, true);
 
@@ -1817,10 +1796,7 @@ public class CalendarBookingLocalServiceTest {
 				calendarBooking.getTitle(LocaleUtil.getDefault()) +
 					StringPool.QUOTE;
 
-		List<MailMessage> mailMessages = MailServiceTestUtil.getMailMessages(
-			"Subject", mailMessageSubject);
-
-		Assert.assertEquals(mailMessages.toString(), 1, mailMessages.size());
+		assertMailSubjectCount(mailMessageSubject, 1);
 	}
 
 	@Test
