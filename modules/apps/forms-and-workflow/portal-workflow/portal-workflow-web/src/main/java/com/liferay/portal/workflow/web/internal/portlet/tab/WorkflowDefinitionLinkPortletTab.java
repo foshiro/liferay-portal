@@ -15,7 +15,6 @@
 package com.liferay.portal.workflow.web.internal.portlet.tab;
 
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
-import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.workflow.web.constants.WorkflowWebKeys;
 import com.liferay.portal.workflow.web.internal.display.context.WorkflowDefinitionLinkDisplayContext;
 import com.liferay.portal.workflow.web.portlet.tab.BaseWorkflowPortletTab;
@@ -33,11 +32,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Adam Brandizzi
  */
-@Component(
-	immediate = true,
-	property = {"portal.workflow.tabs.name=" + WorkflowWebKeys.WORKFLOW_TAB_DEFINITION_LINK},
-	service = {DynamicInclude.class, WorkflowPortletTab.class}
-)
+@Component(immediate = true, service = WorkflowPortletTab.class)
 public class WorkflowDefinitionLinkPortletTab extends BaseWorkflowPortletTab {
 
 	@Override

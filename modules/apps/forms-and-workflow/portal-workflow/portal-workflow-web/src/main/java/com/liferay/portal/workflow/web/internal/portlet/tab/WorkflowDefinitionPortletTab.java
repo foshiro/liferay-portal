@@ -17,7 +17,6 @@ package com.liferay.portal.workflow.web.internal.portlet.tab;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.servlet.SessionErrors;
-import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -44,11 +43,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Adam Brandizzi
  */
-@Component(
-	immediate = true,
-	property = {"portal.workflow.tabs.name=" + WorkflowWebKeys.WORKFLOW_TAB_DEFINITION},
-	service = {DynamicInclude.class, WorkflowPortletTab.class}
-)
+@Component(immediate = true, service = WorkflowPortletTab.class)
 public class WorkflowDefinitionPortletTab extends BaseWorkflowPortletTab {
 
 	@Override

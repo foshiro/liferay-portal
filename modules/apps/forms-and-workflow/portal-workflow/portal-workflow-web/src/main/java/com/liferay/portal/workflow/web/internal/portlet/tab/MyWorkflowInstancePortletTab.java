@@ -14,7 +14,6 @@
 
 package com.liferay.portal.workflow.web.internal.portlet.tab;
 
-import com.liferay.portal.kernel.servlet.taglib.DynamicInclude;
 import com.liferay.portal.workflow.web.constants.WorkflowWebKeys;
 import com.liferay.portal.workflow.web.portlet.tab.WorkflowPortletTab;
 
@@ -23,11 +22,7 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Adam Brandizzi
  */
-@Component(
-	immediate = true,
-	property = {"portal.workflow.tabs.name=" + WorkflowWebKeys.WORKFLOW_TAB_MY_SUBMISSIONS},
-	service = {DynamicInclude.class, WorkflowPortletTab.class}
-)
+@Component(immediate = true, service = WorkflowPortletTab.class)
 public class MyWorkflowInstancePortletTab extends WorkflowInstancePortletTab {
 
 	@Override
