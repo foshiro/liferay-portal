@@ -8,6 +8,7 @@ AUI.add(
 		var toInt = Lang.toInt;
 
 		var CalendarUtil = Liferay.CalendarUtil;
+		var MessageUtil = Liferay.CalendarMessageUtil;
 
 		var CalendarRemoteServices = A.Base.create(
 			'calendar-remote-services',
@@ -44,7 +45,7 @@ AUI.add(
 							success: function(data) {
 								if (success) {
 									success.call(instance, data);
-									instance._showSuccessMessage();
+									MessageUtil.showSuccessMessage(instance.get('rootNode'));
 								}
 							}
 						}
@@ -67,7 +68,7 @@ AUI.add(
 							success: function(data) {
 								if (success) {
 									success.call(instance, data);
-									instance._showSuccessMessage();
+									MessageUtil.showSuccessMessage(instance.get('rootNode'));
 								}
 							}
 						}
@@ -302,7 +303,7 @@ AUI.add(
 
 										if (success) {
 											success.call(instance, data);
-											instance._showSuccessMessage();
+											MessageUtil.showSuccessMessage(instance.get('rootNode'));
 										}
 									}
 								}
@@ -329,41 +330,6 @@ AUI.add(
 							}
 						}
 					);
-				},
-
-				_showSuccessMessage: function() {
-					var instance = this;
-
-					instance.getAttrs();
-
-					var successMessage = Liferay.Language.get('your-request-completed-successfully');
-
-					var alert = instance._alert;
-
-					if (alert) {
-						alert.destroy();
-					}
-
-					alert = new Liferay.Alert(
-						{
-							closeable: true,
-							delay: {
-								hide: 3000,
-								show: 0
-							},
-							icon: 'check',
-							message: successMessage,
-							type: 'success'
-						}
-					);
-
-					if (!alert.get('rendered')) {
-						alert.render(instance.rootNode);
-					}
-
-					alert.show();
-
-					instance._alert = alert;
 				},
 
 				_invokeActionURL: function(params) {
@@ -470,6 +436,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-base', 'aui-component', 'aui-io', 'liferay-calendar-util', 'liferay-portlet-base', 'liferay-portlet-url']
+		requires: ['aui-base', 'aui-component', 'aui-io', 'liferay-calendar-message-util', 'liferay-calendar-util', 'liferay-portlet-base', 'liferay-portlet-url']
 	}
 );
