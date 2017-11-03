@@ -500,11 +500,6 @@ public class CalendarPortlet extends MVCPortlet {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-
-		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
-
 		long calendarBookingId = ParamUtil.getLong(
 			actionRequest, "calendarBookingId");
 
@@ -549,46 +544,8 @@ public class CalendarPortlet extends MVCPortlet {
 
 		String redirect = getRedirect(actionRequest, actionResponse);
 
-		String referringPortletResource = ParamUtil.getString(
-			actionRequest, "referringPortletResource");
-
-		if (Validator.isNull(referringPortletResource)) {
-			referringPortletResource = portletDisplay.getId();
-		}
-
-		String namespace = _portal.getPortletNamespace(
-			referringPortletResource);
-
-		String rootPortletId = PortletConstants.getRootPortletId(
-			referringPortletResource);
-
-		if ((calendarBooking.getStatus() ==
-				CalendarBookingWorkflowConstants.STATUS_DRAFT) &&
-			!rootPortletId.equals(CalendarPortletKeys.CALENDAR)) {
-
-			String state = _http.getParameter(redirect, "p_p_state", false);
-
-			PortletURL draftURL = _portal.getControlPanelPortletURL(
-				themeDisplay.getRequest(), themeDisplay.getScopeGroup(),
-				getPortletName(), 0, 0, PortletRequest.RENDER_PHASE);
-
-			draftURL.setParameter("mvcPath", "/edit_calendar_booking.jsp");
-			draftURL.setParameter(
-				"calendarBookingId",
-				String.valueOf(calendarBooking.getCalendarBookingId()));
-			draftURL.setParameter("redirect", redirect);
-			draftURL.setWindowState(new WindowState(state));
-
-			redirect = _http.setParameter(
-				redirect, namespace + "closeDialog", Boolean.FALSE);
-			redirect = _http.removeParameter(redirect, namespace + "redirect");
-			redirect = _http.setParameter(
-				redirect, namespace + "redirect", draftURL.toString());
-		}
-
-		redirect = _http.setParameter(
-			redirect, namespace + "calendarBookingId",
-			calendarBooking.getCalendarBookingId());
+		redirect = addEditCalendarBookingRedirectParameters(
+			redirect, calendarBooking, actionRequest);
 
 		actionRequest.setAttribute(WebKeys.REDIRECT, redirect);
 	}
@@ -704,6 +661,57 @@ public class CalendarPortlet extends MVCPortlet {
 
 			calendarsSet.add(calendar);
 		}
+	}
+
+	protected String addEditCalendarBookingRedirectParameters(
+			String redirect, CalendarBooking calendarBooking,
+			ActionRequest actionRequest)
+		throws WindowStateException {
+
+		String referringPortletResource = ParamUtil.getString(
+			actionRequest, "referringPortletResource");
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		PortletDisplay portletDisplay = themeDisplay.getPortletDisplay();
+
+		if (Validator.isNull(referringPortletResource)) {
+			referringPortletResource = portletDisplay.getId();
+		}
+
+		String namespace = _portal.getPortletNamespace(
+			referringPortletResource);
+
+		redirect = addReferringPortletParameters(
+			redirect, calendarBooking, themeDisplay, namespace,
+			referringPortletResource);
+
+		redirect = _http.setParameter(
+			redirect, namespace + "calendarBookingId",
+			calendarBooking.getCalendarBookingId());
+
+		return redirect;
+	}
+
+	protected String addReferringPortletParameters(
+			String redirect, CalendarBooking calendarBooking,
+			ThemeDisplay themeDisplay, String namespace,
+			String referringPortletResource)
+		throws WindowStateException {
+
+		String rootPortletId = PortletConstants.getRootPortletId(
+			referringPortletResource);
+
+		if ((calendarBooking.getStatus() ==
+				CalendarBookingWorkflowConstants.STATUS_DRAFT) &&
+			!rootPortletId.equals(CalendarPortletKeys.CALENDAR)) {
+
+			redirect = preventDraftClosingOnReferringPortlet(
+				redirect, calendarBooking, themeDisplay, namespace);
+		}
+
+		return redirect;
 	}
 
 	@Override
@@ -1163,6 +1171,33 @@ public class CalendarPortlet extends MVCPortlet {
 		}
 
 		return false;
+	}
+
+	protected String preventDraftClosingOnReferringPortlet(
+			String redirect, CalendarBooking calendarBooking,
+			ThemeDisplay themeDisplay, String namespace)
+		throws WindowStateException {
+
+		String state = _http.getParameter(redirect, "p_p_state", false);
+
+		PortletURL draftURL = _portal.getControlPanelPortletURL(
+			themeDisplay.getRequest(), themeDisplay.getScopeGroup(),
+			getPortletName(), 0, 0, PortletRequest.RENDER_PHASE);
+
+		draftURL.setParameter("mvcPath", "/edit_calendar_booking.jsp");
+		draftURL.setParameter(
+			"calendarBookingId",
+			String.valueOf(calendarBooking.getCalendarBookingId()));
+		draftURL.setParameter("redirect", redirect);
+		draftURL.setWindowState(new WindowState(state));
+
+		redirect = _http.setParameter(
+			redirect, namespace + "closeDialog", Boolean.FALSE);
+		redirect = _http.removeParameter(redirect, namespace + "redirect");
+		redirect = _http.setParameter(
+			redirect, namespace + "redirect", draftURL.toString());
+
+		return redirect;
 	}
 
 	protected Hits search(ThemeDisplay themeDisplay, String keywords)
