@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.calendar.activity.test;
+package com.liferay.calendar.web.internal.social.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.calendar.constants.CalendarPortletKeys;
@@ -22,15 +22,11 @@ import com.liferay.calendar.service.CalendarBookingLocalServiceUtil;
 import com.liferay.calendar.social.CalendarActivityKeys;
 import com.liferay.calendar.test.util.CalendarBookingTestUtil;
 import com.liferay.calendar.test.util.CalendarTestUtil;
-import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.util.UserTestUtil;
-import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.test.rule.PermissionCheckerTestRule;
-import com.liferay.portal.test.rule.SynchronousMailTestRule;
 import com.liferay.portlet.social.test.BaseSocialActivityInterpreterTestCase;
 import com.liferay.social.kernel.model.SocialActivityInterpreter;
 
@@ -51,19 +47,14 @@ public class CalendarActivityInterpreterTest
 	public static final AggregateTestRule aggregateTestRule =
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
-			PermissionCheckerTestRule.INSTANCE,
-			SynchronousDestinationTestRule.INSTANCE,
-			SynchronousMailTestRule.INSTANCE);
+			SynchronousDestinationTestRule.INSTANCE);
 
 	@Override
 	protected void addActivities() throws Exception {
 		Calendar calendar = CalendarTestUtil.addCalendar(group, serviceContext);
 
-		_user = UserTestUtil.addUser();
-
-		_calendarBooking = CalendarBookingTestUtil.addAllDayCalendarBooking(
-			_user, calendar, System.currentTimeMillis(),
-			System.currentTimeMillis(), serviceContext);
+		_calendarBooking = CalendarBookingTestUtil.addRegularCalendarBooking(
+			calendar);
 	}
 
 	@Override
@@ -83,23 +74,23 @@ public class CalendarActivityInterpreterTest
 	@Override
 	protected void moveModelsToTrash() throws Exception {
 		CalendarBookingLocalServiceUtil.moveCalendarBookingToTrash(
-			_user.getUserId(), _calendarBooking);
+			_calendarBooking.getUserId(), _calendarBooking);
 	}
 
 	@Override
 	protected void renameModels() throws Exception {
-		_calendarBooking.setTitle(StringUtil.randomString());
 		_calendarBooking = CalendarBookingTestUtil.updateCalendarBooking(
-			_calendarBooking, _calendarBooking.getTitleMap(), serviceContext);
+			_calendarBooking, RandomTestUtil.randomLocaleStringMap(),
+			serviceContext);
 	}
 
 	@Override
 	protected void restoreModelsFromTrash() throws Exception {
 		CalendarBookingLocalServiceUtil.restoreCalendarBookingFromTrash(
-			_user.getUserId(), _calendarBooking.getCalendarBookingId());
+			_calendarBooking.getUserId(),
+			_calendarBooking.getCalendarBookingId());
 	}
 
 	private CalendarBooking _calendarBooking;
-	private User _user;
 
 }
