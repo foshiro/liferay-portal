@@ -14,6 +14,8 @@
 
 package com.liferay.portal.search.elasticsearch.connection;
 
+import com.liferay.portal.search.elasticsearch.configuration.OperationMode;
+
 /**
  * @author André de Oliveira
  */

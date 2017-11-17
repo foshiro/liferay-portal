@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.portal.search.elasticsearch.connection;
+package com.liferay.portal.search.elasticsearch.configuration;
 
 /**
  * @author Michael C. Han
