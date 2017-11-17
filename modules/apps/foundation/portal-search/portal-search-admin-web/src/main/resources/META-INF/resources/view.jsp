@@ -16,4 +16,4 @@
 
 <%@ include file="/init.jsp" %>
 
-<%= searchAdminDisplayContext.getVendor() %>
+<%= searchAdminDisplayContext.getSearchEngineDescription() %>
