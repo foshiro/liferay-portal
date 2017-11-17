@@ -16,14 +16,38 @@ package com.liferay.portal.search.admin.web.internal.display.context;
 
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
+import com.liferay.portal.search.admin.web.internal.configuration.accessor.ElasticsearchConfigurationAccessor;
+import com.liferay.portal.search.elasticsearch.configuration.OperationMode;
 
 /**
  * @author Adam Brandizzi
  */
 public class SearchAdminDisplayContext {
 
-	public SearchAdminDisplayContext(SearchEngineHelper searchEngineHelper) {
+	public SearchAdminDisplayContext(
+		SearchEngineHelper searchEngineHelper,
+		ElasticsearchConfigurationAccessor elasticsearchConfigurationAccessor) {
+
 		_searchEngineHelper = searchEngineHelper;
+		_elasticsearchConfigurationAccessor =
+			elasticsearchConfigurationAccessor;
+	}
+
+	public String getSearchEngineDescription() {
+		String vendor = getVendor();
+
+		String description = vendor;
+
+		if ("Elasticsearch".equals(vendor)) {
+			OperationMode operationMode =
+				_elasticsearchConfigurationAccessor.getOperationMode();
+
+			if (operationMode == OperationMode.EMBEDDED) {
+				description += " (Embedded)";
+			}
+		}
+
+		return description;
 	}
 
 	public String getVendor() {
@@ -35,6 +59,8 @@ public class SearchAdminDisplayContext {
 		return searchEngine.getVendor();
 	}
 
+	private final ElasticsearchConfigurationAccessor
+		_elasticsearchConfigurationAccessor;
 	private final SearchEngineHelper _searchEngineHelper;
 
 }

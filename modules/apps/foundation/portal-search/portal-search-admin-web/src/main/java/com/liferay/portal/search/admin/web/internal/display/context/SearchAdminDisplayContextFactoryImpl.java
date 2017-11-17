@@ -15,6 +15,7 @@
 package com.liferay.portal.search.admin.web.internal.display.context;
 
 import com.liferay.portal.kernel.search.SearchEngineHelper;
+import com.liferay.portal.search.admin.web.internal.configuration.accessor.ElasticsearchConfigurationAccessor;
 
 import javax.portlet.PortletException;
 import javax.portlet.PortletPreferences;
@@ -37,8 +38,13 @@ public class SearchAdminDisplayContextFactoryImpl
 			PortletPreferences portletPreferences)
 		throws PortletException {
 
-		return new SearchAdminDisplayContext(_searchEngineHelper);
+		return new SearchAdminDisplayContext(
+			_searchEngineHelper, _elasticsearchConfigurationAccessor);
 	}
+
+	@Reference
+	private ElasticsearchConfigurationAccessor
+		_elasticsearchConfigurationAccessor;
 
 	@Reference
 	private SearchEngineHelper _searchEngineHelper;
