@@ -24,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.liferay.portal.search.elasticsearch.configuration.OperationMode;
+
 /**
  * @author André de Oliveira
  */

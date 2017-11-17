@@ -14,6 +14,7 @@
 
 package com.liferay.portal.search.elasticsearch.connection;
 
+import com.liferay.portal.search.elasticsearch.configuration.OperationMode;
 import com.liferay.portal.search.elasticsearch.internal.connection.ElasticsearchFixture;
 
 /**

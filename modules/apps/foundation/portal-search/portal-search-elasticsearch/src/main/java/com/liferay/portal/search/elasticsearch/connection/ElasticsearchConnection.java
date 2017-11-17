@@ -14,6 +14,8 @@
 
 package com.liferay.portal.search.elasticsearch.connection;
 
+import com.liferay.portal.search.elasticsearch.configuration.OperationMode;
+
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
 

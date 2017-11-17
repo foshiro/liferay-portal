@@ -18,6 +18,7 @@ import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.search.elasticsearch.configuration.ElasticsearchConfiguration;
+import com.liferay.portal.search.elasticsearch.configuration.OperationMode;
 import com.liferay.portal.search.elasticsearch.index.IndexFactory;
 
 import java.util.HashMap;
