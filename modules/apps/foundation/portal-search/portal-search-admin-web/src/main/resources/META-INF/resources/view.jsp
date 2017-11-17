@@ -16,4 +16,17 @@
 
 <%@ include file="/init.jsp" %>
 
-<%= searchAdminDisplayContext.getSearchEngineDescription() %>
+<aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
+	<aui:nav cssClass="navbar-nav">
+		<aui:nav-item
+			label="general"
+			selected="<%= true %>"
+		/>
+	</aui:nav>
+</aui:nav-bar>
+
+<div class="container-fluid-1280">
+	<strong><liferay-ui:message key="search-engine" /></strong><br>
+
+	<%= searchAdminDisplayContext.getSearchEngineDescription() %>
+</div>
