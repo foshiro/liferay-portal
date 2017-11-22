@@ -1460,6 +1460,8 @@ public class CalendarBookingLocalServiceTest {
 
 		CalendarStagingTestUtil.publishLayouts(_liveGroup, true);
 
+		Thread.sleep(60000);
+
 		assertCalendarBookingsCount(externalCalendar, 1);
 
 		assertCalendarBookingsCount(liveCalendar, 0);
