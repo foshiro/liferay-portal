@@ -15,6 +15,7 @@
 package com.liferay.calendar.web.upgrade.v1_1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.calendar.test.util.CalendarUpgradeTestUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.PortalPreferences;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
-import com.liferay.portal.kernel.upgrade.UpgradeStep;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.model.impl.PortalPreferencesImpl;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
-import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 
@@ -81,7 +80,7 @@ public class UpgradePortalPreferencesTest {
 		PortalPreferencesLocalServiceUtil.updatePortalPreferences(
 			_portalPreferences);
 
-		_upgradePortalPreferences.upgrade();
+		_upgradeProcess.upgrade();
 
 		PortalPreferences portalPreferences = reloadPortalPreferences(
 			_portalPreferences);
@@ -107,7 +106,7 @@ public class UpgradePortalPreferencesTest {
 		PortalPreferencesLocalServiceUtil.updatePortalPreferences(
 			_portalPreferences);
 
-		_upgradePortalPreferences.upgrade();
+		_upgradeProcess.upgrade();
 
 		PortalPreferences portalPreferences = reloadPortalPreferences(
 			_portalPreferences);
@@ -132,7 +131,7 @@ public class UpgradePortalPreferencesTest {
 		PortalPreferencesLocalServiceUtil.updatePortalPreferences(
 			_portalPreferences);
 
-		_upgradePortalPreferences.upgrade();
+		_upgradeProcess.upgrade();
 
 		PortalPreferences portalPreferences = reloadPortalPreferences(
 			_portalPreferences);
@@ -147,7 +146,8 @@ public class UpgradePortalPreferencesTest {
 	@Test
 	public void testUpgradeDefaultViewPreferences() throws Exception {
 		String[] views = {"day", "month", "week", "agenda"};
-		String view = views[RandomTestUtil.randomInt(0, views.length-1)];
+
+		String view = views[RandomTestUtil.randomInt(0, views.length - 1)];
 
 		String preferencesXML = getPreferences(
 			_OLD_SESSION_CLICKS_NAMESPACE, "calendar-portlet-default-view",
@@ -158,7 +158,7 @@ public class UpgradePortalPreferencesTest {
 		PortalPreferencesLocalServiceUtil.updatePortalPreferences(
 			_portalPreferences);
 
-		_upgradePortalPreferences.upgrade();
+		_upgradeProcess.upgrade();
 
 		PortalPreferences portalPreferences = reloadPortalPreferences(
 			_portalPreferences);
@@ -183,7 +183,7 @@ public class UpgradePortalPreferencesTest {
 		PortalPreferencesLocalServiceUtil.updatePortalPreferences(
 			_portalPreferences);
 
-		_upgradePortalPreferences.upgrade();
+		_upgradeProcess.upgrade();
 
 		PortalPreferences portalPreferences = reloadPortalPreferences(
 			_portalPreferences);
@@ -256,32 +256,8 @@ public class UpgradePortalPreferencesTest {
 	protected void setUpUpgradePortalPreferences() {
 		Registry registry = RegistryUtil.getRegistry();
 
-		UpgradeStepRegistrator upgradeStepRegistror = registry.getService(
-			"com.liferay.calendar.web.upgrade.CalendarWebUpgrade");
-
-		upgradeStepRegistror.register(
-			new UpgradeStepRegistrator.Registry() {
-
-				@Override
-				public void register(
-					String bundleSymbolicName, String fromSchemaVersionString,
-					String toSchemaVersionString, UpgradeStep... upgradeSteps) {
-
-					for (UpgradeStep upgradeStep : upgradeSteps) {
-						Class<?> clazz = upgradeStep.getClass();
-
-						String className = clazz.getName();
-
-						if (className.contains("UpgradePortalPreferences")) {
-							_upgradePortalPreferences =
-								(UpgradeProcess)upgradeStep;
-
-							break;
-						}
-					}
-				}
-
-			});
+		_upgradeProcess = CalendarUpgradeTestUtil.getWebUpgradeStep(
+			"UpgradePortalPreferences");
 	}
 
 	private static final String _NEW_SESSION_CLICKS_NAMESPACE =
@@ -293,7 +269,7 @@ public class UpgradePortalPreferencesTest {
 	@DeleteAfterTestRun
 	private PortalPreferences _portalPreferences;
 
-	private UpgradeProcess _upgradePortalPreferences;
+	private UpgradeProcess _upgradeProcess;
 
 	@DeleteAfterTestRun
 	private User _user;
