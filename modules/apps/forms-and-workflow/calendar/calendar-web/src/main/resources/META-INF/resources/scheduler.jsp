@@ -224,21 +224,6 @@ String viewCalendarBookingURL = ParamUtil.getString(request, "viewCalendarBookin
 
 	var destroySchedulers = function(event) {
 		if (event.portletId === '<%= portletDisplay.getId() %>') {
-			<c:if test="<%= !hideDayView %>">
-				window.<portlet:namespace />dayView.destroy();
-			</c:if>
-
-			<c:if test="<%= !hideWeekView %>">
-				window.<portlet:namespace />weekView.destroy();
-			</c:if>
-
-			<c:if test="<%= !hideMonthView %>">
-				window.<portlet:namespace />monthView.destroy();
-			</c:if>
-
-			<c:if test="<%= !hideAgendaView %>">
-				window.<portlet:namespace />agendaView.destroy();
-			</c:if>
 			window.<portlet:namespace />scheduler.destroy();
 
 			Liferay.detach('destroyPortlet', destroySchedulers);
