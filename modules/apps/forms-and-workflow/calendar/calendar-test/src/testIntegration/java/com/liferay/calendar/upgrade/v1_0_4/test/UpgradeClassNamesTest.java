@@ -18,6 +18,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
 import com.liferay.calendar.test.util.CalendarUpgradeTestUtil;
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.Group;
@@ -182,7 +183,7 @@ public class UpgradeClassNamesTest {
 		long companyId = group.getCompanyId();
 		long groupId = group.getGroupId();
 
-		long pk = RandomTestUtil.nextLong();
+		long pk = CounterLocalServiceUtil.increment();
 		long userId = TestPropsValues.getUserId();
 
 		_assetVocabulary =
