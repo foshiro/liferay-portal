@@ -60,7 +60,7 @@ public class UpgradeClassNamesTest {
 
 	@Test
 	public void testChangeCalEventClassNameIdInVocabularies() throws Exception {
-		_calEventClassName = ClassNameLocalServiceUtil.addClassName(
+		_calEventClassName = addClassName(
 			"com.liferay.portlet.calendar.model.CalEvent");
 
 		addAssetVocabulary(_calEventClassName.getClassNameId());
@@ -220,6 +220,15 @@ public class UpgradeClassNamesTest {
 		_assetVocabulary.setLastPublishDate(RandomTestUtil.nextDate());
 
 		AssetVocabularyLocalServiceUtil.addAssetVocabulary(_assetVocabulary);
+	}
+
+	protected ClassName addClassName(String value) {
+		ClassName className = ClassNameLocalServiceUtil.createClassName(
+			CounterLocalServiceUtil.increment());
+
+		className.setValue(value);
+
+		return ClassNameLocalServiceUtil.addClassName(className);
 	}
 
 	protected ResourcePermission addResourcePermission(
