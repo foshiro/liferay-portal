@@ -17,7 +17,7 @@ package com.liferay.portal.search.admin.web.internal.portlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.search.admin.web.constants.SearchAdminPortletKeys;
+import com.liferay.portal.search.admin.web.internal.constants.SearchAdminPortletKeys;
 import com.liferay.portal.search.admin.web.internal.display.context.SearchAdminDisplayContext;
 import com.liferay.portal.search.admin.web.internal.display.context.SearchAdminDisplayContextFactory;
 

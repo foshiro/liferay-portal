@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.portal.search.admin.web.constants;
+package com.liferay.portal.search.admin.web.internal.constants;
 
 /**
  * @author Adam Brandizzi

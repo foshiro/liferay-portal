@@ -16,7 +16,7 @@ package com.liferay.portal.search.admin.web.internal.portlet;
 
 import com.liferay.portal.kernel.portlet.ControlPanelEntry;
 import com.liferay.portal.kernel.portlet.OmniadminControlPanelEntry;
-import com.liferay.portal.search.admin.web.constants.SearchAdminPortletKeys;
+import com.liferay.portal.search.admin.web.internal.constants.SearchAdminPortletKeys;
 
 import org.osgi.service.component.annotations.Component;
 
