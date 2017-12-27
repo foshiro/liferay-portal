@@ -19,14 +19,6 @@ package com.liferay.portal.search.web.information;
  */
 public interface SearchEngineInformation {
 
-	public String getOperationMode();
-
 	public String getStatusString();
-
-	public String getVendor();
-
-	public String getVersion();
-
-	public boolean isEmbedded();
 
 }
