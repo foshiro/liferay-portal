@@ -35,6 +35,11 @@ public class SolrSearchEngineInformation implements SearchEngineInformation {
 	}
 
 	@Override
+	public String getStatusString() {
+		return getVendor() + getVersion();
+	}
+
+	@Override
 	public String getVendor() {
 		return _solrSearchEngine.getVendor();
 	}
@@ -42,6 +47,11 @@ public class SolrSearchEngineInformation implements SearchEngineInformation {
 	@Override
 	public String getVersion() {
 		return "";
+	}
+
+	@Override
+	public boolean isEmbedded() {
+		return false;
 	}
 
 	@Reference(target = "(search.engine.impl=Solr)")
