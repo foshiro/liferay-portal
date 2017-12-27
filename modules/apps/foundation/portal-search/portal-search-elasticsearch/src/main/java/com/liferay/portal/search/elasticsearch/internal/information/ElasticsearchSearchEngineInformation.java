@@ -49,11 +49,11 @@ public class ElasticsearchSearchEngineInformation
 		String operationMode = StringPool.BLANK;
 
 		if (isEmbedded()) {
-			operationMode = " (Embedded mode)";
+			operationMode = "(Embedded mode)";
 		}
 
 		return String.join(
-			StringPool.BLANK, getVendor(), getVersion(), operationMode);
+			StringPool.SPACE, getVendor(), getVersion(), operationMode);
 }
 
 	@Override
