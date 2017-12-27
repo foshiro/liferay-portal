@@ -14,6 +14,7 @@
 
 package com.liferay.portal.search.elasticsearch.internal.information;
 
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.search.elasticsearch.configuration.ElasticsearchConfiguration;
@@ -44,6 +45,17 @@ public class ElasticsearchSearchEngineInformation
 	}
 
 	@Override
+	public String getStatusString() {
+		String operationMode = StringPool.BLANK;
+
+		if (isEmbedded()) {
+			operationMode = " (Embedded mode)";
+		}
+
+		return getVendor() + getVersion() + operationMode;
+}
+
+	@Override
 	public String getVendor() {
 		return _elasticsearchSearchEngine.getVendor();
 	}
@@ -51,6 +63,11 @@ public class ElasticsearchSearchEngineInformation
 	@Override
 	public String getVersion() {
 		return "2.4";
+	}
+
+	@Override
+	public boolean isEmbedded() {
+		return "EMBEDDED".equals(getOperationMode());
 	}
 
 	@Activate
