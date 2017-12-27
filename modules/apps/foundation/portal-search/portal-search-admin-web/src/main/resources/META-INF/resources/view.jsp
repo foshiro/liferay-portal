@@ -40,7 +40,7 @@ SearchAdminDisplayContext searchAdminDisplayContext = (SearchAdminDisplayContext
 
 	<%= searchAdminDisplayContext.getVendor() %>
 
-	<c:if test="<%= searchAdminDisplayContext.isSearchEngineEmbedded() %>">
+	<c:if test="<%= searchAdminDisplayContext.isEmbedded() %>">
 		(<liferay-ui:message key="embedded" />)
 	</c:if>
 </div>
