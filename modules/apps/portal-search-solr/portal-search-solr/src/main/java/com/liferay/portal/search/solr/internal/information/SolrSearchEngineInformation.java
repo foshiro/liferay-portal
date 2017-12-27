@@ -30,28 +30,8 @@ import org.osgi.service.component.annotations.Reference;
 public class SolrSearchEngineInformation implements SearchEngineInformation {
 
 	@Override
-	public String getOperationMode() {
-		return null;
-	}
-
-	@Override
 	public String getStatusString() {
-		return getVendor() + getVersion();
-	}
-
-	@Override
-	public String getVendor() {
 		return _solrSearchEngine.getVendor();
-	}
-
-	@Override
-	public String getVersion() {
-		return "";
-	}
-
-	@Override
-	public boolean isEmbedded() {
-		return false;
 	}
 
 	@Reference(target = "(search.engine.impl=Solr)")
