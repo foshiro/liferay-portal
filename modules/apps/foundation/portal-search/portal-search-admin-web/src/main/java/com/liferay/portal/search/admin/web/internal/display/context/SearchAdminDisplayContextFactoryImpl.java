@@ -53,9 +53,7 @@ public class SearchAdminDisplayContextFactoryImpl
 			_searchEngineInformationMap.get(searchEngine.getVendor());
 
 		return new SearchAdminDisplayContext(
-			"EMBEDDED".equals(searchEngineInformation.getOperationMode()),
-			searchEngineInformation.getVendor(),
-			searchEngineInformation.getVersion());
+			searchEngineInformation.getStatusString());
 	}
 
 	@Reference(

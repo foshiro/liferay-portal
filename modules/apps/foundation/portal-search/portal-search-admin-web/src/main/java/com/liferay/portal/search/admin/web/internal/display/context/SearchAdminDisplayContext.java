@@ -19,28 +19,14 @@ package com.liferay.portal.search.admin.web.internal.display.context;
  */
 public class SearchAdminDisplayContext {
 
-	public SearchAdminDisplayContext(
-		boolean embedded, String vendor, String version) {
-
-		_embedded = embedded;
-		_vendor = vendor;
-		_version = version;
+	public SearchAdminDisplayContext(String statusString) {
+		this._statusString = statusString;
 	}
 
-	public String getVendor() {
-		return _vendor;
+	public String getStatusString() {
+		return _statusString;
 	}
 
-	public String getVersion() {
-		return _version;
-	}
-
-	public boolean isEmbedded() {
-		return _embedded;
-	}
-
-	private final boolean _embedded;
-	private final String _vendor;
-	private final String _version;
+	private final String _statusString;
 
 }

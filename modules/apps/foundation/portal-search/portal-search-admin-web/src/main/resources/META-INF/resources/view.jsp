@@ -17,8 +17,6 @@
 <%@ page import="com.liferay.portal.kernel.util.WebKeys" %><%@
 page import="com.liferay.portal.search.admin.web.internal.display.context.SearchAdminDisplayContext" %>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
@@ -38,9 +36,5 @@ SearchAdminDisplayContext searchAdminDisplayContext = (SearchAdminDisplayContext
 <div class="container-fluid-1280">
 	<strong><liferay-ui:message key="search-engine" /></strong><br>
 
-	<%= searchAdminDisplayContext.getVendor() %>
-
-	<c:if test="<%= searchAdminDisplayContext.isEmbedded() %>">
-		(<liferay-ui:message key="embedded" />)
-	</c:if>
+	<%= searchAdminDisplayContext.getStatusString() %>
 </div>
