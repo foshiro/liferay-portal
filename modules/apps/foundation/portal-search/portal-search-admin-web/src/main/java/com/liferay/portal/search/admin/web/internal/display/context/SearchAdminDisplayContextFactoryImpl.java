@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.web.information.SearchEngineInformation;
 
 import java.util.Map;
@@ -51,8 +52,14 @@ public class SearchAdminDisplayContextFactoryImpl
 		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine(
 			searchEngineId);
 
+		String vendor = searchEngine.getVendor();
+
+		if (Validator.isNull(vendor)) {
+			vendor = "null";
+		}
+
 		SearchEngineInformation searchEngineInformation =
-			_searchEngineInformationMap.get(searchEngine.getVendor());
+			_searchEngineInformationMap.get(vendor);
 
 		return new SearchAdminDisplayContext(
 			searchEngineInformation.getStatusString());
