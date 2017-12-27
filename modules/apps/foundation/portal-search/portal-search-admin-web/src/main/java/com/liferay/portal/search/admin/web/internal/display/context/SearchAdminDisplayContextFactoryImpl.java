@@ -16,6 +16,8 @@ package com.liferay.portal.search.admin.web.internal.display.context;
 
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineHelper;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.search.web.information.SearchEngineInformation;
 
 import java.util.Map;
@@ -62,16 +64,21 @@ public class SearchAdminDisplayContextFactoryImpl
 		unbind = "unregisterSearchEngineInformation"
 	)
 	protected void registerSearchEngineInformation(
-		SearchEngineInformation searchEngineInformation) {
+		SearchEngineInformation searchEngineInformation,
+		Map<String, Object> properties) {
 
-		_searchEngineInformationMap.put(
-			searchEngineInformation.getVendor(), searchEngineInformation);
+		String vendor = MapUtil.getString(properties, "search.engine.impl");
+
+		_searchEngineInformationMap.put(vendor, searchEngineInformation);
 	}
 
 	protected void unregisterSearchEngineInformation(
-		SearchEngineInformation searchEngineInformation) {
+		SearchEngineInformation searchEngineInformation,
+		Map<String, Object> properties) {
 
-		_searchEngineInformationMap.remove(searchEngineInformation.getVendor());
+		String vendor = GetterUtil.getString(properties, "search.engine.impl");
+
+		_searchEngineInformationMap.remove(vendor);
 	}
 
 	@Reference
