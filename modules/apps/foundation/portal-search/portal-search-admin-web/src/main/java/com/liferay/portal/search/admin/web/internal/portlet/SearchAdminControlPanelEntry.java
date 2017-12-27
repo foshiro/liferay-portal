@@ -14,8 +14,8 @@
 
 package com.liferay.portal.search.admin.web.internal.portlet;
 
-import com.liferay.portal.kernel.portlet.BaseControlPanelEntry;
 import com.liferay.portal.kernel.portlet.ControlPanelEntry;
+import com.liferay.portal.kernel.portlet.OmniadminControlPanelEntry;
 import com.liferay.portal.search.admin.web.constants.SearchAdminPortletKeys;
 
 import org.osgi.service.component.annotations.Component;
@@ -28,5 +28,5 @@ import org.osgi.service.component.annotations.Component;
 	property = {"javax.portlet.name=" + SearchAdminPortletKeys.SEARCH_ADMIN},
 	service = ControlPanelEntry.class
 )
-public class SearchAdminControlPanelEntry extends BaseControlPanelEntry {
+public class SearchAdminControlPanelEntry extends OmniadminControlPanelEntry {
 }
