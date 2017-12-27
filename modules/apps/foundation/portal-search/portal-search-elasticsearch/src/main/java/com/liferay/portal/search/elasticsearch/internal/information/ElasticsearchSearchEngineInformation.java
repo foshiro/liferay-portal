@@ -52,7 +52,8 @@ public class ElasticsearchSearchEngineInformation
 			operationMode = " (Embedded mode)";
 		}
 
-		return getVendor() + getVersion() + operationMode;
+		return String.join(
+			StringPool.BLANK, getVendor(), getVersion(), operationMode);
 }
 
 	@Override
