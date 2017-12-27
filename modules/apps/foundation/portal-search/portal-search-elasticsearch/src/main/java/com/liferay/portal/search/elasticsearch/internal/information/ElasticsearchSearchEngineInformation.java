@@ -40,36 +40,17 @@ public class ElasticsearchSearchEngineInformation
 	implements SearchEngineInformation {
 
 	@Override
-	public String getOperationMode() {
-		return _operationMode.name();
-	}
-
-	@Override
 	public String getStatusString() {
 		String operationMode = StringPool.BLANK;
 
-		if (isEmbedded()) {
+		if ("EMBEDDED".equals(_operationMode.name())) {
 			operationMode = "(Embedded mode)";
 		}
 
 		return String.join(
-			StringPool.SPACE, getVendor(), getVersion(), operationMode);
+			StringPool.SPACE, _elasticsearchSearchEngine.getVendor(), "2.4",
+			operationMode);
 }
-
-	@Override
-	public String getVendor() {
-		return _elasticsearchSearchEngine.getVendor();
-	}
-
-	@Override
-	public String getVersion() {
-		return "2.4";
-	}
-
-	@Override
-	public boolean isEmbedded() {
-		return "EMBEDDED".equals(getOperationMode());
-	}
 
 	@Activate
 	@Modified
