@@ -14,37 +14,33 @@
 
 package com.liferay.portal.search.admin.web.internal.display.context;
 
-import com.liferay.portal.kernel.search.SearchEngine;
-import com.liferay.portal.search.web.information.SearchEngineInformation;
-
 /**
  * @author Adam Brandizzi
  */
 public class SearchAdminDisplayContext {
 
 	public SearchAdminDisplayContext(
-		SearchEngine searchEngine,
-		SearchEngineInformation searchEngineInformation) {
+		boolean embedded, String vendor, String version) {
 
-		_searchEngine = searchEngine;
-		_searchEngineInformation = searchEngineInformation;
-	}
-
-	public String getSearchEngineVersion() {
-		return _searchEngineInformation.getVersion();
+		_embedded = embedded;
+		_vendor = vendor;
+		_version = version;
 	}
 
 	public String getVendor() {
-		return _searchEngine.getVendor();
+		return _vendor;
 	}
 
-	public boolean isSearchEngineEmbedded() {
-		String operationMode = _searchEngineInformation.getOperationMode();
-
-		return "EMBEDDED".equals(operationMode);
+	public String getVersion() {
+		return _version;
 	}
 
-	private final SearchEngine _searchEngine;
-	private final SearchEngineInformation _searchEngineInformation;
+	public boolean isEmbedded() {
+		return _embedded;
+	}
+
+	private final boolean _embedded;
+	private final String _vendor;
+	private final String _version;
 
 }
