@@ -117,6 +117,14 @@ public class CalendarBookingIndexer extends BaseIndexer<CalendarBooking> {
 	}
 
 	@Override
+	public void postProcessContextBooleanFilter(
+			BooleanFilter contextBooleanFilter, SearchContext searchContext)
+		throws Exception {
+
+		addStatus(contextBooleanFilter, searchContext);
+	}
+
+	@Override
 	public void postProcessSearchQuery(
 			BooleanQuery searchQuery, BooleanFilter fullQueryBooleanFilter,
 			SearchContext searchContext)
@@ -125,14 +133,6 @@ public class CalendarBookingIndexer extends BaseIndexer<CalendarBooking> {
 		addSearchLocalizedTerm(
 			searchQuery, searchContext, Field.DESCRIPTION, false);
 		addSearchLocalizedTerm(searchQuery, searchContext, Field.TITLE, false);
-	}
-
-	@Override
-	public void postProcessContextBooleanFilter(
-			BooleanFilter contextBooleanFilter, SearchContext searchContext)
-		throws Exception {
-
-		addStatus(contextBooleanFilter, searchContext);
 	}
 
 	@Override
