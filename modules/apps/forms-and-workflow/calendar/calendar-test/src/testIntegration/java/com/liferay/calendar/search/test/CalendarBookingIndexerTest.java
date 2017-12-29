@@ -26,6 +26,7 @@ import com.liferay.calendar.util.CalendarResourceUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.SearchContext;
@@ -45,6 +46,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerTestRule;
 
@@ -173,6 +175,30 @@ public class CalendarBookingIndexerTest {
 					put(LocaleUtil.US, title);
 				}
 			});
+
+		assertSearchHitsLength(title, 1, LocaleUtil.US);
+	}
+
+	@Test
+	public void testSearchInTrash() throws Exception {
+		setUpSearchContext(_group, _user);
+
+		String title = RandomTestUtil.randomString();
+
+		CalendarBooking calendarBooking = addCalendarBooking(
+			new LocalizedValuesMap() {
+				{
+					put(LocaleUtil.US, title);
+				}
+			});
+
+		CalendarBookingLocalServiceUtil.moveCalendarBookingToTrash(
+			TestPropsValues.getUserId(), calendarBooking);
+
+		assertSearchHitsLength(title, 0, LocaleUtil.US);
+
+		_searchContext.setAttribute(
+			Field.STATUS, new int[] {WorkflowConstants.STATUS_IN_TRASH});
 
 		assertSearchHitsLength(title, 1, LocaleUtil.US);
 	}
