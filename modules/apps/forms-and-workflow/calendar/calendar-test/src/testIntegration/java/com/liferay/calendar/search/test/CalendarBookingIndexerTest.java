@@ -16,6 +16,7 @@ package com.liferay.calendar.search.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.calendar.model.Calendar;
+import com.liferay.calendar.model.CalendarBooking;
 import com.liferay.calendar.model.CalendarBookingConstants;
 import com.liferay.calendar.model.CalendarResource;
 import com.liferay.calendar.search.CalendarBookingIndexer;
@@ -203,7 +204,7 @@ public class CalendarBookingIndexerTest {
 		return searchContext;
 	}
 
-	protected void addCalendarBooking(LocalizedValuesMap titleMap) {
+	protected CalendarBooking addCalendarBooking(LocalizedValuesMap titleMap) {
 		try {
 			ServiceContext serviceContext = new ServiceContext();
 
@@ -225,7 +226,7 @@ public class CalendarBookingIndexerTest {
 
 			HashMap<Locale, String> hashMap = new HashMap<>();
 
-			CalendarBookingLocalServiceUtil.addCalendarBooking(
+			return CalendarBookingLocalServiceUtil.addCalendarBooking(
 				_user.getUserId(), calendar.getCalendarId(), new long[0],
 				CalendarBookingConstants.PARENT_CALENDAR_BOOKING_ID_DEFAULT, 0,
 				titleMap.getValues(), hashMap, null, startTime, endTime, false,
