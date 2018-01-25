@@ -10,6 +10,7 @@ Import-Package:\
 	com.liferay.alloy.taglib.liferay.base,\
 	com.liferay.dynamic.data.mapping.taglib.servlet.taglib,\
 	com.liferay.dynamic.data.mapping.taglib.servlet.taglib.base,\
+	com.liferay.portal.search.taglib.servlet.taglib,\
 	com.liferay.staging.taglib.servlet.taglib,\
 	com.liferay.taglib,\
 	com.liferay.taglib.aui,\

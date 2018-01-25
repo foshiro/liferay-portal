@@ -1,0 +1,13 @@
+Bundle-Name: Liferay Portal Search Taglib
+Bundle-SymbolicName: com.liferay.portal.search.taglib
+Bundle-Version: 1.0.0
+Export-Package: com.liferay.portal.search.taglib.servlet.taglib
+Liferay-JS-Config: /META-INF/resources/js/config.js
+Liferay-Releng-Module-Group-Description:
+Liferay-Releng-Module-Group-Title: Search
+Provide-Capability:\
+	osgi.extender;\
+		osgi.extender="jsp.taglib";\
+		uri="http://liferay.com/tld/liferay-search";\
+		version:Version="${Bundle-Version}"
+Web-ContextPath: /portal-search-taglib

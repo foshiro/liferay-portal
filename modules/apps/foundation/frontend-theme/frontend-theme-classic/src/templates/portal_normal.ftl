@@ -28,10 +28,7 @@
 
 				<#if show_header_search>
 					<div class="ml-auto mr-4 navbar-form" role="search">
-						<@liferay_portlet["runtime"]
-							defaultPreferences="${preferences}"
-							portletName="com_liferay_portal_search_web_search_bar_portlet_SearchBarPortlet"
-						/>
+						<@liferay.search default_preferences="${preferences}" />
 					</div>
 				</#if>
 

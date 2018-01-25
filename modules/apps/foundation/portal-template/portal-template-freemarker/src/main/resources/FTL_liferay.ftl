@@ -122,11 +122,7 @@ ${languageUtil.format(locale, key, arguments)}</#macro>
 	default_preferences = ""
 >
 	<#if is_setup_complete>
-		<@liferay_portlet["runtime"]
-			defaultPreferences=default_preferences
-			portletProviderAction=portletProviderAction.VIEW
-			portletProviderClassName="com.liferay.admin.kernel.util.PortalSearchApplicationType$Search"
-		/>
+		<@liferay_search["search-bar"] />
 	</#if>
 </#macro>
 
