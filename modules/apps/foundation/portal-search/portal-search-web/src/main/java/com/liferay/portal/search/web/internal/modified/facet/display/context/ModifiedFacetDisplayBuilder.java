@@ -59,6 +59,7 @@ public class ModifiedFacetDisplayBuilder implements Serializable {
 			buildCustomRangeTermDisplayContext());
 		modifiedFacetDisplayContext.setDefaultTermDisplayContext(
 			buildDefaultTermDisplay());
+		modifiedFacetDisplayContext.setRenderNothing(_totalHits <= 0);
 		modifiedFacetDisplayContext.setNothingSelected(isNothingSelected());
 		modifiedFacetDisplayContext.setParameterName(_parameterName);
 		modifiedFacetDisplayContext.setTermDisplayContexts(
@@ -120,6 +121,10 @@ public class ModifiedFacetDisplayBuilder implements Serializable {
 
 	public void setToParameterValue(String to) {
 		_to = to;
+	}
+
+	public void setTotalHits(int totalHits) {
+		_totalHits = totalHits;
 	}
 
 	protected ModifiedFacetCalendarDisplayContext
@@ -291,5 +296,6 @@ public class ModifiedFacetDisplayBuilder implements Serializable {
 	private List<String> _selectedRanges = Collections.emptyList();
 	private TimeZone _timeZone;
 	private String _to;
+	private int _totalHits;
 
 }

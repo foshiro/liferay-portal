@@ -182,6 +182,32 @@ public class ModifiedFacetDisplayBuilderTest {
 		Assert.assertFalse(modifiedFaceDisplayContext.isNothingSelected());
 	}
 
+	@Test
+	public void testIsRenderNothingFalseWithHits() {
+		ModifiedFacetDisplayBuilder modifiedFacetDisplayBuilder =
+			createDisplayBuilder();
+
+		modifiedFacetDisplayBuilder.setTotalHits(1);
+
+		ModifiedFacetDisplayContext modifiedFaceDisplayContext =
+			modifiedFacetDisplayBuilder.build();
+
+		Assert.assertFalse(modifiedFaceDisplayContext.isRenderNothing());
+	}
+
+	@Test
+	public void testIsRenderNothingTrueWithNoHits() {
+		ModifiedFacetDisplayBuilder modifiedFacetDisplayBuilder =
+			createDisplayBuilder();
+
+		modifiedFacetDisplayBuilder.setTotalHits(0);
+
+		ModifiedFacetDisplayContext modifiedFaceDisplayContext =
+			modifiedFacetDisplayBuilder.build();
+
+		Assert.assertTrue(modifiedFaceDisplayContext.isRenderNothing());
+	}
+
 	protected void addRangeJSONObject(
 		JSONArray jsonArray, String label, String range) {
 
