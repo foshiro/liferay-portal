@@ -24,6 +24,8 @@ page import="com.liferay.portal.search.web.internal.search.bar.portlet.SearchBar
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
+<portlet:defineObjects />
+
 <%
 SearchBarPortletDisplayContext searchBarPortletDisplayContext = (SearchBarPortletDisplayContext)java.util.Objects.requireNonNull(request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT));
 %>
@@ -66,20 +68,16 @@ SearchBarPortletDisplayContext searchBarPortletDisplayContext = (SearchBarPortle
 			</c:choose>
 
 			<aui:field-wrapper cssClass="input-group-btn search-field" inlineField="<%= true %>">
-				<liferay-ui:icon cssClass="icon-monospaced" icon="search" markupView="lexicon" onClick='<%= "search();" %>' url="javascript:;" />
+				<liferay-ui:icon cssClass="icon-monospaced" icon="search" markupView="lexicon" onClick='<%= renderResponse.getNamespace() + "searchBar.search();" %>' url="javascript:;" />
 			</aui:field-wrapper>
 		</div>
 	</aui:fieldset>
 </aui:form>
 
-<aui:script>
-	function <portlet:namespace />search() {
-		var keywords = document.<portlet:namespace />fm.<portlet:namespace />keywords.value;
+<aui:script use="liferay-search-bar">
+var form = A.one('#<portlet:namespace />fm');
 
-		keywords = keywords.replace(/^\s+|\s+$/, '');
+var input = A.one('#<portlet:namespace /><%= searchBarPortletDisplayContext.getKeywordsParameterName() %>');
 
-		if (keywords != '') {
-			submitForm(document.<portlet:namespace />fm);
-		}
-	}
+window.<portlet:namespace />searchBar = new Liferay.Search.SearchBar(form, input);
 </aui:script>
