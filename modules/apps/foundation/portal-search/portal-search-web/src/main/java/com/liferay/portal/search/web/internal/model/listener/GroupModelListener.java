@@ -14,6 +14,7 @@
 
 package com.liferay.portal.search.web.internal.model.listener;
 
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.log.Log;
@@ -34,6 +35,7 @@ import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.language.LanguageResources;
+import com.liferay.portal.search.web.internal.configuration.SearchPageConfiguration;
 import com.liferay.portal.search.web.internal.layout.prototype.DefaultSearchLayoutPrototypeCustomizer;
 import com.liferay.portal.search.web.layout.prototype.SearchLayoutPrototypeCustomizer;
 import com.liferay.sites.kernel.util.SitesUtil;
@@ -44,7 +46,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -53,7 +57,10 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 /**
  * @author Adam Brandizzi
  */
-@Component(immediate = true, service = ModelListener.class)
+@Component(
+	configurationPid = "com.liferay.portal.search.web.internal.configuration.SearchPageConfiguration",
+	immediate = true, service = ModelListener.class
+)
 public class GroupModelListener extends BaseModelListener<Group> {
 
 	@Override
@@ -61,6 +68,15 @@ public class GroupModelListener extends BaseModelListener<Group> {
 		if (group.isSite()) {
 			copyLayoutPrototype(group, group.getCompanyId());
 		}
+	}
+
+	@Activate
+	@Modified
+	protected void activate(Map<String, Object> properties) {
+		_searchPageConfiguration = ConfigurableUtil.createConfigurable(
+			SearchPageConfiguration.class, properties);
+
+		_searchPageName = _searchPageConfiguration.searchPageName();
 	}
 
 	protected void copyLayoutPrototype(Group group, long companyId) {
@@ -124,7 +140,7 @@ public class GroupModelListener extends BaseModelListener<Group> {
 	}
 
 	protected Map<Locale, String> getFriendlyURLMap() {
-		return LocalizationUtil.getLocalizationMap("/search");
+		return LocalizationUtil.getLocalizationMap("/" + _searchPageName);
 	}
 
 	protected String getLayoutTemplateId() {
@@ -179,5 +195,7 @@ public class GroupModelListener extends BaseModelListener<Group> {
 	private final SearchLayoutPrototypeCustomizer
 		_defaultSearchLayoutPrototypeCustomizer =
 			new DefaultSearchLayoutPrototypeCustomizer();
+	private SearchPageConfiguration _searchPageConfiguration;
+	private String _searchPageName;
 
 }
