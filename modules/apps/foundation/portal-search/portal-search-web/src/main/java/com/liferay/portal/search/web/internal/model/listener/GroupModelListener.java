@@ -65,9 +65,7 @@ public class GroupModelListener extends BaseModelListener<Group> {
 
 	@Override
 	public void onAfterCreate(Group group) throws ModelListenerException {
-		if (group.isSite()) {
-			copyLayoutPrototype(group, group.getCompanyId());
-		}
+		copyLayoutPrototype(group, group.getCompanyId());
 	}
 
 	@Activate
@@ -139,8 +137,12 @@ public class GroupModelListener extends BaseModelListener<Group> {
 		return clazz.getClassLoader();
 	}
 
+	protected String getFriendlyURL() {
+		return "/" + _searchPageName;
+	}
+
 	protected Map<Locale, String> getFriendlyURLMap() {
-		return LocalizationUtil.getLocalizationMap("/" + _searchPageName);
+		return LocalizationUtil.getLocalizationMap(getFriendlyURL());
 	}
 
 	protected String getLayoutTemplateId() {
@@ -169,10 +171,27 @@ public class GroupModelListener extends BaseModelListener<Group> {
 
 		TransactionCommitCallbackUtil.registerCallback(
 			() -> {
-				createLayout(group, layoutPrototype);
+				if (shouldCreateSite(group)) {
+					createLayout(group, layoutPrototype);
+				}
 
 				return null;
 			});
+	}
+
+	protected boolean shouldCreateSite(Group group) {
+		if (!group.isSite()) {
+			return false;
+		}
+
+		Layout layout = layoutLocalService.fetchLayoutByFriendlyURL(
+			group.getGroupId(), false, getFriendlyURL());
+
+		if (layout != null) {
+			return false;
+		}
+
+		return true;
 	}
 
 	@Reference
