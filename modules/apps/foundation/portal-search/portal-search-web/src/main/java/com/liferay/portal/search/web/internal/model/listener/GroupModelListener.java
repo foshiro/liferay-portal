@@ -15,44 +15,23 @@
 package com.liferay.portal.search.web.internal.model.listener;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.model.LayoutConstants;
-import com.liferay.portal.kernel.model.LayoutPrototype;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutPrototypeLocalService;
-import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.AggregateResourceBundleLoader;
-import com.liferay.portal.kernel.util.LocalizationUtil;
-import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.language.LanguageResources;
 import com.liferay.portal.search.web.internal.configuration.SearchPageConfiguration;
-import com.liferay.portal.search.web.internal.layout.prototype.DefaultSearchLayoutPrototypeCustomizer;
-import com.liferay.portal.search.web.layout.prototype.SearchLayoutPrototypeCustomizer;
-import com.liferay.sites.kernel.util.SitesUtil;
 
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Adam Brandizzi
@@ -65,98 +44,25 @@ public class GroupModelListener extends BaseModelListener<Group> {
 
 	@Override
 	public void onAfterCreate(Group group) throws ModelListenerException {
-		copyLayoutPrototype(group, group.getCompanyId());
+		_searchLayoutCreator.copyLayoutPrototype(group);
 	}
 
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		_searchPageConfiguration = ConfigurableUtil.createConfigurable(
-			SearchPageConfiguration.class, properties);
+		SearchPageConfiguration searchPageConfiguration =
+			ConfigurableUtil.createConfigurable(
+				SearchPageConfiguration.class, properties);
 
-		_searchPageName = _searchPageConfiguration.searchPageName();
-	}
-
-	protected void copyLayoutPrototype(Group group, long companyId) {
-		Optional<LayoutPrototype> layoutPrototypeOptional = findLayoutPrototype(
-			companyId);
-
-		layoutPrototypeOptional.ifPresent(
-			layoutPrototype -> registerCreateLayoutTransactionCallback(
-				group, layoutPrototype));
-	}
-
-	protected void createLayout(Group group, LayoutPrototype layoutPrototype)
-		throws Exception {
-
-		ServiceContext serviceContext =
-			ServiceContextThreadLocal.getServiceContext();
-
-		Layout baseLayout = layoutPrototype.getLayout();
-
-		serviceContext.setAttribute("layoutPrototypeLinkEnabled", Boolean.TRUE);
-
-		serviceContext.setAttribute(
-			"layoutPrototypeUuid", layoutPrototype.getUuid());
-
-		Layout layout = layoutLocalService.addLayout(
-			group.getCreatorUserId(), group.getGroupId(), false,
-			LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
-			layoutPrototype.getNameMap(), baseLayout.getTitleMap(),
-			layoutPrototype.getDescriptionMap(), baseLayout.getKeywordsMap(),
-			baseLayout.getRobotsMap(), LayoutConstants.TYPE_PORTLET,
-			baseLayout.getTypeSettings(), baseLayout.isPrivateLayout(),
-			getFriendlyURLMap(), serviceContext);
-
-		// Force propagation from page template to page. See LPS-48430.
-
-		SitesUtil.mergeLayoutPrototypeLayout(layout.getGroup(), layout);
-	}
-
-	protected Optional<LayoutPrototype> findLayoutPrototype(long companyId) {
-		List<LayoutPrototype> layoutPrototypes =
-			layoutPrototypeLocalService.getLayoutPrototypes(
-				QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-
-		Map<Locale, String> nameMap = getLocalizationMap(
-			"layout-prototype-search-title", getResourceBundleLoader());
-
-		Stream<LayoutPrototype> stream = layoutPrototypes.stream();
-
-		return stream.filter(
-			layoutPrototype -> layoutPrototype.getCompanyId() == companyId
-		).filter(
-			layoutPrototype ->
-				nameMap.equals(layoutPrototype.getNameMap())
-		).findAny();
+		_searchLayoutCreator = new SearchLayoutCreator(
+			layoutLocalService, layoutPrototypeLocalService,
+			searchPageConfiguration, getResourceBundleLoader());
 	}
 
 	protected ClassLoader getClassLoader() {
 		Class<?> clazz = getClass();
 
 		return clazz.getClassLoader();
-	}
-
-	protected String getFriendlyURL() {
-		return "/" + _searchPageName;
-	}
-
-	protected Map<Locale, String> getFriendlyURLMap() {
-		return LocalizationUtil.getLocalizationMap(getFriendlyURL());
-	}
-
-	protected String getLayoutTemplateId() {
-		if (searchLayoutPrototypeCustomizer != null) {
-			return searchLayoutPrototypeCustomizer.getLayoutTemplateId();
-		}
-
-		return _defaultSearchLayoutPrototypeCustomizer.getLayoutTemplateId();
-	}
-
-	protected Map<Locale, String> getLocalizationMap(
-		String key, ResourceBundleLoader resourceBundleLoader) {
-
-		return ResourceBundleUtil.getLocalizationMap(resourceBundleLoader, key);
 	}
 
 	protected AggregateResourceBundleLoader getResourceBundleLoader() {
@@ -166,55 +72,12 @@ public class GroupModelListener extends BaseModelListener<Group> {
 			LanguageResources.RESOURCE_BUNDLE_LOADER);
 	}
 
-	protected void registerCreateLayoutTransactionCallback(
-		Group group, LayoutPrototype layoutPrototype) {
-
-		TransactionCommitCallbackUtil.registerCallback(
-			() -> {
-				if (shouldCreateSite(group)) {
-					createLayout(group, layoutPrototype);
-				}
-
-				return null;
-			});
-	}
-
-	protected boolean shouldCreateSite(Group group) {
-		if (!group.isSite()) {
-			return false;
-		}
-
-		Layout layout = layoutLocalService.fetchLayoutByFriendlyURL(
-			group.getGroupId(), false, getFriendlyURL());
-
-		if (layout != null) {
-			return false;
-		}
-
-		return true;
-	}
-
 	@Reference
 	protected LayoutLocalService layoutLocalService;
 
 	@Reference
 	protected LayoutPrototypeLocalService layoutPrototypeLocalService;
 
-	@Reference(
-		cardinality = ReferenceCardinality.OPTIONAL,
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY
-	)
-	protected volatile SearchLayoutPrototypeCustomizer
-		searchLayoutPrototypeCustomizer;
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		GroupModelListener.class);
-
-	private final SearchLayoutPrototypeCustomizer
-		_defaultSearchLayoutPrototypeCustomizer =
-			new DefaultSearchLayoutPrototypeCustomizer();
-	private SearchPageConfiguration _searchPageConfiguration;
-	private String _searchPageName;
+	private SearchLayoutCreator _searchLayoutCreator;
 
 }
