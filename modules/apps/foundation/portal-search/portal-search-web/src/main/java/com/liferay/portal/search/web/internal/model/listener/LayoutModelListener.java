@@ -16,8 +16,9 @@ package com.liferay.portal.search.web.internal.model.listener;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModelListener;
-import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutPrototypeLocalService;
@@ -40,11 +41,16 @@ import org.osgi.service.component.annotations.Reference;
 	configurationPid = "com.liferay.portal.search.web.internal.configuration.SearchPageConfiguration",
 	immediate = true, service = ModelListener.class
 )
-public class GroupModelListener extends BaseModelListener<Group> {
+public class LayoutModelListener extends BaseModelListener<Layout> {
 
 	@Override
-	public void onAfterCreate(Group group) throws ModelListenerException {
-		_searchLayoutCreator.copyLayoutPrototype(group);
+	public void onAfterCreate(Layout layout) throws ModelListenerException {
+		try {
+			_searchLayoutCreator.copyLayoutPrototype(layout.getGroup());
+		}
+		catch (PortalException pe) {
+			throw new ModelListenerException(pe.getMessage(), pe);
+		}
 	}
 
 	@Activate
