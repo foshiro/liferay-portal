@@ -29,6 +29,12 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 public interface SearchPageConfiguration {
 
 	@Meta.AD(
+		deflt = "true", description = "enable-search-page-creation-help",
+		name = "enable-search-page-creation", required = false
+	)
+	public boolean enableSearchPageCreation();
+
+	@Meta.AD(
 		deflt = "search", description = "search-page-name-help",
 		name = "search-page-name", required = false
 	)

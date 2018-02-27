@@ -135,6 +135,10 @@ public class SearchLayoutCreator {
 	}
 
 	protected boolean shouldCreateSite(Group group) {
+		if (!_searchPageConfiguration.enableSearchPageCreation()) {
+			return false;
+		}
+
 		if (!group.isSite()) {
 			return false;
 		}
