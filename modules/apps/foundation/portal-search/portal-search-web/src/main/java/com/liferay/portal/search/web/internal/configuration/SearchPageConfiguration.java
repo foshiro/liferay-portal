@@ -35,9 +35,9 @@ public interface SearchPageConfiguration {
 	public boolean enableSearchPageCreation();
 
 	@Meta.AD(
-		deflt = "search", description = "search-page-name-help",
-		name = "search-page-name", required = false
+		deflt = "/search", description = "search-page-friendly-url-help",
+		name = "search-page-friendly-url", required = false
 	)
-	public String searchPageName();
+	public String searchPageFriendlyURL();
 
 }

@@ -108,7 +108,7 @@ public class SearchLayoutCreator {
 	}
 
 	protected String getFriendlyURL() {
-		return "/" + _searchPageConfiguration.searchPageName();
+		return _searchPageConfiguration.searchPageFriendlyURL();
 	}
 
 	protected Map<Locale, String> getFriendlyURLMap() {
