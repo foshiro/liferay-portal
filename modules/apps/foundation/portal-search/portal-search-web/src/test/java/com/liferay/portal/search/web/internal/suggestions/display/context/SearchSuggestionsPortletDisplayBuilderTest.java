@@ -220,10 +220,8 @@ public class SearchSuggestionsPortletDisplayBuilderTest {
 	}
 
 	protected QuerySuggestion createQuerySuggestion() {
-		QuerySuggestion querySuggstion = new QuerySuggestion();
-
-		querySuggstion.setFormattedQuery(RandomTestUtil.randomString());
-		querySuggstion.setSearchURL(RandomTestUtil.randomString());
+		QuerySuggestion querySuggstion = new QuerySuggestion(
+			RandomTestUtil.randomString(), RandomTestUtil.randomString());
 
 		return querySuggstion;
 	}
