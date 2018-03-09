@@ -19,6 +19,11 @@ package com.liferay.portal.search.web.internal.suggestions.display;
  */
 public class QuerySuggestion {
 
+	public QuerySuggestion(String formattedQuery, String searchURL) {
+		_formattedQuery = formattedQuery;
+		_searchURL = searchURL;
+	}
+
 	public String getFormattedQuery() {
 		return _formattedQuery;
 	}
@@ -27,15 +32,7 @@ public class QuerySuggestion {
 		return _searchURL;
 	}
 
-	public void setFormattedQuery(String formattedQuery) {
-		_formattedQuery = formattedQuery;
-	}
-
-	public void setSearchURL(String searchURL) {
-		_searchURL = searchURL;
-	}
-
-	private String _formattedQuery;
-	private String _searchURL;
+	private final String _formattedQuery;
+	private final String _searchURL;
 
 }
