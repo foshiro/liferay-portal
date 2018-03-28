@@ -16,11 +16,13 @@ package com.liferay.portal.search.web.internal.facet.display.context;
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.search.facet.Facet;
+import com.liferay.portal.kernel.search.facet.collector.DefaultTermCollector;
 import com.liferay.portal.kernel.search.facet.collector.FacetCollector;
 import com.liferay.portal.kernel.search.facet.collector.TermCollector;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.search.web.internal.facet.display.builder.FolderSearchFacetDisplayBuilder;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,6 +69,36 @@ public class FolderSearchFacetDisplayContextTest {
 			StringPool.BLANK,
 			folderSearchFacetDisplayContext.getParameterValue());
 		Assert.assertTrue(folderSearchFacetDisplayContext.isNothingSelected());
+		Assert.assertTrue(folderSearchFacetDisplayContext.isRenderNothing());
+	}
+
+	@Test
+	public void testEmptySearchResultsWithEmptyTermCollectors()
+		throws Exception {
+
+		Mockito.when(
+			_facetCollector.getTermCollectors()
+		).thenReturn(
+			Collections.emptyList()
+		);
+
+		FolderSearchFacetDisplayContext folderSearchFacetDisplayContext =
+			createDisplayContext(null);
+
+		Assert.assertTrue(folderSearchFacetDisplayContext.isRenderNothing());
+	}
+
+	@Test
+	public void testEmptySearchResultsWithNullTermCollector() throws Exception {
+		Mockito.when(
+			_facetCollector.getTermCollectors()
+		).thenReturn(
+			Arrays.asList(new DefaultTermCollector("0", 200))
+		);
+
+		FolderSearchFacetDisplayContext folderSearchFacetDisplayContext =
+			createDisplayContext(null);
+
 		Assert.assertTrue(folderSearchFacetDisplayContext.isRenderNothing());
 	}
 
