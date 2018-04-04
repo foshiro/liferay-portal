@@ -89,20 +89,6 @@ public class FolderSearchFacetDisplayContextTest {
 	}
 
 	@Test
-	public void testEmptySearchResultsWithNullTermCollector() throws Exception {
-		Mockito.when(
-			_facetCollector.getTermCollectors()
-		).thenReturn(
-			Arrays.asList(new DefaultTermCollector("0", 200))
-		);
-
-		FolderSearchFacetDisplayContext folderSearchFacetDisplayContext =
-			createDisplayContext(null);
-
-		Assert.assertTrue(folderSearchFacetDisplayContext.isRenderNothing());
-	}
-
-	@Test
 	public void testEmptySearchResultsWithPreviousSelection() throws Exception {
 		long folderId = RandomTestUtil.randomLong();
 		String title = RandomTestUtil.randomString();
@@ -140,6 +126,22 @@ public class FolderSearchFacetDisplayContextTest {
 			facetParam, folderSearchFacetDisplayContext.getParameterValue());
 		Assert.assertFalse(folderSearchFacetDisplayContext.isNothingSelected());
 		Assert.assertFalse(folderSearchFacetDisplayContext.isRenderNothing());
+	}
+
+	@Test
+	public void testEmptySearchResultsWithUnmatchedTermCollector()
+		throws Exception {
+
+		Mockito.when(
+			_facetCollector.getTermCollectors()
+		).thenReturn(
+			Arrays.asList(new DefaultTermCollector("0", 200))
+		);
+
+		FolderSearchFacetDisplayContext folderSearchFacetDisplayContext =
+			createDisplayContext(null);
+
+		Assert.assertTrue(folderSearchFacetDisplayContext.isRenderNothing());
 	}
 
 	@Test
