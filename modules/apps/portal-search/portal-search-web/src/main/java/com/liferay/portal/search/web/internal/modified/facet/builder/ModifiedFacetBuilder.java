@@ -66,6 +66,10 @@ public class ModifiedFacetBuilder {
 		_customRangeTo = customRangeTo;
 	}
 
+	public void setRangesJSONArray(JSONArray rangesJSONArray) {
+		_rangesJSONArray = rangesJSONArray;
+	}
+
 	public void setSearchContext(SearchContext searchContext) {
 		_searchContext = searchContext;
 	}
@@ -92,7 +96,7 @@ public class ModifiedFacetBuilder {
 		return facetConfiguration;
 	}
 
-	protected JSONArray getRangesJSONArray(Calendar calendar) {
+	protected JSONArray getDefaultRangesJSONArray(Calendar calendar) {
 		JSONArray rangesJSONArray = JSONFactoryUtil.createJSONArray();
 
 		Map<String, String> map = _dateRangeFactory.getRangeStrings(calendar);
@@ -108,6 +112,14 @@ public class ModifiedFacetBuilder {
 			});
 
 		return rangesJSONArray;
+	}
+
+	protected JSONArray getRangesJSONArray(Calendar calendar) {
+		if (_rangesJSONArray == null) {
+			_rangesJSONArray = getDefaultRangesJSONArray(calendar);
+		}
+
+		return _rangesJSONArray;
 	}
 
 	private String _getSelectedRangeString() {
@@ -132,6 +144,7 @@ public class ModifiedFacetBuilder {
 	private String _customRangeTo;
 	private final DateRangeFactory _dateRangeFactory;
 	private final ModifiedFacetFactory _modifiedFacetFactory;
+	private JSONArray _rangesJSONArray;
 	private SearchContext _searchContext;
 	private String[] _selectedRanges;
 
