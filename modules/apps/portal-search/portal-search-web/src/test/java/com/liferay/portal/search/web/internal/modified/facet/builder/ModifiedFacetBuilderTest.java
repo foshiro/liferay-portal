@@ -84,6 +84,22 @@ public class ModifiedFacetBuilderTest {
 	}
 
 	@Test
+	public void testUseRangeSelectionFromSetRanges() {
+		ModifiedFacetBuilder modifiedFacetBuilder =
+			createModifiedFacetBuilder();
+
+		JSONArray rangesJSONArray = createRangesJSONArray(
+			"eighties", "[19800101000000 TO 19891231235959]");
+
+		modifiedFacetBuilder.setRangesJSONArray(rangesJSONArray);
+
+		modifiedFacetBuilder.setSelectedRanges("eighties");
+
+		assertRange(
+			"19800101000000", "19891231235959", modifiedFacetBuilder.build());
+	}
+
+	@Test
 	public void testUseSetRanges() {
 		ModifiedFacetBuilder modifiedFacetBuilder =
 			createModifiedFacetBuilder();
