@@ -27,6 +27,7 @@ import com.liferay.portal.search.facet.Facet;
 import com.liferay.portal.search.facet.modified.ModifiedFacetFactory;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -122,6 +123,20 @@ public class ModifiedFacetBuilder {
 		return _rangesJSONArray;
 	}
 
+	protected Map<String, String> getRangesMap(JSONArray rangesJSONArray) {
+		Map<String, String> rangesMap = new HashMap<>();
+
+		for (int i = 0; i < rangesJSONArray.length(); i++) {
+			JSONObject rangeJSONObject = rangesJSONArray.getJSONObject(i);
+
+			rangesMap.put(
+				rangeJSONObject.getString("label"),
+				rangeJSONObject.getString("range"));
+		}
+
+		return rangesMap;
+	}
+
 	private String _getSelectedRangeString() {
 		if (!Validator.isBlank(_customRangeFrom) &&
 			!Validator.isBlank(_customRangeTo)) {
@@ -131,9 +146,17 @@ public class ModifiedFacetBuilder {
 		}
 
 		if (!ArrayUtil.isEmpty(_selectedRanges)) {
-			return _dateRangeFactory.getRangeString(
-				_selectedRanges[_selectedRanges.length - 1],
-				_calendarFactory.getCalendar());
+			Map<String, String> rangesMap = getRangesMap(_rangesJSONArray);
+
+			String selectedRange = _selectedRanges[_selectedRanges.length - 1];
+
+			if (rangesMap.containsKey(selectedRange)) {
+				return rangesMap.get(selectedRange);
+			}
+			else {
+				return _dateRangeFactory.getRangeString(
+					selectedRange, _calendarFactory.getCalendar());
+			}
 		}
 
 		return null;
