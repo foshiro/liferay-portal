@@ -109,34 +109,17 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 	public void testMultiLanguageSummaryWithBrazilLocale() throws Exception {
 		String content = "Clocks are great for telling time";
 
-		setContent(
-			new JournalArticleContent() {
-				{
-					defaultLocale = LocaleUtil.US;
-					name = "content";
-
-					put(LocaleUtil.US, content);
-				}
-			});
+		setContent(content, LocaleUtil.US);
 
 		String description = "On clocks and time";
 
-		setDescription(
-			new JournalArticleDescription() {
-				{
-					put(LocaleUtil.US, description);
-				}
-			});
+		setDescription(LocaleUtil.US, description);
 
 		String title = "Clocks";
 
-		setTitle(
-			new JournalArticleTitle() {
-				{
-					put(LocaleUtil.US, title);
-				}
-			});
+		setTitle(LocaleUtil.US, title);
 
+		addArticle();
 		addArticle();
 
 		String originalContent = "Soccer teams are fun to watch";
@@ -144,37 +127,21 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 			"Times de futebol são divertidos de assistir";
 
 		setContent(
-			new JournalArticleContent() {
-				{
-					defaultLocale = LocaleUtil.US;
-					name = "content";
-
-					put(LocaleUtil.US, originalContent);
-					put(LocaleUtil.BRAZIL, translatedContent);
-				}
-			});
+			originalContent, LocaleUtil.US, translatedContent,
+			LocaleUtil.BRAZIL);
 
 		String originalDescription = "On soccer teams";
 		String translatedDescription = "Sobre times de futebol";
 
 		setDescription(
-			new JournalArticleDescription() {
-				{
-					put(LocaleUtil.US, originalDescription);
-					put(LocaleUtil.BRAZIL, translatedDescription);
-				}
-			});
+			originalDescription, LocaleUtil.US, translatedDescription,
+			LocaleUtil.BRAZIL);
 
 		String originalTitle = "Soccer";
 		String translatedTitle = "Futebol";
 
 		setTitle(
-			new JournalArticleTitle() {
-				{
-					put(LocaleUtil.US, originalTitle);
-					put(LocaleUtil.BRAZIL, translatedTitle);
-				}
-			});
+			LocaleUtil.US, LocaleUtil.BRAZIL, originalTitle, translatedTitle);
 
 		addArticle();
 
@@ -204,33 +171,15 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 	public void testMultiLanguageSummaryWithUSLocale() throws Exception {
 		String content = "Clocks are great for telling time";
 
-		setContent(
-			new JournalArticleContent() {
-				{
-					defaultLocale = LocaleUtil.US;
-					name = "content";
-
-					put(LocaleUtil.US, content);
-				}
-			});
+		setContent(content, LocaleUtil.US);
 
 		String description = "On clocks and time";
 
-		setDescription(
-			new JournalArticleDescription() {
-				{
-					put(LocaleUtil.US, description);
-				}
-			});
+		setDescription(LocaleUtil.US, description);
 
 		String title = "Clocks";
 
-		setTitle(
-			new JournalArticleTitle() {
-				{
-					put(LocaleUtil.US, title);
-				}
-			});
+		setTitle(LocaleUtil.US, title);
 
 		addArticle();
 
@@ -239,26 +188,14 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 			"Times de futebol são divertidos de assistir";
 
 		setContent(
-			new JournalArticleContent() {
-				{
-					defaultLocale = LocaleUtil.US;
-					name = "content";
-
-					put(LocaleUtil.US, originalContent);
-					put(LocaleUtil.BRAZIL, translatedContent);
-				}
-			});
+			originalContent, LocaleUtil.US, translatedContent,
+			LocaleUtil.BRAZIL);
 
 		String originalTitle = "Soccer";
 		String translatedTitle = "Futebol";
 
 		setTitle(
-			new JournalArticleTitle() {
-				{
-					put(LocaleUtil.US, originalTitle);
-					put(LocaleUtil.BRAZIL, translatedTitle);
-				}
-			});
+			LocaleUtil.US, LocaleUtil.BRAZIL, originalTitle, translatedTitle);
 
 		addArticle();
 
@@ -406,14 +343,71 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 		_journalArticleBuilder.setContent(journalArticleContent);
 	}
 
+	protected void setContent(String content, Locale locale) {
+		setContent(
+			new JournalArticleContent() {
+				{
+					defaultLocale = locale;
+					name = "content";
+
+					put(locale, content);
+				}
+			});
+	}
+
+	protected void setContent(String originalContent, Locale originalLocale,
+			String translatedContent, Locale translatedLocale) {
+
+		setContent(
+			new JournalArticleContent() {
+				{
+					defaultLocale = originalLocale;
+					name = "content";
+
+					put(originalLocale, originalContent);
+					put(translatedLocale, translatedContent);
+				}
+			});
+	}
+
 	protected void setDescription(
 		JournalArticleDescription journalArticleDescription) {
 
 		_journalArticleBuilder.setDescription(journalArticleDescription);
 	}
 
+	protected void setDescription(Locale locale, String description) {
+		setDescription(
+			new JournalArticleDescription() {
+				{
+					put(locale, description);
+				}
+			});
+	}
+
 	protected void setTitle(JournalArticleTitle journalArticleTitle) {
 		_journalArticleBuilder.setTitle(journalArticleTitle);
+	}
+
+	protected void setTitle(Locale originalLocale, Locale translatedLocale,
+			String originalTitle, String translatedTitle) {
+
+		setTitle(
+			new JournalArticleTitle() {
+				{
+					put(originalLocale, originalTitle);
+					put(translatedLocale, translatedTitle);
+				}
+			});
+	}
+
+	protected void setTitle(Locale locale, String title) {
+		setTitle(
+			new JournalArticleTitle() {
+				{
+					put(locale, title);
+				}
+			});
 	}
 
 	private SearchContext _getSearchContext(String searchTerm, Locale locale)
@@ -447,6 +441,19 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private void setDescription(
+		String originalDescription, Locale originalLocale,
+		String translatedDescription, Locale translatedLocale) {
+
+		setDescription(
+			new JournalArticleDescription() {
+				{
+					put(originalLocale, originalDescription);
+					put(translatedLocale, translatedDescription);
+				}
+			});
 	}
 
 	@Inject
