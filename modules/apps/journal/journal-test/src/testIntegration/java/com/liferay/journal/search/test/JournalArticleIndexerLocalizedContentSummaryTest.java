@@ -18,7 +18,9 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalArticleBuilder;
 import com.liferay.journal.test.util.JournalArticleContent;
+import com.liferay.journal.test.util.JournalArticleDescription;
 import com.liferay.journal.test.util.JournalArticleTitle;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.LayoutSet;
@@ -32,6 +34,7 @@ import com.liferay.portal.kernel.search.IndexerRegistry;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.highlight.HighlightUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 import com.liferay.portal.kernel.service.ThemeLocalServiceUtil;
@@ -116,6 +119,15 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 				}
 			});
 
+		String description = "On clocks and time";
+
+		setDescription(
+			new JournalArticleDescription() {
+				{
+					put(LocaleUtil.US, description);
+				}
+			});
+
 		String title = "Clocks";
 
 		setTitle(
@@ -142,6 +154,17 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 				}
 			});
 
+		String originalDescription = "On soccer teams";
+		String translatedDescription = "Sobre times de futebol";
+
+		setDescription(
+			new JournalArticleDescription() {
+				{
+					put(LocaleUtil.US, originalDescription);
+					put(LocaleUtil.BRAZIL, translatedDescription);
+				}
+			});
+
 		String originalTitle = "Soccer";
 		String translatedTitle = "Futebol";
 
@@ -163,12 +186,18 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 		Assert.assertEquals(documents.toString(), 2, documents.size());
 
 		Document document1 = getDocumentByUSTitle(documents, title);
+		String highlightedContent = StringBundler.concat(
+			"On clocks and ", HighlightUtil.HIGHLIGHT_TAG_OPEN,
+			HighlightUtil.HIGHLIGHT_TAG_OPEN, "time",
+			HighlightUtil.HIGHLIGHT_TAG_CLOSE,
+			HighlightUtil.HIGHLIGHT_TAG_CLOSE);
 
-		assertSummary(title, content, document1, locale);
+		assertSummary(title, highlightedContent, document1, locale);
 
 		Document document2 = getDocumentByUSTitle(documents, originalTitle);
 
-		assertSummary(translatedTitle, translatedContent, document2, locale);
+		assertSummary(
+			translatedTitle, translatedDescription, document2, locale);
 	}
 
 	@Test
@@ -182,6 +211,15 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 					name = "content";
 
 					put(LocaleUtil.US, content);
+				}
+			});
+
+		String description = "On clocks and time";
+
+		setDescription(
+			new JournalArticleDescription() {
+				{
+					put(LocaleUtil.US, description);
 				}
 			});
 
@@ -232,8 +270,11 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 		Assert.assertEquals(documents.toString(), 2, documents.size());
 
 		Document document1 = getDocumentByUSTitle(documents, title);
+		String highlightedContent = StringBundler.concat(
+			"On clocks and ", HighlightUtil.HIGHLIGHT_TAG_OPEN, "time",
+			HighlightUtil.HIGHLIGHT_TAG_CLOSE);
 
-		assertSummary(title, content, document1, displayLocale);
+		assertSummary(title, highlightedContent, document1, displayLocale);
 
 		Document document2 = getDocumentByUSTitle(documents, originalTitle);
 
@@ -346,6 +387,12 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 		return documentOptional.get();
 	}
 
+	protected String getSnippetFieldName(String field) {
+		return StringBundler.concat(
+			Field.SNIPPET, StringPool.UNDERLINE, field, StringPool.UNDERLINE,
+			LocaleUtil.toLanguageId(Locale.US));
+	}
+
 	protected Summary getSummary(
 			Document document, PortletRequest portletRequest)
 		throws Exception {
@@ -359,6 +406,12 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 		_journalArticleBuilder.setContent(journalArticleContent);
 	}
 
+	protected void setDescription(
+		JournalArticleDescription journalArticleDescription) {
+
+		_journalArticleBuilder.setDescription(journalArticleDescription);
+	}
+
 	protected void setTitle(JournalArticleTitle journalArticleTitle) {
 		_journalArticleBuilder.setTitle(journalArticleTitle);
 	}
@@ -370,12 +423,12 @@ public class JournalArticleIndexerLocalizedContentSummaryTest {
 			_group.getGroupId());
 
 		searchContext.setKeywords(searchTerm);
-
 		searchContext.setLocale(locale);
 
 		QueryConfig queryConfig = searchContext.getQueryConfig();
 
 		queryConfig.setSelectedFieldNames(StringPool.STAR);
+		//queryConfig.setHighlightEnabled(true);
 
 		return searchContext;
 	}
