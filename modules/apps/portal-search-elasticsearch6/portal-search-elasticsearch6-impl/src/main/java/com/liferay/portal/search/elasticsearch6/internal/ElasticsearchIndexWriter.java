@@ -126,6 +126,22 @@ public class ElasticsearchIndexWriter extends BaseIndexWriter {
 
 			LogUtil.logActionResponse(_log, deleteResponse);
 		}
+		catch (IllegalStateException ise) {
+			Throwable cause = ise.getCause();
+
+			if (cause instanceof InterruptedException) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						StringBundler.concat(
+							"Shutdown cancelled attempt to delete ", uid,
+							" in index ", indexName));
+				}
+			}
+			else {
+				throw new SearchException(
+					"Unable to delete document " + uid, ise);
+			}
+		}
 		catch (IndexNotFoundException infe) {
 			if (_log.isInfoEnabled()) {
 				_log.info(
