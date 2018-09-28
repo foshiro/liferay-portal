@@ -98,8 +98,8 @@ public class CategoryMultiLanguageSearchTest {
 
 	@Test
 	public void testChineseCategories() throws Exception {
-		String category_title = "你好";
-		String web_content_title = "whatever";
+		String categoryTitle = "你好";
+		String webContentTitle = "whatever";
 
 		AssetVocabulary assetVocabulary =
 			assetVocabularyLocalService.addDefaultVocabulary(
@@ -107,13 +107,13 @@ public class CategoryMultiLanguageSearchTest {
 
 		_assetVocabularyList.add(assetVocabulary);
 		AssetCategory assetCategory = addCategory(
-			assetVocabulary, category_title, LocaleUtil.CHINA.getLanguage());
+			assetVocabulary, categoryTitle, LocaleUtil.CHINA.getLanguage());
 
 		_assetCategoryList.add(assetCategory);
 		long categoryId = assetCategory.getCategoryId();
 
 		JournalArticle journalArticle = addJournalArticle(
-			_group, web_content_title, web_content_title, LocaleUtil.CHINA,
+			_group, webContentTitle, webContentTitle, LocaleUtil.CHINA,
 			LocaleUtil.CHINA);
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -126,7 +126,7 @@ public class CategoryMultiLanguageSearchTest {
 
 		_updateJournalArticleList.add(updateArticle);
 
-		SearchContext searchContext = getSearchContext(category_title);
+		SearchContext searchContext = getSearchContext(categoryTitle);
 
 		searchContext.setCategoryIds(new long[] {categoryId});
 		searchContext.setGroupIds(new long[] {_group.getGroupId()});
@@ -145,8 +145,8 @@ public class CategoryMultiLanguageSearchTest {
 
 	@Test
 	public void testEnglishCategories() throws Exception {
-		String category_title = "testEngine";
-		String web_content_title = "testContent";
+		String categoryTitle = "testEngine";
+		String webContentTitle = "testContent";
 
 		AssetVocabulary assetVocabulary =
 			assetVocabularyLocalService.addDefaultVocabulary(
@@ -154,13 +154,13 @@ public class CategoryMultiLanguageSearchTest {
 
 		_assetVocabularyList.add(assetVocabulary);
 		AssetCategory assetCategory = addCategory(
-			assetVocabulary, category_title, LocaleUtil.US.getLanguage());
+			assetVocabulary, categoryTitle, LocaleUtil.US.getLanguage());
 
 		_assetCategoryList.add(assetCategory);
 		long categoryId = assetCategory.getCategoryId();
 
 		JournalArticle journalArticle = addJournalArticle(
-			_group, web_content_title, web_content_title, LocaleUtil.US,
+			_group, webContentTitle, webContentTitle, LocaleUtil.US,
 			LocaleUtil.US);
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -173,7 +173,7 @@ public class CategoryMultiLanguageSearchTest {
 
 		_updateJournalArticleList.add(updateArticle);
 
-		SearchContext searchContext = getSearchContext(category_title);
+		SearchContext searchContext = getSearchContext(categoryTitle);
 
 		searchContext.setCategoryIds(new long[] {categoryId});
 		searchContext.setGroupIds(new long[] {_group.getGroupId()});
@@ -192,64 +192,64 @@ public class CategoryMultiLanguageSearchTest {
 
 	@Test
 	public void testJapaneseCategories() throws Exception {
-		String vocabulary_title = "ボキャブラリ";
-		String category1_title = "東京";
-		String category2_title = "京都";
-		String web_content1_title_summary = "豊島区";
-		String web_content2_title_summary = "下京区";
+		String vocabularyTitle = "ボキャブラリ";
+		String categoryTitle1 = "東京";
+		String categoryTitle2 = "京都";
+		String webContentTitleSummary1 = "豊島区";
+		String webContentTitleSummary2 = "下京区";
 
 		AssetVocabulary assetVocabulary =
 			assetVocabularyLocalService.addDefaultVocabulary(
 				_group.getGroupId());
 
-		assetVocabulary.setTitle(vocabulary_title);
+		assetVocabulary.setTitle(vocabularyTitle);
 
 		assetVocabularyLocalService.updateAssetVocabulary(assetVocabulary);
 		_assetVocabularyList.add(assetVocabulary);
 
-		AssetCategory assetCategory_1 = addCategory(
-			assetVocabulary, category1_title, LocaleUtil.JAPAN.getLanguage());
+		AssetCategory assetCategory1 = addCategory(
+			assetVocabulary, categoryTitle1, LocaleUtil.JAPAN.getLanguage());
 
-		_assetCategoryList.add(assetCategory_1);
-		long categoryId_1 = assetCategory_1.getCategoryId();
+		_assetCategoryList.add(assetCategory1);
+		long categoryId1 = assetCategory1.getCategoryId();
 
-		AssetCategory assetCategory_2 = addCategory(
-			assetVocabulary, category2_title, LocaleUtil.JAPAN.getLanguage());
-		_assetCategoryList.add(assetCategory_1);
+		AssetCategory assetCategory2 = addCategory(
+			assetVocabulary, categoryTitle2, LocaleUtil.JAPAN.getLanguage());
+		_assetCategoryList.add(assetCategory1);
 
-		long categoryId_2 = assetCategory_2.getCategoryId();
+		long categoryId2 = assetCategory2.getCategoryId();
 
-		long[] categoryIds = {categoryId_1, categoryId_2};
+		long[] categoryIds = {categoryId1, categoryId2};
 
-		JournalArticle journalArticle_1 = addJournalArticle(
-			_group, web_content1_title_summary, web_content1_title_summary,
+		JournalArticle journalArticle1 = addJournalArticle(
+			_group, webContentTitleSummary1, webContentTitleSummary1,
 			LocaleUtil.JAPAN, LocaleUtil.JAPAN);
-		ServiceContext serviceContext_1 =
+		ServiceContext serviceContext1 =
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), _user.getUserId());
 
-		serviceContext_1.setAssetCategoryIds(new long[] {categoryId_1});
+		serviceContext1.setAssetCategoryIds(new long[] {categoryId1});
 
-		JournalArticle updateArticle_1 = updateJournalArticle(
-			journalArticle_1, serviceContext_1);
+		JournalArticle updateArticle1 = updateJournalArticle(
+			journalArticle1, serviceContext1);
 
-		_updateJournalArticleList.add(updateArticle_1);
+		_updateJournalArticleList.add(updateArticle1);
 
-		JournalArticle journalArticle_2 = addJournalArticle(
-			_group, web_content2_title_summary, web_content2_title_summary,
+		JournalArticle journalArticle2 = addJournalArticle(
+			_group, webContentTitleSummary2, webContentTitleSummary2,
 			LocaleUtil.JAPAN, LocaleUtil.JAPAN);
-		ServiceContext serviceContext_2 =
+		ServiceContext serviceContext2 =
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), _user.getUserId());
 
-		serviceContext_2.setAssetCategoryIds(new long[] {categoryId_2});
+		serviceContext2.setAssetCategoryIds(new long[] {categoryId2});
 
-		JournalArticle updateArticle_2 = updateJournalArticle(
-			journalArticle_2, serviceContext_2);
+		JournalArticle updateArticle2 = updateJournalArticle(
+			journalArticle2, serviceContext2);
 
-		_updateJournalArticleList.add(updateArticle_2);
+		_updateJournalArticleList.add(updateArticle2);
 
-		SearchContext searchContext = getSearchContext(category1_title);
+		SearchContext searchContext = getSearchContext(categoryTitle1);
 
 		searchContext.setCategoryIds(categoryIds);
 		searchContext.setGroupIds(new long[] {_group.getGroupId()});
@@ -263,7 +263,7 @@ public class CategoryMultiLanguageSearchTest {
 
 		DocumentsAssert.assertValuesIgnoreRelevance(
 			searchContext.getKeywords(), hits.getDocs(), facet.getFieldName(),
-			Arrays.asList(String.valueOf(categoryId_2)));
+			Arrays.asList(String.valueOf(categoryId2)));
 	}
 
 	protected AssetCategory addCategory(
@@ -314,7 +314,7 @@ public class CategoryMultiLanguageSearchTest {
 
 	protected Hits search(SearchContext searchContext) throws Exception {
 		FacetedSearcher facetedSearcher =
-			_facetedSearcherManager.createFacetedSearcher();
+			facetedSearcherManager.createFacetedSearcher();
 
 		return facetedSearcher.search(searchContext);
 	}
