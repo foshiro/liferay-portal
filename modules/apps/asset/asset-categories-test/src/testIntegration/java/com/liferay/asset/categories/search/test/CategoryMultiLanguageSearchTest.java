@@ -22,12 +22,16 @@ import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.test.util.JournalArticleBlueprint;
 import com.liferay.journal.test.util.JournalArticleContent;
+import com.liferay.journal.test.util.JournalArticleSearchFixture;
 import com.liferay.journal.test.util.JournalArticleTitle;
+import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.facet.Facet;
+import com.liferay.portal.kernel.search.facet.faceted.searcher.FacetedSearcher;
+import com.liferay.portal.kernel.search.facet.faceted.searcher.FacetedSearcherManager;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -36,16 +40,19 @@ import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.workflow.WorkflowThreadLocal;
 import com.liferay.portal.search.facet.category.CategoryFacetFactory;
 import com.liferay.portal.search.test.util.DocumentsAssert;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+import com.liferay.users.admin.test.util.search.UserSearchFixture;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -58,8 +65,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 @Sync
-public class CategoryMultiLanguageSearchTest
-	extends BaseCategorySearcherTestCase {
+public class CategoryMultiLanguageSearchTest {
 
 	@ClassRule
 	@Rule
@@ -69,9 +75,11 @@ public class CategoryMultiLanguageSearchTest
 			SynchronousDestinationTestRule.INSTANCE);
 
 	@Before
-	@Override
 	public void setUp() throws Exception {
-		super.setUp();
+		WorkflowThreadLocal.setEnabled(false);
+
+		setUpJournalArticleSearchFixture();
+		setUpUserSearchFixture();
 
 		_assetCategoryList = new ArrayList<>();
 		_assetVocabularyList = new ArrayList<>();
@@ -80,6 +88,12 @@ public class CategoryMultiLanguageSearchTest
 		_group = userSearchFixture.addGroup();
 
 		_user = UserTestUtil.addUser(_group.getGroupId());
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		journalArticleSearchFixture.tearDown();
+		userSearchFixture.tearDown();
 	}
 
 	@Test
@@ -294,6 +308,42 @@ public class CategoryMultiLanguageSearchTest
 			});
 	}
 
+	protected SearchContext getSearchContext(String keywords) throws Exception {
+		return userSearchFixture.getSearchContext(keywords);
+	}
+
+	protected Hits search(SearchContext searchContext) throws Exception {
+		FacetedSearcher facetedSearcher =
+			_facetedSearcherManager.createFacetedSearcher();
+
+		return facetedSearcher.search(searchContext);
+	}
+
+	protected void setUpJournalArticleSearchFixture() throws Exception {
+		journalArticleSearchFixture.setUp();
+
+		_journalArticles = journalArticleSearchFixture.getJournalArticles();
+	}
+
+	protected void setUpUserSearchFixture() throws Exception {
+		userSearchFixture.setUp();
+
+		_groups = userSearchFixture.getGroups();
+		_users = userSearchFixture.getUsers();
+	}
+
+	protected JournalArticle updateJournalArticle(
+			JournalArticle journalArticle, ServiceContext serviceContext)
+		throws Exception {
+
+		return JournalTestUtil.updateArticle(
+			journalArticle, journalArticle.getTitleMap(),
+			journalArticle.getContent(), true, true, serviceContext);
+	}
+
+	@Inject
+	protected static FacetedSearcherManager facetedSearcherManager;
+
 	@Inject
 	protected AssetCategoryLocalService assetCategoryLocalService;
 
@@ -302,6 +352,11 @@ public class CategoryMultiLanguageSearchTest
 
 	@Inject
 	protected CategoryFacetFactory categoryFacetFactory;
+
+	protected final JournalArticleSearchFixture journalArticleSearchFixture =
+		new JournalArticleSearchFixture();
+	protected final UserSearchFixture userSearchFixture =
+		new UserSearchFixture();
 
 	@DeleteAfterTestRun
 	private List<AssetCategory> _assetCategoryList;
@@ -312,9 +367,18 @@ public class CategoryMultiLanguageSearchTest
 	private Group _group;
 
 	@DeleteAfterTestRun
+	private List<Group> _groups;
+
+	@DeleteAfterTestRun
+	private List<JournalArticle> _journalArticles;
+
+	@DeleteAfterTestRun
 	private List<JournalArticle> _updateJournalArticleList;
 
 	@DeleteAfterTestRun
 	private User _user;
+
+	@DeleteAfterTestRun
+	private List<User> _users;
 
 }
