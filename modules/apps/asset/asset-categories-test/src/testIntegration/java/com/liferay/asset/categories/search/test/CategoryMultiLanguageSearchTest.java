@@ -136,14 +136,7 @@ public class CategoryMultiLanguageSearchTest {
 		addJournalArticle(
 			_group, webContentTitle, webContentTitle, category, LocaleUtil.US);
 
-		SearchContext searchContext = getSearchContext(
-			_group, categoryTitle, LocaleUtil.US);
-
-		Hits hits = search(searchContext);
-
-		DocumentsAssert.assertValuesIgnoreRelevance(
-			searchContext.getKeywords(), hits.getDocs(),
-			Field.ASSET_CATEGORY_IDS, getCategoryIds(category));
+		assertCategoryInSearchResults(categoryTitle, category, LocaleUtil.US);
 	}
 
 	@Test
@@ -170,14 +163,8 @@ public class CategoryMultiLanguageSearchTest {
 			_group, webContentTitle2, webContentTitle2, category2,
 			LocaleUtil.JAPAN);
 
-		SearchContext searchContext = getSearchContext(
-			_group, categoryTitle1, LocaleUtil.JAPAN);
-
-		Hits hits = search(searchContext);
-
-		DocumentsAssert.assertValuesIgnoreRelevance(
-			searchContext.getKeywords(), hits.getDocs(),
-			Field.ASSET_CATEGORY_IDS, getCategoryIds(category2));
+		assertCategoryInSearchResults(
+			categoryTitle1, category2, LocaleUtil.JAPAN);
 	}
 
 	protected AssetCategory addCategory(
@@ -271,6 +258,20 @@ public class CategoryMultiLanguageSearchTest {
 		_assetVocabularyList.add(bassetVocabulary);
 
 		return bassetVocabulary;
+	}
+
+	protected void assertCategoryInSearchResults(
+			String keywords, AssetCategory category, Locale locale)
+		throws Exception {
+
+		SearchContext searchContext = getSearchContext(
+			_group, keywords, locale);
+
+		Hits hits = search(searchContext);
+
+		DocumentsAssert.assertValuesIgnoreRelevance(
+			searchContext.getKeywords(), hits.getDocs(),
+			Field.ASSET_CATEGORY_IDS, getCategoryIds(category));
 	}
 
 	protected List<String> getCategoryIds(AssetCategory... categories) {
