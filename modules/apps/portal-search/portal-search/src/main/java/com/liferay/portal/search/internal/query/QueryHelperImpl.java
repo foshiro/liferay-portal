@@ -41,8 +41,6 @@ public class QueryHelperImpl implements QueryHelper {
 		BooleanQuery searchQuery, SearchContext searchContext, String field,
 		boolean like) {
 
-		addSearchTerm(searchQuery, searchContext, field, like);
-
 		String localizedFieldName = Field.getLocalizedName(
 			searchContext.getLocale(), field);
 
