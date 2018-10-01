@@ -52,6 +52,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -104,17 +106,15 @@ public class CategoryMultiLanguageSearchTest {
 
 		AssetVocabulary assetVocabulary = addVocabulary(_group);
 
-		AssetCategory assetCategory = addCategory(
+		AssetCategory category = addCategory(
 			assetVocabulary, categoryTitle, LocaleUtil.CHINA);
 
-		long categoryId = assetCategory.getCategoryId();
-
 		addJournalArticle(
-			_group, webContentTitle, webContentTitle, categoryId,
+			_group, webContentTitle, webContentTitle, category,
 			LocaleUtil.CHINA);
 
 		SearchContext searchContext = getSearchContext(
-			_group, new long[] {categoryId}, categoryTitle, LocaleUtil.CHINA);
+			_group, categoryTitle, LocaleUtil.CHINA);
 
 		Facet facet = categoryFacetFactory.newInstance(searchContext);
 
@@ -134,17 +134,14 @@ public class CategoryMultiLanguageSearchTest {
 
 		AssetVocabulary assetVocabulary = addVocabulary(_group);
 
-		AssetCategory assetCategory = addCategory(
+		AssetCategory category = addCategory(
 			assetVocabulary, categoryTitle, LocaleUtil.US);
 
-		long categoryId = assetCategory.getCategoryId();
-
 		addJournalArticle(
-			_group, webContentTitle, webContentTitle, categoryId,
-			LocaleUtil.US);
+			_group, webContentTitle, webContentTitle, category, LocaleUtil.US);
 
 		SearchContext searchContext = getSearchContext(
-			_group, new long[] {categoryId}, categoryTitle, LocaleUtil.US);
+			_group, categoryTitle, LocaleUtil.US);
 
 		Facet facet = categoryFacetFactory.newInstance(searchContext);
 
@@ -154,7 +151,7 @@ public class CategoryMultiLanguageSearchTest {
 
 		DocumentsAssert.assertValuesIgnoreRelevance(
 			searchContext.getKeywords(), hits.getDocs(), facet.getFieldName(),
-			Arrays.asList(String.valueOf(categoryId)));
+			getCategoryIds(category));
 	}
 
 	@Test
@@ -168,27 +165,21 @@ public class CategoryMultiLanguageSearchTest {
 		AssetVocabulary assetVocabulary = addVocabulary(
 			_group, vocabularyTitle);
 
-		AssetCategory assetCategory1 = addCategory(
+		AssetCategory category1 = addCategory(
 			assetVocabulary, categoryTitle1, LocaleUtil.JAPAN);
 
-		long categoryId1 = assetCategory1.getCategoryId();
-
-		AssetCategory assetCategory2 = addCategory(
+		AssetCategory category2 = addCategory(
 			assetVocabulary, categoryTitle2, LocaleUtil.JAPAN);
 
-		long categoryId2 = assetCategory2.getCategoryId();
-
-		long[] categoryIds = {categoryId1, categoryId2};
-
 		addJournalArticle(
-			_group, webContentTitle1, webContentTitle1, categoryId1,
+			_group, webContentTitle1, webContentTitle1, category1,
 			LocaleUtil.JAPAN);
 		addJournalArticle(
-			_group, webContentTitle2, webContentTitle2, categoryId2,
+			_group, webContentTitle2, webContentTitle2, category2,
 			LocaleUtil.JAPAN);
 
 		SearchContext searchContext = getSearchContext(
-			_group, categoryIds, categoryTitle1, LocaleUtil.JAPAN);
+			_group, categoryTitle1, LocaleUtil.JAPAN);
 
 		Facet facet = categoryFacetFactory.newInstance(searchContext);
 
@@ -198,7 +189,7 @@ public class CategoryMultiLanguageSearchTest {
 
 		DocumentsAssert.assertValuesIgnoreRelevance(
 			searchContext.getKeywords(), hits.getDocs(), facet.getFieldName(),
-			Arrays.asList(String.valueOf(categoryId2)));
+			getCategoryIds(category2));
 	}
 
 	protected AssetCategory addCategory(
@@ -228,6 +219,28 @@ public class CategoryMultiLanguageSearchTest {
 	}
 
 	protected JournalArticle addJournalArticle(
+			Group group, String title, String content, AssetCategory category,
+			Locale locale)
+		throws Exception {
+
+		JournalArticle journalArticle = addJournalArticle(
+			group, title, content, locale, locale);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(
+				group.getGroupId(), _user.getUserId());
+
+		serviceContext.setAssetCategoryIds(
+			new long[] {category.getCategoryId()});
+
+		journalArticle = updateJournalArticle(journalArticle, serviceContext);
+
+		_updateJournalArticleList.add(journalArticle);
+
+		return journalArticle;
+	}
+
+	protected JournalArticle addJournalArticle(
 			Group group, String title, String content, Locale defLocale,
 			Locale targetLocale)
 		throws Exception {
@@ -252,27 +265,6 @@ public class CategoryMultiLanguageSearchTest {
 			});
 	}
 
-	protected JournalArticle addJournalArticle(
-			Group group, String title, String content, long categoryId,
-			Locale locale)
-		throws Exception {
-
-		JournalArticle journalArticle = addJournalArticle(
-			group, title, content, locale, locale);
-
-		ServiceContext serviceContext =
-			ServiceContextTestUtil.getServiceContext(
-				group.getGroupId(), _user.getUserId());
-
-		serviceContext.setAssetCategoryIds(new long[] {categoryId});
-
-		journalArticle = updateJournalArticle(journalArticle, serviceContext);
-
-		_updateJournalArticleList.add(journalArticle);
-
-		return journalArticle;
-	}
-
 	protected AssetVocabulary addVocabulary(Group group) throws Exception {
 		return addVocabulary(group, RandomTestUtil.randomString());
 	}
@@ -293,14 +285,22 @@ public class CategoryMultiLanguageSearchTest {
 		return bassetVocabulary;
 	}
 
+	protected List<String> getCategoryIds(AssetCategory... categories) {
+		Stream<AssetCategory> stream = Arrays.asList(categories).stream();
+
+		return stream.map(
+			(category) -> String.valueOf(category.getCategoryId())
+		).collect(
+			Collectors.toList()
+		);
+	}
+
 	protected SearchContext getSearchContext(
-			Group group, long[] categoryIds, String categoryTitle,
-			Locale locale)
+			Group group, String keywords, Locale locale)
 		throws Exception {
 
-		SearchContext searchContext = getSearchContext(categoryTitle);
+		SearchContext searchContext = getSearchContext(keywords);
 
-		searchContext.setCategoryIds(categoryIds);
 		searchContext.setGroupIds(new long[] {group.getGroupId()});
 		searchContext.setLocale(locale);
 
