@@ -164,7 +164,9 @@ public class CategoryMultiLanguageSearchTest {
 			LocaleUtil.JAPAN);
 
 		assertCategoryInSearchResults(
-			categoryTitle1, category2, LocaleUtil.JAPAN);
+			categoryTitle1, category1, LocaleUtil.JAPAN);
+		assertCategoryInSearchResults(
+			categoryTitle2, category2, LocaleUtil.JAPAN);
 	}
 
 	protected AssetCategory addCategory(
