@@ -27,9 +27,9 @@ import com.liferay.journal.test.util.JournalArticleTitle;
 import com.liferay.journal.test.util.JournalTestUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.search.facet.faceted.searcher.FacetedSearcher;
 import com.liferay.portal.kernel.search.facet.faceted.searcher.FacetedSearcherManager;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -116,10 +116,6 @@ public class CategoryMultiLanguageSearchTest {
 		SearchContext searchContext = getSearchContext(
 			_group, categoryTitle, LocaleUtil.CHINA);
 
-		Facet facet = categoryFacetFactory.newInstance(searchContext);
-
-		searchContext.addFacet(facet);
-
 		Hits hits = search(searchContext);
 
 		Assert.assertTrue(
@@ -143,15 +139,11 @@ public class CategoryMultiLanguageSearchTest {
 		SearchContext searchContext = getSearchContext(
 			_group, categoryTitle, LocaleUtil.US);
 
-		Facet facet = categoryFacetFactory.newInstance(searchContext);
-
-		searchContext.addFacet(facet);
-
 		Hits hits = search(searchContext);
 
 		DocumentsAssert.assertValuesIgnoreRelevance(
-			searchContext.getKeywords(), hits.getDocs(), facet.getFieldName(),
-			getCategoryIds(category));
+			searchContext.getKeywords(), hits.getDocs(),
+			Field.ASSET_CATEGORY_IDS, getCategoryIds(category));
 	}
 
 	@Test
@@ -181,15 +173,11 @@ public class CategoryMultiLanguageSearchTest {
 		SearchContext searchContext = getSearchContext(
 			_group, categoryTitle1, LocaleUtil.JAPAN);
 
-		Facet facet = categoryFacetFactory.newInstance(searchContext);
-
-		searchContext.addFacet(facet);
-
 		Hits hits = search(searchContext);
 
 		DocumentsAssert.assertValuesIgnoreRelevance(
-			searchContext.getKeywords(), hits.getDocs(), facet.getFieldName(),
-			getCategoryIds(category2));
+			searchContext.getKeywords(), hits.getDocs(),
+			Field.ASSET_CATEGORY_IDS, getCategoryIds(category2));
 	}
 
 	protected AssetCategory addCategory(
