@@ -56,7 +56,7 @@ import org.junit.runner.RunWith;
  * @author Eduardo Garcia
  */
 @RunWith(Arquillian.class)
-public class AssetUtilTest {
+public class AssetHelperTest {
 
 	@ClassRule
 	@Rule
@@ -71,14 +71,61 @@ public class AssetUtilTest {
 
 		_assetVocabulary = AssetTestUtil.addVocabulary(_group.getGroupId());
 
+		_assetCategory = null;
+
+		_assetTag = null;
+	}
+
+	@Test
+	public void testFilterAssetEntriesByTagWithWhiteSpace() throws Exception {
 		_assetCategory = AssetTestUtil.addCategory(
 			_group.getGroupId(), _assetVocabulary.getVocabularyId());
 
-		_assetTag = AssetTestUtil.addTag(_group.getGroupId());
+		_assetTag = AssetTestUtil.addTag(_group.getGroupId(), "asset tag");
+
+		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
+
+		assetEntryQuery.setGroupIds(new long[] {_group.getGroupId()});
+
+		long[] assetCategoryIds = new long[0];
+		String[] assetTagNames = {_assetTag.getName()};
+
+		assertCount(
+			0, assetEntryQuery, assetCategoryIds, assetTagNames, null,
+			_group.getCompanyId(), StringPool.BLANK, null, null,
+			_group.getGroupId(), null, _group.getCreatorUserId());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
+
+		BlogsEntryLocalServiceUtil.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			StringPool.BLANK, StringPool.BLANK, RandomTestUtil.randomString(),
+			1, 1, 1965, 0, 0, true, true, null, StringPool.BLANK, null, null,
+			serviceContext);
+
+		serviceContext.setAssetCategoryIds(assetCategoryIds);
+		serviceContext.setAssetTagNames(assetTagNames);
+
+		BlogsEntryLocalServiceUtil.addEntry(
+			TestPropsValues.getUserId(), RandomTestUtil.randomString(),
+			StringPool.BLANK, StringPool.BLANK, RandomTestUtil.randomString(),
+			1, 1, 1965, 0, 0, true, true, null, StringPool.BLANK, null, null,
+			serviceContext);
+
+		assertCount(
+			1, assetEntryQuery, assetCategoryIds, assetTagNames, null,
+			_group.getCompanyId(), null, null, null, _group.getGroupId(), null,
+			_group.getCreatorUserId());
 	}
 
 	@Test
 	public void testSearchAssetEntries() throws Exception {
+		_assetCategory = AssetTestUtil.addCategory(
+			_group.getGroupId(), _assetVocabulary.getVocabularyId());
+
+		_assetTag = AssetTestUtil.addTag(_group.getGroupId());
+
 		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
 
 		assetEntryQuery.setGroupIds(new long[] {_group.getGroupId()});
