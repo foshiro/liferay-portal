@@ -33,6 +33,32 @@ import java.util.List;
 public abstract class BaseContactIndexerTestCase {
 
 	public void setUp() throws Exception {
+		setUpUserSearchFixture();
+
+		setUpContactFixture();
+		setUpContactIndexerFixture();
+	}
+
+	protected void setUpContactFixture() throws Exception {
+		contactFixture = new ContactFixture(contactLocalService);
+
+		contactFixture.setUp();
+
+		contactFixture.setUser(_user);
+		contactFixture.setGroup(_group);
+
+		_contacts = contactFixture.getContacts();
+	}
+
+	protected void setUpContactIndexerFixture() {
+		Indexer<Contact> indexer = indexerRegistry.getIndexer(Contact.class);
+
+		contactIndexerFixture = new ContactIndexerFixture(indexer);
+
+		contactIndexerFixture.setUser(_user);
+	}
+
+	protected void setUpUserSearchFixture() throws Exception {
 		userSearchFixture = new UserSearchFixture();
 
 		userSearchFixture.setUp();
@@ -44,29 +70,6 @@ public abstract class BaseContactIndexerTestCase {
 
 		_user = userSearchFixture.addUser(
 			RandomTestUtil.randomString(), _group);
-
-		contactFixture = createContactFixture();
-
-		contactFixture.setUp();
-
-		contactFixture.setUser(_user);
-		contactFixture.setGroup(_group);
-
-		_contacts = contactFixture.getContacts();
-
-		contactIndexerFixture = createContactIndexerFixture();
-
-		contactIndexerFixture.setUser(_user);
-	}
-
-	protected ContactFixture createContactFixture() {
-		return new ContactFixture(contactLocalService);
-	}
-
-	protected ContactIndexerFixture createContactIndexerFixture() {
-		Indexer<?> indexer = indexerRegistry.getIndexer(Contact.class);
-
-		return new ContactIndexerFixture(indexer);
 	}
 
 	protected ContactFixture contactFixture;

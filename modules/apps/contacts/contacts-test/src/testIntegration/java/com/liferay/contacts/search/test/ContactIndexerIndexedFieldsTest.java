@@ -60,7 +60,7 @@ public class ContactIndexerIndexedFieldsTest
 	public void setUp() throws Exception {
 		super.setUp();
 
-		indexedFieldsFixture = createIndexedFieldsFixture();
+		setUpIndexedFieldsFixture();
 	}
 
 	@Test
@@ -93,11 +93,6 @@ public class ContactIndexerIndexedFieldsTest
 		Map<String, String> expected = expectedFieldValues(contact);
 
 		FieldValuesAssert.assertFieldValues(expected, document, searchTerm);
-	}
-
-	protected IndexedFieldsFixture createIndexedFieldsFixture() {
-		return new IndexedFieldsFixture(
-			resourcePermissionLocalService, searchEngineHelper);
 	}
 
 	protected Map<String, String> expectedFieldValues(Contact contact)
@@ -141,6 +136,11 @@ public class ContactIndexerIndexedFieldsTest
 			"jobTitle_sortable", StringUtil.toLowerCase(contact.getJobTitle()));
 
 		return map;
+	}
+
+	protected void setUpIndexedFieldsFixture() {
+		indexedFieldsFixture = new IndexedFieldsFixture(
+			resourcePermissionLocalService, searchEngineHelper);
 	}
 
 	protected IndexedFieldsFixture indexedFieldsFixture;
