@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
-import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
@@ -69,21 +68,9 @@ public class ContactIndexerIndexedFieldsTest
 
 		contactFixture.updateDisplaySettings(locale);
 
-		String emailAddress = RandomTestUtil.randomString() + "@liferay.com";
+		Contact contact = contactFixture.addContact();
 
-		String firstName = RandomTestUtil.randomString();
-		String middleName = RandomTestUtil.randomString();
-		String lastName = RandomTestUtil.randomString();
-
-		String fullName = String.format(
-			"%s %s %s", firstName, middleName, lastName);
-
-		String jobTitle = RandomTestUtil.randomString();
-
-		Contact contact = contactFixture.addContact(
-			emailAddress, firstName, middleName, lastName, fullName, jobTitle);
-
-		String searchTerm = fullName;
+		String searchTerm = contact.getFullName();
 
 		Document document = contactIndexerFixture.searchOnlyOne(
 			searchTerm, locale);

@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ContactLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 
@@ -36,6 +37,22 @@ public class ContactFixture {
 
 	public ContactFixture(ContactLocalService contactLocalService) {
 		_contactLocalService = contactLocalService;
+	}
+
+	public Contact addContact() throws Exception {
+		String emailAddress = RandomTestUtil.randomString() + "@liferay.com";
+
+		String firstName = RandomTestUtil.randomString();
+		String middleName = RandomTestUtil.randomString();
+		String lastName = RandomTestUtil.randomString();
+
+		String fullName = String.format(
+			"%s %s %s", firstName, middleName, lastName);
+
+		String jobTitle = RandomTestUtil.randomString();
+
+		return addContact(
+			emailAddress, firstName, middleName, lastName, fullName, jobTitle);
 	}
 
 	public Contact addContact(String firstName) throws Exception {
