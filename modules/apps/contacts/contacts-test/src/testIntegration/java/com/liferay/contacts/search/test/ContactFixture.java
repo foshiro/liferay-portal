@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,11 +34,8 @@ import java.util.Locale;
  */
 public class ContactFixture {
 
-	public ContactFixture(
-		ContactLocalService contactLocalService, List<Contact> contacts) {
-
+	public ContactFixture(ContactLocalService contactLocalService) {
 		_contactLocalService = contactLocalService;
-		_contacts = contacts;
 	}
 
 	public Contact addContact(String firstName) throws Exception {
@@ -88,6 +86,10 @@ public class ContactFixture {
 		return contact;
 	}
 
+	public List<Contact> getContacts() {
+		return _contacts;
+	}
+
 	public ServiceContext getServiceContext() throws Exception {
 		return ServiceContextTestUtil.getServiceContext(
 			getGroupId(), getUserId());
@@ -121,7 +123,7 @@ public class ContactFixture {
 	}
 
 	private final ContactLocalService _contactLocalService;
-	private final List<Contact> _contacts;
+	private final List<Contact> _contacts = new ArrayList<>();
 	private Group _group;
 	private User _user;
 
