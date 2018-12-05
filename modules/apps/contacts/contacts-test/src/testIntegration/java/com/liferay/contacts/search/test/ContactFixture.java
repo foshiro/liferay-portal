@@ -20,13 +20,12 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ContactLocalService;
-import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
-import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,62 +39,32 @@ public class ContactFixture {
 	}
 
 	public Contact addContact() throws Exception {
-		String emailAddress = RandomTestUtil.randomString() + "@liferay.com";
-
-		String firstName = RandomTestUtil.randomString();
-		String middleName = RandomTestUtil.randomString();
-		String lastName = RandomTestUtil.randomString();
-
-		String fullName = String.format(
-			"%s %s %s", firstName, middleName, lastName);
-
-		String jobTitle = RandomTestUtil.randomString();
-
 		return addContact(
-			emailAddress, firstName, middleName, lastName, fullName, jobTitle);
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString());
 	}
 
 	public Contact addContact(String firstName) throws Exception {
-		String emailAddress = StringPool.BLANK;
-		String middleName = StringPool.BLANK;
-		String lastName = StringPool.BLANK;
-		String fullName = StringPool.BLANK;
-		String jobTitle = StringPool.BLANK;
-
 		return addContact(
-			emailAddress, firstName, middleName, lastName, fullName, jobTitle);
+			RandomTestUtil.randomString(), firstName,
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString());
 	}
 
 	public Contact addContact(
 			String emailAddress, String firstName, String middleName,
-			String lastName, String fullName, String jobTitle)
+			String lastName, String jobTitle)
 		throws Exception {
 
-		long userId = getUserId();
-
-		String className = StringPool.STAR;
-
-		long classPK = 1;
-
-		long prefixId = 0;
-		long suffixId = 0;
-
-		boolean male = true;
-
-		int birthdayDay = 1;
-		int birthdayMonth = 0;
-		int birthdayYear = 1970;
-
-		String smsSn = StringPool.BLANK;
-		String facebookSn = StringPool.BLANK;
-		String jabberSn = StringPool.BLANK;
-		String skypeSn = StringPool.BLANK;
-		String twitterSn = StringPool.BLANK;
-
 		Contact contact = _contactLocalService.addContact(
-			userId, className, classPK, emailAddress, firstName, middleName,
-			lastName, prefixId, suffixId, male, birthdayMonth, birthdayDay,
-			birthdayYear, smsSn, facebookSn, jabberSn, skypeSn, twitterSn,
+			getUserId(), StringPool.STAR, 1, emailAddress, firstName,
+			middleName, lastName, 0, 0, RandomTestUtil.randomBoolean(),
+			RandomTestUtil.randomInt(Calendar.JANUARY, Calendar.DECEMBER),
+			RandomTestUtil.randomInt(1, 28),
+			RandomTestUtil.randomInt(1970, 2018), StringPool.BLANK,
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
 			jobTitle);
 
 		_contacts.add(contact);
@@ -105,11 +74,6 @@ public class ContactFixture {
 
 	public List<Contact> getContacts() {
 		return _contacts;
-	}
-
-	public ServiceContext getServiceContext() throws Exception {
-		return ServiceContextTestUtil.getServiceContext(
-			getGroupId(), getUserId());
 	}
 
 	public void setGroup(Group group) {
