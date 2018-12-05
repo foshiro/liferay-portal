@@ -49,9 +49,6 @@ public class ContactIndexerReindexTest extends BaseContactIndexerTestCase {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
-
-		super.setGroup(contactFixture.addGroup());
-		super.setUser(contactFixture.addUser());
 	}
 
 	@Test

@@ -21,7 +21,9 @@ import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistry;
 import com.liferay.portal.kernel.service.ContactLocalService;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.test.rule.Inject;
+import com.liferay.users.admin.test.util.search.UserSearchFixture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,31 +34,38 @@ import java.util.List;
 public abstract class BaseContactIndexerTestCase {
 
 	public void setUp() throws Exception {
+		userSearchFixture = new UserSearchFixture();
+
+		userSearchFixture.setUp();
+
+		_groups = userSearchFixture.getGroups();
+		_users = userSearchFixture.getUsers();
+
+		_group = userSearchFixture.addGroup();
+
+		_user = userSearchFixture.addUser(
+			RandomTestUtil.randomString(), _group);
+
 		contactFixture = createContactFixture();
 
 		contactFixture.setUp();
 
+		contactFixture.setUser(_user);
+		contactFixture.setGroup(_group);
+
 		contactIndexerFixture = createContactIndexerFixture();
+
+		contactIndexerFixture.setUser(_user);
 	}
 
 	protected ContactFixture createContactFixture() {
-		return new ContactFixture(
-			contactLocalService, _users, _groups, _contacts);
+		return new ContactFixture(contactLocalService, _contacts);
 	}
 
 	protected ContactIndexerFixture createContactIndexerFixture() {
 		Indexer<?> indexer = indexerRegistry.getIndexer(Contact.class);
 
 		return new ContactIndexerFixture(indexer);
-	}
-
-	protected void setGroup(Group group) {
-		contactFixture.setGroup(group);
-	}
-
-	protected void setUser(User user) {
-		contactFixture.setUser(user);
-		contactIndexerFixture.setUser(user);
 	}
 
 	protected ContactFixture contactFixture;
@@ -73,10 +82,14 @@ public abstract class BaseContactIndexerTestCase {
 	@DeleteAfterTestRun
 	private final List<Contact> _contacts = new ArrayList<>(1);
 
-	@DeleteAfterTestRun
-	private final List<Group> _groups = new ArrayList<>(1);
+	private Group _group;
 
 	@DeleteAfterTestRun
-	private final List<User> _users = new ArrayList<>(1);
+	private List<Group> _groups;
+
+	private User _user;
+
+	@DeleteAfterTestRun
+	private List<User> _users;
 
 }

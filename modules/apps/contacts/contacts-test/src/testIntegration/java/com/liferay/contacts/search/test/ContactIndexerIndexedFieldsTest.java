@@ -61,9 +61,6 @@ public class ContactIndexerIndexedFieldsTest
 		super.setUp();
 
 		indexedFieldsFixture = createIndexedFieldsFixture();
-
-		super.setGroup(contactFixture.addGroup());
-		super.setUser(contactFixture.addUser());
 	}
 
 	@Test
