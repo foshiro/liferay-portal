@@ -25,7 +25,6 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.users.admin.test.util.search.UserSearchFixture;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,13 +52,15 @@ public abstract class BaseContactIndexerTestCase {
 		contactFixture.setUser(_user);
 		contactFixture.setGroup(_group);
 
+		_contacts = contactFixture.getContacts();
+
 		contactIndexerFixture = createContactIndexerFixture();
 
 		contactIndexerFixture.setUser(_user);
 	}
 
 	protected ContactFixture createContactFixture() {
-		return new ContactFixture(contactLocalService, _contacts);
+		return new ContactFixture(contactLocalService);
 	}
 
 	protected ContactIndexerFixture createContactIndexerFixture() {
@@ -80,7 +81,7 @@ public abstract class BaseContactIndexerTestCase {
 	protected UserSearchFixture userSearchFixture;
 
 	@DeleteAfterTestRun
-	private final List<Contact> _contacts = new ArrayList<>(1);
+	private List<Contact> _contacts;
 
 	private Group _group;
 
