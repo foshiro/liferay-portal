@@ -18,12 +18,16 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.portal.kernel.model.Contact;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.SearchEngineHelper;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.search.test.util.FieldValuesAssert;
+import com.liferay.portal.search.test.util.IndexedFieldsFixture;
+import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerTestRule;
 
@@ -55,6 +59,8 @@ public class ContactIndexerIndexedFieldsTest
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+
+		indexedFieldsFixture = createIndexedFieldsFixture();
 
 		super.setGroup(contactFixture.addGroup());
 		super.setUser(contactFixture.addUser());
@@ -90,6 +96,11 @@ public class ContactIndexerIndexedFieldsTest
 		Map<String, String> expected = expectedFieldValues(contact);
 
 		FieldValuesAssert.assertFieldValues(expected, document, searchTerm);
+	}
+
+	protected IndexedFieldsFixture createIndexedFieldsFixture() {
+		return new IndexedFieldsFixture(
+			resourcePermissionLocalService, searchEngineHelper);
 	}
 
 	protected Map<String, String> expectedFieldValues(Contact contact)
@@ -134,5 +145,13 @@ public class ContactIndexerIndexedFieldsTest
 
 		return map;
 	}
+
+	protected IndexedFieldsFixture indexedFieldsFixture;
+
+	@Inject
+	protected ResourcePermissionLocalService resourcePermissionLocalService;
+
+	@Inject
+	protected SearchEngineHelper searchEngineHelper;
 
 }
