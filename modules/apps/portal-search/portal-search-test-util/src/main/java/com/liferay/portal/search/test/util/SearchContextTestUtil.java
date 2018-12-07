@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * @author Adam Brandizzi
