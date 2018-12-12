@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.suggest.QuerySuggester;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -52,6 +53,7 @@ import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 import com.liferay.portal.search.searcher.SearchResponseBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -130,6 +132,7 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 					start, end, hits.getLength());
 
 				start = startAndEnd[0];
+
 				end = startAndEnd[1];
 			}
 
@@ -274,6 +277,11 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 
 		searchSearchRequest.setLuceneSyntax(luceneSyntax);
 
+		_addCustomFilterValues(searchContext, query);
+
+		searchSearchRequest.setQuery(query);
+		searchSearchRequest.setPostFilter(query.getPostFilter());
+
 		String preference = (String)searchContext.getAttribute(
 			ElasticsearchSearchContextAttributes.
 				ATTRIBUTE_KEY_SEARCH_REQUEST_PREFERENCE);
@@ -386,6 +394,35 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 
 	@Reference
 	protected SearchResponseBuilderFactory searchResponseBuilderFactory;
+
+	private void _addCustomFilterValues(
+		SearchContext searchContext, Query query) {
+
+		BooleanFilter preBooleanFilter = query.getPreBooleanFilter();
+
+		Map<String, String> customFilters = _getCustomFilters(searchContext);
+
+		for (Map.Entry<String, String> entry : customFilters.entrySet()) {
+			final String field = entry.getKey();
+
+			final String value = entry.getValue();
+
+			preBooleanFilter.addRequiredTerm(field, value);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, String> _getCustomFilters(SearchContext searchContext) {
+		Map<String, String> customFilterMap =
+			(Map<String, String>)searchContext.getAttribute(
+				"customFilterWidget");
+
+		if (customFilterMap == null) {
+			return new HashMap<>();
+		}
+
+		return customFilterMap;
+	}
 
 	private SearchRequestBuilder _getSearchRequestBuilder(
 		SearchContext searchContext) {
