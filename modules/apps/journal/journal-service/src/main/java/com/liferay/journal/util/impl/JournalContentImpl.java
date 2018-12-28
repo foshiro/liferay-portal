@@ -245,7 +245,14 @@ public class JournalContentImpl
 			if ((articleDisplay != null) && articleDisplay.isCacheable() &&
 				lifecycleRender) {
 
-				_portalCache.put(journalContentKey, articleDisplay);
+				try {
+					_portalCache.put(journalContentKey, articleDisplay);
+				}
+				catch (ClassCastException cce) {
+					if (_log.isWarnEnabled()) {
+						_log.warn("Exception on caching article display", cce);
+					}
+				}
 			}
 		}
 
