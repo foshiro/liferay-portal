@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Igor Fabiano Nazar
@@ -53,14 +52,11 @@ public class CustomFilterDisplayBuilder {
 	}
 
 	public void setParameterValue(String parameterValue) {
-		parameterValue = StringUtil.trim(
-			Objects.requireNonNull(parameterValue));
+		parameterValue = StringUtil.trim(parameterValue);
 
-		if (parameterValue.isEmpty()) {
-			return;
+		if (parameterValue != null) {
+			_parameterValues = Collections.singletonList(parameterValue);
 		}
-
-		_parameterValues = Collections.singletonList(parameterValue);
 	}
 
 	public void setParameterValues(List<String> parameterValues) {
