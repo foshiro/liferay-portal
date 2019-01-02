@@ -403,11 +403,7 @@ public class ElasticsearchIndexSearcher extends BaseIndexSearcher {
 		Map<String, String> customFilters = _getCustomFilters(searchContext);
 
 		for (Map.Entry<String, String> entry : customFilters.entrySet()) {
-			final String field = entry.getKey();
-
-			final String value = entry.getValue();
-
-			preBooleanFilter.addRequiredTerm(field, value);
+			preBooleanFilter.addRequiredTerm(entry.getKey(), entry.getValue());
 		}
 	}
 
