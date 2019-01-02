@@ -108,7 +108,7 @@ public class CustomBoostPortlet extends MVCPortlet {
 			customBoostPortletPreferences::getCustomHeadingOptional,
 			customBoostDisplayBuilder::setCustomDisplayCaption);
 
-		customBoostDisplayBuilder.setIsInvisible(
+		customBoostDisplayBuilder.setInvisible(
 			customBoostPortletPreferences.isInvisible());
 		customBoostDisplayBuilder.setParameterValue(
 			customBoostPortletPreferences.getBoostValues());

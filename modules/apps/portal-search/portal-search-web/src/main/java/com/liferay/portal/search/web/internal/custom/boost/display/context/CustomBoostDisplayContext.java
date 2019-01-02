@@ -46,7 +46,7 @@ public class CustomBoostDisplayContext {
 		_displayCaption = displayCaption;
 	}
 
-	public void setIsInvisible(boolean invisible) {
+	public void setInvisible(boolean invisible) {
 		_invisible = invisible;
 	}
 

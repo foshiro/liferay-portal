@@ -35,7 +35,7 @@ public class CustomBoostDisplayBuilder {
 		customFilterDisplayContext.setParameterName(_parameterName);
 		customFilterDisplayContext.setParameterValue(getFirstParameterValue());
 		customFilterDisplayContext.setParameterValues(_parameterValues);
-		customFilterDisplayContext.setIsInvisible(_invisible);
+		customFilterDisplayContext.setInvisible(_invisible);
 
 		return customFilterDisplayContext;
 	}
@@ -44,7 +44,7 @@ public class CustomBoostDisplayBuilder {
 		_customDisplayCaption = customDisplayCaption;
 	}
 
-	public void setIsInvisible(boolean invisible) {
+	public void setInvisible(boolean invisible) {
 		_invisible = invisible;
 	}
 
