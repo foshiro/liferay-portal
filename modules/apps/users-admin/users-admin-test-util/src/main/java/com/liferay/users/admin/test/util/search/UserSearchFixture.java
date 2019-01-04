@@ -16,21 +16,35 @@ package com.liferay.users.admin.test.util.search;
 
 import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Address;
+import com.liferay.portal.kernel.model.Country;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.ListType;
+import com.liferay.portal.kernel.model.ListTypeConstants;
 import com.liferay.portal.kernel.model.Organization;
+import com.liferay.portal.kernel.model.Region;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.AddressLocalServiceUtil;
+import com.liferay.portal.kernel.service.CountryServiceUtil;
+import com.liferay.portal.kernel.service.ListTypeServiceUtil;
+import com.liferay.portal.kernel.service.RegionServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserGroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.OrganizationTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserGroupTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -47,6 +61,37 @@ import java.util.Map;
  * @author André de Oliveira
  */
 public class UserSearchFixture {
+
+	public Address addAddress(User user) throws PortalException {
+		List<ListType> listTypes = ListTypeServiceUtil.getListTypes(
+			ListTypeConstants.CONTACT_ADDRESS);
+
+		ListType listType = listTypes.get(0);
+
+		long listTypeId = listType.getListTypeId();
+
+		long contactId = user.getContactId();
+		String modelClassName = user.getContact().getModelClassName();
+
+		Country country = CountryServiceUtil.getCountryByName("united-states");
+
+		long countryId = country.getCountryId();
+
+		Region region = RegionServiceUtil.getRegions(countryId).get(0);
+
+		long regionId = region.getRegionId();
+
+		Address address = AddressLocalServiceUtil.addAddress(
+			user.getUserId(), modelClassName, contactId,
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			RandomTestUtil.randomString(), regionId, countryId, listTypeId,
+			false, false, new ServiceContext());
+
+		_addresses.add(address);
+
+		return address;
+	}
 
 	public Group addGroup() throws Exception {
 		Group group = GroupTestUtil.addGroup();
@@ -112,6 +157,72 @@ public class UserSearchFixture {
 		return user;
 	}
 
+	public UserGroup addUserGroup() throws Exception {
+		UserGroup userGroup = UserGroupTestUtil.addUserGroup();
+
+		_userGroups.add(userGroup);
+
+		return userGroup;
+	}
+
+	public User addUserWithAddress(
+			String screenName, Group group, String... assetTagNames)
+		throws Exception {
+
+		User user = addUser(screenName, group, assetTagNames);
+
+		addAddress(user);
+
+		UserLocalServiceUtil.updateUser(user);
+
+		return user;
+	}
+
+	public User addUserWithJobTitle(
+			String screenName, Group group, String... assetTagNames)
+		throws Exception {
+
+		User user = addUser(screenName, group, assetTagNames);
+
+		user.setJobTitle(RandomTestUtil.randomString());
+
+		user = UserLocalServiceUtil.updateUser(user);
+
+		return user;
+	}
+
+	public User addUserWithOrganization(
+			String screenName, Group group, String... assetTagNames)
+		throws Exception {
+
+		Organization organization = addOrganization();
+		User user = addUser(screenName, group, assetTagNames);
+
+		UserLocalServiceUtil.addOrganizationUser(
+			organization.getOrganizationId(), user.getUserId());
+
+		return user;
+	}
+
+	public User addUserWithUserGroup(
+			String screenName, Group group, String... assetTagNames)
+		throws Exception {
+
+		User user = addUser(screenName, group, assetTagNames);
+		UserGroup userGroup = addUserGroup();
+
+		UserGroupLocalServiceUtil.addUserUserGroup(user.getUserId(), userGroup);
+
+		UserGroupLocalServiceUtil.addGroupUserGroup(
+			group.getGroupId(), userGroup);
+
+		return user;
+	}
+
+	public List<Address> getAddresses() {
+		return _addresses;
+	}
+
 	public List<AssetTag> getAssetTags() {
 		return _assetTags;
 	}
@@ -132,6 +243,10 @@ public class UserSearchFixture {
 		searchContext.setUserId(TestPropsValues.getUserId());
 
 		return searchContext;
+	}
+
+	public List<UserGroup> getUserGroups() {
+		return _userGroups;
 	}
 
 	public List<User> getUsers() {
@@ -246,12 +361,14 @@ public class UserSearchFixture {
 			RandomTestUtil.randomString(), groupIds, serviceContext);
 	}
 
+	private final List<Address> _addresses = new ArrayList<>();
 	private final List<AssetTag> _assetTags = new ArrayList<>();
 	private long _companyId;
 	private final List<Group> _groups = new ArrayList<>();
 	private final List<Organization> _organizations = new ArrayList<>();
 	private PermissionChecker _permissionChecker;
 	private String _principal;
+	private final List<UserGroup> _userGroups = new ArrayList<>();
 	private final List<User> _users = new ArrayList<>();
 
 }
