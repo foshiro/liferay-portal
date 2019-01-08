@@ -16,6 +16,8 @@ package com.liferay.portal.search.internal.custom.relevance;
 
 import com.liferay.portal.kernel.search.QueryTerm;
 import com.liferay.portal.kernel.search.TermQuery;
+import com.liferay.portal.kernel.search.TermRangeQuery;
+import com.liferay.portal.search.custom.relevance.RangeMatchingValue;
 import com.liferay.portal.search.custom.relevance.StringMatchingValue;
 
 import org.junit.Assert;
@@ -31,6 +33,17 @@ public class MatchingValueQueryFactoryTest {
 	public void setUp() {
 		matchingValueQueryFactory = new MatchingValueQueryFactory(
 			"exampleField");
+	}
+
+	@Test
+	public void testGetCustomRelevanceWithRange() {
+		TermRangeQuery query =
+			(TermRangeQuery)matchingValueQueryFactory.getQuery(
+				new RangeMatchingValue(2.71F, 3.14F));
+
+		Assert.assertEquals("exampleField", query.getField());
+		Assert.assertEquals(2.71, Float.valueOf(query.getLowerTerm()), 0.01);
+		Assert.assertEquals(3.14, Float.valueOf(query.getUpperTerm()), 0.01);
 	}
 
 	@Test

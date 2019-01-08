@@ -16,6 +16,7 @@ package com.liferay.portal.search.internal.custom.relevance;
 
 import com.liferay.portal.kernel.test.AssertUtils;
 import com.liferay.portal.search.custom.relevance.CustomRelevance;
+import com.liferay.portal.search.custom.relevance.RangeMatchingValue;
 import com.liferay.portal.search.custom.relevance.StringMatchingValue;
 
 import java.util.Arrays;
@@ -32,6 +33,21 @@ public class CustomRelevanceFactoryTest {
 	@Before
 	public void setUp() {
 		customRelevanceFactory = new CustomRelevanceFactory();
+	}
+
+	@Test
+	public void testGetCustomRelevanceWithRange() {
+		CustomRelevance customRelevance =
+			customRelevanceFactory.getCustomRelevance(
+				"exampleField:[1..2],[2.1..4.4]:3.14");
+
+		Assert.assertEquals("exampleField", customRelevance.getField());
+		AssertUtils.assertEquals(
+			Arrays.asList(
+				new RangeMatchingValue(1, 2),
+				new RangeMatchingValue(2.1F, 4.4F)),
+			customRelevance.getBoosterValues());
+		Assert.assertEquals(customRelevance.getBoostIncrement(), 3.14, 0.01);
 	}
 
 	@Test
