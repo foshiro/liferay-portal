@@ -47,7 +47,6 @@ public class CustomRelevanceContainer {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addCustomBoosterTerms(
 		ArrayList<CustomRelevance> customBoostList, BooleanQuery booleanQuery) {
 

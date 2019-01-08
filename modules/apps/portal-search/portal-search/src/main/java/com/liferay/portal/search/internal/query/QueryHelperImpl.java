@@ -21,15 +21,15 @@ import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.ParseException;
 import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.search.TermQuery;
 import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
-import com.liferay.portal.kernel.search.generic.TermQueryImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.search.custom.relevance.MatchingValue;
+import com.liferay.portal.search.internal.custom.relevance.MatchingValueQueryFactory;
 import com.liferay.portal.search.query.QueryHelper;
 
 import java.io.Serializable;
@@ -45,17 +45,20 @@ import org.osgi.service.component.annotations.Component;
 @Component(immediate = true, service = QueryHelper.class)
 public class QueryHelperImpl implements QueryHelper {
 
+	@Override
 	public void addBoosterTerm(
-		BooleanQuery booleanQuery, String field, List<String> boosterValues,
-		float boostIncrement) {
+		BooleanQuery booleanQuery, String field,
+		List<MatchingValue> matchingValues, float boostIncrement) {
 
 		BooleanQuery boosterQuery = new BooleanQueryImpl();
+		MatchingValueQueryFactory matchingValueQueryFactory =
+			new MatchingValueQueryFactory(field);
 
 		try {
-			for (String boosterValue : boosterValues) {
-				TermQuery termQuery = new TermQueryImpl(field, boosterValue);
-
-				boosterQuery.add(termQuery, BooleanClauseOccur.SHOULD);
+			for (MatchingValue matchingValue : matchingValues) {
+				boosterQuery.add(
+					matchingValueQueryFactory.getQuery(matchingValue),
+					BooleanClauseOccur.SHOULD);
 			}
 
 			boosterQuery.setBoost(boostIncrement);

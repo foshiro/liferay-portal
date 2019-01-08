@@ -17,11 +17,14 @@ package com.liferay.portal.search.internal.custom.relevance;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.search.custom.relevance.CustomRelevance;
+import com.liferay.portal.search.custom.relevance.MatchingValue;
+import com.liferay.portal.search.custom.relevance.StringMatchingValue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Adam Brandizzi
@@ -32,11 +35,17 @@ public class CustomRelevanceFactory {
 		String[] parts = configuration.split(":");
 
 		String field = parts[0];
-		String[] values = parts[1].split(",");
 		Float increment = Float.valueOf(parts[2]);
 
-		return new CustomRelevance(
-			ListUtil.fromArray(values), increment, field);
+		List<MatchingValue> values = Stream.of(
+			parts[1].split(",")
+		).map(
+			StringMatchingValue::new
+		).collect(
+			Collectors.toList()
+		);
+
+		return new CustomRelevance(values, increment, field);
 	}
 
 	public List<CustomRelevance> getCustomRelevances(String[] configurations) {
