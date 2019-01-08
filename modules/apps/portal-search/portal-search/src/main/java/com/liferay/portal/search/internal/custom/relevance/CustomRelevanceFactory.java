@@ -19,7 +19,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.search.custom.relevance.CustomRelevance;
 import com.liferay.portal.search.custom.relevance.MatchingValue;
-import com.liferay.portal.search.custom.relevance.StringMatchingValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +39,7 @@ public class CustomRelevanceFactory {
 		List<MatchingValue> values = Stream.of(
 			parts[1].split(",")
 		).map(
-			StringMatchingValue::new
+			_matchingValueParser::parse
 		).collect(
 			Collectors.toList()
 		);
@@ -74,5 +73,8 @@ public class CustomRelevanceFactory {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CustomRelevanceFactory.class);
+
+	private final MatchingValueParser _matchingValueParser =
+		new MatchingValueParser();
 
 }

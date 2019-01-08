@@ -14,42 +14,32 @@
 
 package com.liferay.portal.search.internal.custom.relevance;
 
-import com.liferay.portal.kernel.search.Query;
-import com.liferay.portal.kernel.search.generic.TermQueryImpl;
-import com.liferay.portal.kernel.search.generic.TermRangeQueryImpl;
 import com.liferay.portal.search.custom.relevance.MatchingValue;
 import com.liferay.portal.search.custom.relevance.RangeMatchingValue;
 import com.liferay.portal.search.custom.relevance.StringMatchingValue;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author Adam Brandizzi
  */
-public class MatchingValueQueryFactory {
+public class MatchingValueParser {
 
-	public MatchingValueQueryFactory(String field) {
-		_field = field;
-	}
+	public MatchingValue parse(String value) {
+		Matcher matcher = _rangePattern.matcher(value);
 
-	public Query getQuery(MatchingValue matchingValue) {
-		if (matchingValue instanceof StringMatchingValue) {
-			StringMatchingValue stringMatchingValue =
-				(StringMatchingValue)matchingValue;
+		if (matcher.matches()) {
+			float min = Float.valueOf(matcher.group(1));
+			float max = Float.valueOf(matcher.group(2));
 
-			return new TermQueryImpl(_field, stringMatchingValue.getValue());
+			return new RangeMatchingValue(min, max);
 		}
 
-		if (matchingValue instanceof RangeMatchingValue) {
-			RangeMatchingValue rangeMatchingValue =
-				(RangeMatchingValue)matchingValue;
-
-			return new TermRangeQueryImpl(
-				_field, String.valueOf(rangeMatchingValue.getMin()),
-				String.valueOf(rangeMatchingValue.getMax()), true, true);
-		}
-
-		return null;
+		return new StringMatchingValue(value);
 	}
 
-	private final String _field;
+	private static final Pattern _rangePattern = Pattern.compile(
+		"\\[([^]]+)\\.\\.([^]]+)\\]");
 
 }
