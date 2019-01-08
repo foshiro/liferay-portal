@@ -16,8 +16,9 @@ package com.liferay.portal.search.web.internal.custom.boost.portlet.shared.searc
 
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.search.custom.relevance.CustomRelevance;
+import com.liferay.portal.search.custom.relevance.MatchingValue;
+import com.liferay.portal.search.custom.relevance.StringMatchingValue;
 import com.liferay.portal.search.web.internal.custom.boost.constants.CustomBoostPortletKeys;
 import com.liferay.portal.search.web.internal.custom.boost.portlet.CustomBoostPortletPreferences;
 import com.liferay.portal.search.web.internal.custom.boost.portlet.CustomBoostPortletPreferencesImpl;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
@@ -89,7 +91,13 @@ public class CustomBoostPortletSharedSearchContributor
 			searchContext.setAttribute("customBoostWidget", customBoostList);
 		}
 
-		List<String> values = ListUtil.fromArray(boostValue.split(","));
+		List<MatchingValue> values = Stream.of(
+			boostValue.split(",")
+		).map(
+			StringMatchingValue::new
+		).collect(
+			Collectors.toList()
+		);
 
 		Float increment = Float.valueOf(boostIncrement);
 
