@@ -14,35 +14,49 @@
 
 package com.liferay.portal.search.custom.relevance;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Adam Brandizzi
  */
-public class CustomRelevance {
+public class StringMatchingValue implements MatchingValue {
 
-	public CustomRelevance(
-		List<MatchingValue> values, float boostIncrement, String field) {
-
-		_boosterValues = values;
-		_boostIncrement = boostIncrement;
-		_field = field;
+	public StringMatchingValue(String value) {
+		_value = value;
 	}
 
-	public List<MatchingValue> getBoosterValues() {
-		return _boosterValues;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null) {
+			return false;
+		}
+
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		StringMatchingValue other = (StringMatchingValue)obj;
+
+		if (Objects.equals(_value, other._value)) {
+			return true;
+		}
+
+		return false;
 	}
 
-	public float getBoostIncrement() {
-		return _boostIncrement;
+	public String getValue() {
+		return _value;
 	}
 
-	public String getField() {
-		return _field;
+	@Override
+	public int hashCode() {
+		return Objects.hash(_value);
 	}
 
-	private final List<MatchingValue> _boosterValues;
-	private final float _boostIncrement;
-	private final String _field;
+	private final String _value;
 
 }

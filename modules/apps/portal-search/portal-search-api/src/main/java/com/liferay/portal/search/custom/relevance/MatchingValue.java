@@ -14,35 +14,8 @@
 
 package com.liferay.portal.search.custom.relevance;
 
-import java.util.List;
-
 /**
  * @author Adam Brandizzi
  */
-public class CustomRelevance {
-
-	public CustomRelevance(
-		List<MatchingValue> values, float boostIncrement, String field) {
-
-		_boosterValues = values;
-		_boostIncrement = boostIncrement;
-		_field = field;
-	}
-
-	public List<MatchingValue> getBoosterValues() {
-		return _boosterValues;
-	}
-
-	public float getBoostIncrement() {
-		return _boostIncrement;
-	}
-
-	public String getField() {
-		return _field;
-	}
-
-	private final List<MatchingValue> _boosterValues;
-	private final float _boostIncrement;
-	private final String _field;
-
+public interface MatchingValue {
 }

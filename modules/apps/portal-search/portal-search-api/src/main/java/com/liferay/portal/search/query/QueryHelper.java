@@ -19,6 +19,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.search.custom.relevance.MatchingValue;
 
 import java.util.List;
 
@@ -29,8 +30,8 @@ import java.util.List;
 public interface QueryHelper {
 
 	public void addBoosterTerm(
-		BooleanQuery booleanQuery, String field, List<String> boosterValues,
-		float boostIncrement);
+		BooleanQuery booleanQuery, String field,
+		List<MatchingValue> matchingValues, float boostIncrement);
 
 	public void addSearchLocalizedTerm(
 		BooleanQuery searchQuery, SearchContext searchContext, String field,
