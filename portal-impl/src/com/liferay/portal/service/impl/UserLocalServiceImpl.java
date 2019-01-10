@@ -2236,12 +2236,13 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		Group group = groupPersistence.findByPrimaryKey(groupId);
 
-		LinkedHashMap<String, Object> params = new LinkedHashMap<>();
+		HashMap<String, Object> params = new LinkedHashMap<>();
 
 		params.put("usersGroups", Long.valueOf(groupId));
 
 		return search(
-			group.getCompanyId(), null, status, params, start, end, obc);
+			group.getCompanyId(), null, status, (LinkedHashMap) params, start,
+			end, obc);
 	}
 
 	/**

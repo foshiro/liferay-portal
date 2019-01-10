@@ -89,7 +89,11 @@ public class UserLocalServiceTest {
 			start + delta, null);
 
 		Assert.assertEquals(groupUsers.toString(), delta, groupUsers.size());
-		Assert.assertTrue(_users.containsAll(groupUsers));
+
+		String message = groupUsers.toString() + "|#" + _users.toString();
+
+		Assert.assertTrue(
+			message.replace(",", ",\n"), _users.containsAll(groupUsers));
 	}
 
 	@Test
