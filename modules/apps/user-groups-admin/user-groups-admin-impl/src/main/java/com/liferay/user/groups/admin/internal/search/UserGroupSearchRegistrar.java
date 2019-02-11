@@ -12,9 +12,9 @@
  * details.
  */
 
-package com.liferay.polls.internal.search;
+package com.liferay.user.groups.admin.internal.search;
 
-import com.liferay.polls.model.PollsQuestion;
+import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.search.spi.model.index.contributor.ModelIndexerWriterContributor;
 import com.liferay.portal.search.spi.model.registrar.ModelSearchRegistrarHelper;
@@ -31,18 +31,15 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luan Maoski
  */
 @Component(immediate = true, service = {})
-public class PollsQuestionSearcherRegistrar {
+public class UserGroupSearchRegistrar {
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceRegistration = modelSearchRegistrarHelper.register(
-			PollsQuestion.class, bundleContext,
+			UserGroup.class, bundleContext,
 			modelSearchDefinition -> {
 				modelSearchDefinition.setDefaultSelectedFieldNames(
-					Field.ASSET_TAG_NAMES, Field.CREATE_DATE, Field.COMPANY_ID,
-					Field.DESCRIPTION, Field.ENTRY_CLASS_NAME,
-					Field.ENTRY_CLASS_PK, Field.GROUP_ID, Field.SCOPE_GROUP_ID,
-					Field.TITLE, Field.UID);
+					Field.COMPANY_ID, Field.UID, Field.USER_GROUP_ID);
 				modelSearchDefinition.setModelIndexWriteContributor(
 					modelIndexWriterContributor);
 				modelSearchDefinition.setModelSummaryContributor(
@@ -56,16 +53,16 @@ public class PollsQuestionSearcherRegistrar {
 	}
 
 	@Reference(
-		target = "(indexer.class.name=com.liferay.polls.model.PollsQuestion)"
+		target = "(indexer.class.name=com.liferay.portal.kernel.model.UserGroup)"
 	)
-	protected ModelIndexerWriterContributor<PollsQuestion>
+	protected ModelIndexerWriterContributor<UserGroup>
 		modelIndexWriterContributor;
 
 	@Reference
 	protected ModelSearchRegistrarHelper modelSearchRegistrarHelper;
 
 	@Reference(
-		target = "(indexer.class.name=com.liferay.polls.model.PollsQuestion)"
+		target = "(indexer.class.name=com.liferay.portal.kernel.model.UserGroup)"
 	)
 	protected ModelSummaryContributor modelSummaryContributor;
 

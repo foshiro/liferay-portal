@@ -12,9 +12,9 @@
  * details.
  */
 
-package com.liferay.user.groups.admin.internal.search;
+package com.liferay.polls.internal.search;
 
-import com.liferay.portal.kernel.model.UserGroup;
+import com.liferay.polls.model.PollsQuestion;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.search.spi.model.index.contributor.ModelIndexerWriterContributor;
 import com.liferay.portal.search.spi.model.registrar.ModelSearchRegistrarHelper;
@@ -31,15 +31,18 @@ import org.osgi.service.component.annotations.Reference;
  * @author Luan Maoski
  */
 @Component(immediate = true, service = {})
-public class UserGroupSearcherRegistrar {
+public class PollsQuestionSearchRegistrar {
 
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_serviceRegistration = modelSearchRegistrarHelper.register(
-			UserGroup.class, bundleContext,
+			PollsQuestion.class, bundleContext,
 			modelSearchDefinition -> {
 				modelSearchDefinition.setDefaultSelectedFieldNames(
-					Field.COMPANY_ID, Field.UID, Field.USER_GROUP_ID);
+					Field.ASSET_TAG_NAMES, Field.CREATE_DATE, Field.COMPANY_ID,
+					Field.DESCRIPTION, Field.ENTRY_CLASS_NAME,
+					Field.ENTRY_CLASS_PK, Field.GROUP_ID, Field.SCOPE_GROUP_ID,
+					Field.TITLE, Field.UID);
 				modelSearchDefinition.setModelIndexWriteContributor(
 					modelIndexWriterContributor);
 				modelSearchDefinition.setModelSummaryContributor(
@@ -53,16 +56,16 @@ public class UserGroupSearcherRegistrar {
 	}
 
 	@Reference(
-		target = "(indexer.class.name=com.liferay.portal.kernel.model.UserGroup)"
+		target = "(indexer.class.name=com.liferay.polls.model.PollsQuestion)"
 	)
-	protected ModelIndexerWriterContributor<UserGroup>
+	protected ModelIndexerWriterContributor<PollsQuestion>
 		modelIndexWriterContributor;
 
 	@Reference
 	protected ModelSearchRegistrarHelper modelSearchRegistrarHelper;
 
 	@Reference(
-		target = "(indexer.class.name=com.liferay.portal.kernel.model.UserGroup)"
+		target = "(indexer.class.name=com.liferay.polls.model.PollsQuestion)"
 	)
 	protected ModelSummaryContributor modelSummaryContributor;
 
