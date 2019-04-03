@@ -33,6 +33,10 @@
 SynonymSetsDisplayContext synonymSetsDisplayContext = (SynonymSetsDisplayContext)request.getAttribute(ResultsRankingPortletKeys.SYNONYM_SETS_DISPLAY_CONTEXT);
 %>
 
+<%
+SynonymSetsDisplayContext synonymSetsDisplayContext = (SynonymSetsDisplayContext)request.getAttribute(SearchRankingPortletKeys.SYNONYM_SETS_DISPLAY_CONTEXT);
+%>
+
 <clay:management-toolbar
 	componentId="synonymSetsEntriesManagementToolbar"
 	creationMenu="<%= synonymSetsDisplayContext.getCreationMenu() %>"
