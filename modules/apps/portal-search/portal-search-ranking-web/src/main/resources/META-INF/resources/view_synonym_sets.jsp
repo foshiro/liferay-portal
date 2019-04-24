@@ -17,52 +17,37 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
-	taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
-	taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
-	taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
-	taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
+taglib uri="http://liferay.com/tld/clay" prefix="clay" %><%@
+taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
+taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
+taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
 <%@ page import="com.liferay.portal.search.ranking.web.internal.constants.ResultsRankingPortletKeys" %><%@
-	page import="com.liferay.portal.search.ranking.web.internal.display.context.SynonymSetsDisplayContext" %>
+page import="com.liferay.portal.search.ranking.web.internal.display.context.SynonymSetsPortletDisplayContext" %>
 
 <liferay-frontend:defineObjects />
 
 <liferay-theme:defineObjects />
 
 <%
-SynonymSetsDisplayContext synonymSetsDisplayContext = (SynonymSetsDisplayContext)request.getAttribute(ResultsRankingPortletKeys.SYNONYM_SETS_DISPLAY_CONTEXT);
+SynonymSetsPortletDisplayContext synonymSetsPortletDisplayContext = (SynonymSetsPortletDisplayContext)request.getAttribute(ResultsRankingPortletKeys.SYNONYM_SETS_DISPLAY_CONTEXT);
 %>
-
-<%-- FIXME: BEGIN MOCK CODE --%>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@	page import="com.liferay.portal.search.ranking.web.internal.display.context.SynonymSetsMock" %>
-<%@	page import="com.liferay.portal.kernel.dao.search.SearchContainer" %>
-<%
-	List results = new ArrayList();
-	results.add(new SynonymSetsMock(101, "car, automobile", "APPROVED"));
-	results.add(new SynonymSetsMock(201, "phone, cellphone", "DRAFT"));
-
-	SearchContainer searchContainerMock = synonymSetsDisplayContext.getSearchContainer();
-	searchContainerMock.setResults(results);
-%>
-<%-- FIXME: END MOCK CODE --%>
 
 <clay:management-toolbar
-	actionDropdownItems="<%= synonymSetsDisplayContext.getActionDropdownItems() %>"
-	clearResultsURL="<%= synonymSetsDisplayContext.getClearResultsURL() %>"
+	actionDropdownItems="<%= synonymSetsPortletDisplayContext.getActionDropdownItems() %>"
+	clearResultsURL="<%= synonymSetsPortletDisplayContext.getClearResultsURL() %>"
 	componentId="synonymSetsEntriesManagementToolbar"
-	creationMenu="<%= synonymSetsDisplayContext.getCreationMenu() %>"
-	disabled="<%= synonymSetsDisplayContext.isDisabledManagementBar() %>"
-	filterDropdownItems="<%= synonymSetsDisplayContext.getFilterItemsDropdownItems() %>"
-	itemsTotal="<%= synonymSetsDisplayContext.getTotalItems() %>"
-	searchActionURL="<%= synonymSetsDisplayContext.getSearchActionURL() %>"
+	creationMenu="<%= synonymSetsPortletDisplayContext.getCreationMenu() %>"
+	disabled="<%= synonymSetsPortletDisplayContext.isDisabledManagementBar() %>"
+	filterDropdownItems="<%= synonymSetsPortletDisplayContext.getFilterItemsDropdownItems() %>"
+	itemsTotal="<%= synonymSetsPortletDisplayContext.getTotalItems() %>"
+	searchActionURL="<%= synonymSetsPortletDisplayContext.getSearchActionURL() %>"
 	searchContainerId="synonymSetsEntries"
 	searchFormName="searchFm"
 	selectable="<%= true %>"
-	showCreationMenu="<%= synonymSetsDisplayContext.isShowCreationMenu() %>"
-	sortingOrder="<%= synonymSetsDisplayContext.getOrderByType() %>"
-	sortingURL="<%= synonymSetsDisplayContext.getSortingURL() %>"
+	showCreationMenu="<%= synonymSetsPortletDisplayContext.isShowCreationMenu() %>"
+	sortingOrder="<%= synonymSetsPortletDisplayContext.getOrderByType() %>"
+	sortingURL="<%= synonymSetsPortletDisplayContext.getSortingURL() %>"
 />
 
 <aui:form cssClass="container-fluid-1280" method="post" name="SynonymSetsEntriesFm">
@@ -70,17 +55,17 @@ SynonymSetsDisplayContext synonymSetsDisplayContext = (SynonymSetsDisplayContext
 
 	<liferay-ui:search-container
 		id="synonymSetsEntries"
-		searchContainer="<%= synonymSetsDisplayContext.getSearchContainer() %>"
+		searchContainer="<%= synonymSetsPortletDisplayContext.getSearchContainer() %>"
 	>
 		<liferay-ui:search-container-row
-			className="com.liferay.portal.search.ranking.web.internal.display.context.SynonymSetsMock"
+			className="com.liferay.portal.search.ranking.web.internal.display.context.SynonymSetsEntryDisplayContext"
 			keyProperty="synonymSetsEntryId"
 			modelVar="synonymSetsEntry"
 		>
 			<portlet:renderURL var="rowURL">
 				<portlet:param name="mvcRenderCommandName" value="editSynonymSetsEntry" />
 				<portlet:param name="redirect" value="<%= currentURL %>" />
-				<portlet:param name="synonymSetsEntryId" value="<%= String.valueOf(synonymSetsEntry.getId()) %>" />
+				<portlet:param name="synonymSetsEntryId" value="" />
 			</portlet:renderURL>
 
 			<liferay-ui:search-container-column-text
@@ -94,18 +79,9 @@ SynonymSetsDisplayContext synonymSetsDisplayContext = (SynonymSetsDisplayContext
 				</h2>
 
 				<span class="text-default">
-					<c:choose>
-						<c:when test="<%= synonymSetsEntry.isApproved() %>">
-							<span class="label label-success text-uppercase">
-								<liferay-ui:message key="approved" />
-							</span>
-						</c:when>
-						<c:otherwise>
-							<span class="label label-secondary text-uppercase">
-								<liferay-ui:message key="draft" />
-							</span>
-						</c:otherwise>
-					</c:choose>
+					<span class="label label-success text-uppercase">
+						<liferay-ui:message key="approved" />
+					</span>
 				</span>
 			</liferay-ui:search-container-column-text>
 		</liferay-ui:search-container-row>
