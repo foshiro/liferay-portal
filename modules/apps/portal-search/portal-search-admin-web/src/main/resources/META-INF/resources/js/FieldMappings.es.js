@@ -20,7 +20,8 @@ class FieldMappings extends PortletBase {
 						mode: 'json',
 						readOnly: 'true',
 						tabSize: 4,
-						value: this.fieldMappingsJson
+						value: this.fieldMappingsJson,
+						width: '100%'
 					}
 				).render();
 			}
